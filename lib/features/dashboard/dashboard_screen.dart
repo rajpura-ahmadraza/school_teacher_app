@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/api/api_client.dart';
 import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
@@ -24,8 +26,8 @@ class DashboardController extends GetxController {
     loadAll();
   }
 
-  Future<void> loadAll() async {
-    isLoading.value = true;
+  Future<void> loadAll({bool silent = false}) async {
+    if (!silent) isLoading.value = true;
     error.value = '';
     try {
       final results = await Future.wait([
@@ -40,11 +42,32 @@ class DashboardController extends GetxController {
       pendingLeaves.value = List<dynamic>.from(ld['data'] ?? ld ?? []);
 
       final hd = results[2].data;
-      recentHomework.value = List<dynamic>.from(hd['data'] ?? hd ?? []);
+      final List<dynamic> hwList = List<dynamic>.from(hd['data'] ?? hd ?? []);
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final List<String>? stored = prefs.getStringList('local_homeworks');
+        if (stored != null) {
+          final localHws = stored.map((s) => Map<String, dynamic>.from(jsonDecode(s) as Map)).toList();
+          for (final localHw in localHws) {
+            final localId = localHw['id'];
+            hwList.removeWhere((item) => item['id'] == localId);
+            hwList.add(localHw);
+          }
+        }
+      } catch (e) {
+        debugPrint("Error merging local homeworks on dashboard: $e");
+      }
+      hwList.sort((a, b) {
+        final idA = num.tryParse(a['id']?.toString() ?? '')?.toInt() ?? 0;
+        final idB = num.tryParse(b['id']?.toString() ?? '')?.toInt() ?? 0;
+        return idB.compareTo(idA);
+      });
+      recentHomework.value = hwList.take(4).toList();
     } catch (e) {
       error.value = e.toString();
+      debugPrint("Dashboard API Error: $e");
     } finally {
-      isLoading.value = false;
+      if (!silent) isLoading.value = false;
     }
   }
 }
@@ -74,6 +97,20 @@ class DashboardScreen extends StatelessWidget {
         body: Obx(() {
           final user = auth.user.value;
           final name = (user?['name'] as String? ?? 'Teacher').split(' ').first;
+          final data = ctrl.dashData.value ?? {};
+          final totalStudents = data['totalStudents'] ??
+              data['total_students'] ??
+              data['students_count'] ??
+              data['active_students'] ??
+              data['students'] ??
+              '--';
+          final presentToday = data['totalPresent'] ??
+              data['present_today'] ??
+              data['present_count'] ??
+              data['present_students'] ??
+              data['attendance_count'] ??
+              data['present'] ??
+              '--';
           return RefreshIndicator(
             color: AppColors.primary,
             backgroundColor: Colors.white,
@@ -83,9 +120,9 @@ class DashboardScreen extends StatelessWidget {
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
                   expandedHeight: 150,
-                  pinned: true,
+                  pinned: false,
                   stretch: true,
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: Colors.transparent,
                   automaticallyImplyLeading: false,
                   flexibleSpace: FlexibleSpaceBar(
                     stretchModes: const [StretchMode.zoomBackground],
@@ -224,15 +261,13 @@ class DashboardScreen extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 1.35,
+                      childAspectRatio: 1.1,
                       children: [
                         FadeInUp(
                           duration: const Duration(milliseconds: 300),
                           child: StatCard(
                             title: 'Total Students',
-                            value: ctrl.dashData.value?['total_students']
-                                    ?.toString() ??
-                                '--',
+                            value: totalStudents.toString(),
                             icon: Icons.people_rounded,
                             gradient: AppColors.gradientPrimary,
                             onTap: () => Get.toNamed(AppRoutes.students),
@@ -242,93 +277,90 @@ class DashboardScreen extends StatelessWidget {
                           duration: const Duration(milliseconds: 350),
                           child: StatCard(
                             title: 'Present Today',
-                            value: ctrl.dashData.value?['present_today']
-                                    ?.toString() ??
-                                '--',
+                            value: presentToday.toString(),
                             icon: Icons.check_circle_rounded,
                             gradient: AppColors.gradientGreen,
                             onTap: () => Get.toNamed(AppRoutes.attendance),
                           ),
                         ),
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 400),
-                          child: StatCard(
-                            title: 'Homework',
-                            value: ctrl.dashData.value?['pending_homework']
-                                    ?.toString() ??
-                                '--',
-                            icon: Icons.assignment_rounded,
-                            gradient: AppColors.gradientOrange,
-                            onTap: () => Get.toNamed(AppRoutes.homework),
-                          ),
-                        ),
-                        FadeInUp(
-                          duration: const Duration(milliseconds: 450),
-                          child: StatCard(
-                            title: 'Leave Requests',
-                            value: ctrl.pendingLeaves.length.toString(),
-                            icon: Icons.event_busy_rounded,
-                            gradient: AppColors.gradientRed,
-                            onTap: () => Get.toNamed(AppRoutes.leaves),
-                          ),
-                        ),
+                        // FadeInUp(
+                        //   duration: const Duration(milliseconds: 400),
+                        //   child: StatCard(
+                        //     title: 'Homework',
+                        //     value: ctrl.dashData.value?['pending_homework']
+                        //             ?.toString() ??
+                        //         '--',
+                        //     icon: Icons.assignment_rounded,
+                        //     gradient: AppColors.gradientOrange,
+                        //     onTap: () => Get.toNamed(AppRoutes.homework),
+                        //   ),
+                        // ),
+                        // FadeInUp(
+                        //   duration: const Duration(milliseconds: 450),
+                        //   child: StatCard(
+                        //     title: 'Leave Requests',
+                        //     value: ctrl.pendingLeaves.length.toString(),
+                        //     icon: Icons.event_busy_rounded,
+                        //     gradient: AppColors.gradientRed,
+                        //     onTap: () => Get.toNamed(AppRoutes.leaves),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
 
                   // Quick Actions
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SectionHeader(title: 'Quick Actions'),
-                          const SizedBox(height: 12),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Row(children: [
-                              _QuickAction(
-                                icon: Icons.fact_check_rounded,
-                                label: 'Attendance',
-                                color: AppColors.primary,
-                                onTap: () => Get.toNamed(AppRoutes.attendance),
-                              ),
-                              _QuickAction(
-                                icon: Icons.book_rounded,
-                                label: 'Homework',
-                                color: AppColors.secondary,
-                                onTap: () => Get.toNamed(AppRoutes.homework),
-                              ),
-                              _QuickAction(
-                                icon: Icons.people_rounded,
-                                label: 'Students',
-                                color: AppColors.info,
-                                onTap: () => Get.toNamed(AppRoutes.students),
-                              ),
-                              _QuickAction(
-                                icon: Icons.schedule_rounded,
-                                label: 'Timetable',
-                                color: AppColors.warning,
-                                onTap: () => Get.toNamed(AppRoutes.timetable),
-                              ),
-                              _QuickAction(
-                                icon: Icons.beach_access_rounded,
-                                label: 'Leaves',
-                                color: AppColors.danger,
-                                onTap: () => Get.toNamed(AppRoutes.leaves),
-                              ),
-                              _QuickAction(
-                                icon: Icons.photo_library_rounded,
-                                label: 'Gallery',
-                                color: AppColors.purple,
-                                onTap: () => Get.toNamed(AppRoutes.gallery),
-                              ),
-                            ]),
-                          ),
-                        ],
-                      ),
+                      padding: EdgeInsets.fromLTRB(0, 24, 0, 12),
+                      child: SectionHeader(title: 'Quick Actions'),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverGrid.count(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.0,
+                      children: [
+                        _QuickAction(
+                          icon: Icons.fact_check_rounded,
+                          label: 'Attendance',
+                          color: AppColors.primary,
+                          onTap: () => Get.toNamed(AppRoutes.attendance),
+                        ),
+                        _QuickAction(
+                          icon: Icons.book_rounded,
+                          label: 'Homework',
+                          color: AppColors.secondary,
+                          onTap: () => Get.toNamed(AppRoutes.homework),
+                        ),
+                        _QuickAction(
+                          icon: Icons.people_rounded,
+                          label: 'Students',
+                          color: AppColors.info,
+                          onTap: () => Get.toNamed(AppRoutes.students),
+                        ),
+                        _QuickAction(
+                          icon: Icons.schedule_rounded,
+                          label: 'Timetable',
+                          color: AppColors.warning,
+                          onTap: () => Get.toNamed(AppRoutes.timetable),
+                        ),
+                        _QuickAction(
+                          icon: Icons.beach_access_rounded,
+                          label: 'Leaves',
+                          color: AppColors.danger,
+                          onTap: () => Get.toNamed(AppRoutes.leaves),
+                        ),
+                        _QuickAction(
+                          icon: Icons.photo_library_rounded,
+                          label: 'Gallery',
+                          color: AppColors.purple,
+                          onTap: () => Get.toNamed(AppRoutes.gallery),
+                        ),
+                      ],
                     ),
                   ),
 
@@ -424,27 +456,42 @@ class _QuickAction extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1F5F9)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 56,
-                height: 56,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: color.withOpacity(0.2)),
                 ),
-                child: Icon(icon, color: color, size: 26),
+                child: Icon(icon, color: color, size: 20),
               ),
-              const SizedBox(height: 6),
-              Text(label,
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                  )),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ],
           ),
         ),

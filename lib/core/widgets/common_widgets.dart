@@ -90,13 +90,27 @@ class SectionHeader extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Inter',
-                  color: AppColors.textPrimary,
-                )),
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(title,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Inter',
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.textPrimary,
+                    )),
+              ],
+            ),
             if (actionLabel != null)
               TextButton(
                 onPressed: onAction,
@@ -383,26 +397,54 @@ class NetAvatar extends StatelessWidget {
     super.key,
   });
 
+  String _resolveUrl(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    const base = 'https://laravel-api.emaad-infotech.com/school-management-system/';
+    var cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    
+    // Prefix 'storage/' if no standard folder prefix is present
+    if (!cleanPath.startsWith('storage/') &&
+        !cleanPath.startsWith('public/') &&
+        !cleanPath.startsWith('uploads/') &&
+        !cleanPath.startsWith('images/')) {
+      cleanPath = 'storage/' + cleanPath;
+    }
+    
+    return '$base$cleanPath';
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (url != null && url!.isNotEmpty) {
-      return CircleAvatar(
-        radius: radius,
-        backgroundImage: CachedNetworkImageProvider(url!),
-        backgroundColor: AppColors.primaryLight,
-      );
-    }
-    return CircleAvatar(
+    final avatarText = fallbackLetter.isNotEmpty ? fallbackLetter[0].toUpperCase() : '?';
+    final fallbackWidget = CircleAvatar(
       radius: radius,
       backgroundColor: AppColors.primaryLight,
       child: Text(
-        fallbackLetter.isNotEmpty ? fallbackLetter[0].toUpperCase() : '?',
+        avatarText,
         style: TextStyle(
           fontFamily: 'Inter',
           fontWeight: FontWeight.w700,
           fontSize: radius * 0.7,
           color: AppColors.primary,
         ),
+      ),
+    );
+
+    if (url == null || url!.isEmpty) {
+      return fallbackWidget;
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: CachedNetworkImage(
+        imageUrl: _resolveUrl(url!),
+        width: radius * 2,
+        height: radius * 2,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => fallbackWidget,
+        errorWidget: (context, url, error) => fallbackWidget,
       ),
     );
   }

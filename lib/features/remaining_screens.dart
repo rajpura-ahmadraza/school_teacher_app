@@ -27,8 +27,17 @@ class TimetableController extends GetxController {
     classesLoading.value = true;
     try {
       final r = await _api.get('/classes');
-      classes.value = List<dynamic>.from(r.data['data'] ?? r.data ?? []);
-    } catch (_) {}
+      final raw = r.data;
+      if (raw is List) {
+        classes.value = raw;
+      } else if (raw is Map) {
+        classes.value = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
+      } else {
+        classes.value = [];
+      }
+    } catch (_) {
+      classes.value = [];
+    }
     classesLoading.value = false;
   }
 
@@ -39,8 +48,17 @@ class TimetableController extends GetxController {
       final id = cls['id'];
       final r =
           await _api.get('/timetable', params: {'class_id': id.toString()});
-      timetable.value = List<dynamic>.from(r.data['data'] ?? r.data ?? []);
-    } catch (_) {}
+      final raw = r.data;
+      if (raw is List) {
+        timetable.value = raw;
+      } else if (raw is Map) {
+        timetable.value = List<dynamic>.from(raw['data'] ?? raw['timetable'] ?? raw['timetables'] ?? []);
+      } else {
+        timetable.value = [];
+      }
+    } catch (_) {
+      timetable.value = [];
+    }
     ttLoading.value = false;
   }
 }
@@ -260,8 +278,17 @@ class LeavesController extends GetxController {
     try {
       final r = await _api.get('/leaves',
           params: {'status': filterStatus.value, 'per_page': '50'});
-      leaves.value = List<dynamic>.from(r.data['data'] ?? r.data ?? []);
-    } catch (_) {}
+      final raw = r.data;
+      if (raw is List) {
+        leaves.value = raw;
+      } else if (raw is Map) {
+        leaves.value = List<dynamic>.from(raw['data'] ?? raw['leaves'] ?? []);
+      } else {
+        leaves.value = [];
+      }
+    } catch (_) {
+      leaves.value = [];
+    }
     isLoading.value = false;
   }
 
@@ -530,8 +557,60 @@ class GalleryController extends GetxController {
     isLoading.value = true;
     try {
       final r = await _api.get('/gallery');
-      albums.value = List<dynamic>.from(r.data['data'] ?? r.data ?? []);
-    } catch (_) {}
+      final raw = r.data;
+      if (raw is List) {
+        albums.value = raw;
+      } else if (raw is Map) {
+        // Extract photos
+        List<dynamic> allPhotos = [];
+        final photosNode = raw['photos'];
+        if (photosNode is Map) {
+          allPhotos = List<dynamic>.from(photosNode['data'] ?? []);
+        } else if (photosNode is List) {
+          allPhotos = photosNode;
+        } else if (raw['data'] is List) {
+          allPhotos = raw['data'];
+        }
+
+        // Extract album names
+        List<String> albumNames = [];
+        final albumsNode = raw['albums'];
+        if (albumsNode is List) {
+          albumNames = albumsNode.map((e) => e.toString()).toList();
+        } else {
+          albumNames = allPhotos
+              .map((p) => (p is Map) ? p['album']?.toString() : null)
+              .whereType<String>()
+              .toSet()
+              .toList();
+        }
+
+        // Group photos by album name
+        final List<Map<String, dynamic>> grouped = [];
+        for (final name in albumNames) {
+          final photosInAlbum = allPhotos.where((p) {
+            if (p is! Map) return false;
+            final albumVal = p['album'];
+            return albumVal?.toString().trim().toLowerCase() == name.trim().toLowerCase();
+          }).map((p) {
+            final pMap = Map<String, dynamic>.from(p as Map);
+            // The UI template accesses 'url' for image source
+            pMap['url'] = pMap['image_url'] ?? pMap['thumbnail_url'] ?? pMap['image_path'] ?? '';
+            return pMap;
+          }).toList();
+
+          grouped.add({
+            'title': name,
+            'photos': photosInAlbum,
+          });
+        }
+        albums.value = grouped;
+      } else {
+        albums.value = [];
+      }
+    } catch (_) {
+      albums.value = [];
+    }
     isLoading.value = false;
   }
 }
@@ -737,8 +816,17 @@ class CalendarController extends GetxController {
       final r = await _api.get('/events', params: {
         'month': '${m.year}-${m.month.toString().padLeft(2, '0')}',
       });
-      events.value = List<dynamic>.from(r.data['data'] ?? r.data ?? []);
-    } catch (_) {}
+      final raw = r.data;
+      if (raw is List) {
+        events.value = raw;
+      } else if (raw is Map) {
+        events.value = List<dynamic>.from(raw['data'] ?? raw['events'] ?? []);
+      } else {
+        events.value = [];
+      }
+    } catch (_) {
+      events.value = [];
+    }
     isLoading.value = false;
   }
 

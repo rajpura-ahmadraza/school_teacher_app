@@ -23,6 +23,13 @@ class ApiClient {
       },
     ));
     _dio.interceptors.add(_AuthInterceptor(_dio, _storage));
+    _dio.interceptors.add(LogInterceptor(
+      requestHeader: false,
+      requestBody: true,
+      responseHeader: false,
+      responseBody: true,
+      error: true,
+    ));
   }
 
   Future<Response> get(String path, {Map<String, dynamic>? params}) =>

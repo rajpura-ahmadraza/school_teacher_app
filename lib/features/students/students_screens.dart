@@ -1,6 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart' as dio;
+import 'package:image_picker/image_picker.dart';
 import '../../core/api/api_client.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
@@ -75,6 +77,29 @@ class StudentsController extends GetxController {
       isDetailLoading.value = false;
     }
   }
+
+  Future<bool> uploadStudentPhoto(int id, String filePath) async {
+    try {
+      final formData = dio.FormData.fromMap({
+        'profile_photo': await dio.MultipartFile.fromFile(filePath),
+      });
+      await _api.post('/students/$id/upload-photo', formData);
+      await loadStudentDetail(id);
+      return true;
+    } catch (_) {
+      try {
+        final formData = dio.FormData.fromMap({
+          'photo': await dio.MultipartFile.fromFile(filePath),
+          '_method': 'PUT',
+        });
+        await _api.post('/students/$id', formData);
+        await loadStudentDetail(id);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+  }
 }
 
 int? _asInt(dynamic v) {
@@ -101,6 +126,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
     super.initState();
     ctrl = Get.put(StudentsController());
     _scrollCtrl.addListener(_onScroll);
+    _searchCtrl.addListener(() {
+      setState(() {});
+    });
   }
 
   void _onScroll() {
@@ -192,8 +220,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
             child: TextField(
               controller: _searchCtrl,
-              onChanged: (v) =>
-                  ctrl.loadStudents(refresh: true, search: v),
+              onChanged: (v) => ctrl.loadStudents(refresh: true, search: v),
               style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
               decoration: InputDecoration(
                 hintText: 'Search by name or roll number…',
@@ -203,18 +230,18 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     color: AppColors.textTertiary),
                 prefixIcon: const Icon(Icons.search_rounded,
                     color: AppColors.textTertiary, size: 22),
-                suffixIcon: Obx(() => _searchCtrl.text.isNotEmpty
+                suffixIcon: _searchCtrl.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear_rounded, size: 18),
                         onPressed: () {
                           _searchCtrl.clear();
                           ctrl.loadStudents(refresh: true);
                         })
-                    : const SizedBox.shrink()),
+                    : null,
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none),
@@ -244,8 +271,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     subtitle: 'No students found');
               }
               return RefreshIndicator(
-                onRefresh: () => ctrl.loadStudents(
-                    refresh: true, search: _searchCtrl.text),
+                onRefresh: () =>
+                    ctrl.loadStudents(refresh: true, search: _searchCtrl.text),
                 child: ListView.separated(
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
@@ -281,9 +308,14 @@ class _StudentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cls = student['class'] as Map? ?? {};
-    final clsName = cls['name'] as String? ?? student['class_name'] as String? ?? '';
+    final clsName =
+        cls['name'] as String? ?? student['class_name'] as String? ?? '';
     final section = cls['section'] as String? ?? '';
-    final roll = student['roll_number'] ?? student['admission_no'] ?? '-';
+    final photoUrl = student['profile_photo'] as String? ??
+        student['image'] as String? ??
+        student['photo'] as String? ??
+        student['avatar'] as String? ??
+        student['admission_image'] as String?;
 
     return GestureDetector(
       onTap: () => Get.toNamed(AppRoutes.studentDetail,
@@ -302,13 +334,14 @@ class _StudentCard extends StatelessWidget {
         ),
         child: Row(children: [
           NetAvatar(
-            url: student['profile_photo'] as String?,
+            url: photoUrl,
             radius: 26,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(student['name'] as String? ?? 'Student',
                   style: const TextStyle(
                       fontFamily: 'Inter',
@@ -316,8 +349,7 @@ class _StudentCard extends StatelessWidget {
                       fontSize: 15,
                       color: AppColors.textPrimary)),
               const SizedBox(height: 2),
-              Text(
-                  '$clsName${section.isNotEmpty ? ' – $section' : ''}  •  Roll: $roll',
+              Text('$clsName${section.isNotEmpty ? ' – $section' : ''}',
                   style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
@@ -381,11 +413,57 @@ class _DetailBody extends StatelessWidget {
   final Map<String, dynamic> student;
   const _DetailBody({required this.student});
 
+  void _pickAndUploadImage(BuildContext context, int studentId) async {
+    final picker = ImagePicker();
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded),
+              title: const Text('Gallery'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_rounded),
+              title: const Text('Camera'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (source != null) {
+      final image = await picker.pickImage(source: source, imageQuality: 80);
+      if (image != null) {
+        if (!context.mounted) return;
+        showToast(context, 'Uploading image…');
+        final ctrl = Get.find<StudentsController>();
+        final success = await ctrl.uploadStudentPhoto(studentId, image.path);
+        if (!context.mounted) return;
+        if (success) {
+          showToast(context, 'Image uploaded successfully!');
+        } else {
+          showToast(context, 'Failed to upload image', isError: true);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cls = student['class'] as Map? ?? {};
-    final parent = student['parent'] as Map? ?? student['guardian'] as Map? ?? {};
+    final parent =
+        student['parent'] as Map? ?? student['guardian'] as Map? ?? {};
     final address = student['address'] as String? ?? '';
+    final photoUrl = student['profile_photo'] as String? ??
+        student['image'] as String? ??
+        student['photo'] as String? ??
+        student['avatar'] as String? ??
+        student['admission_image'] as String?;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -407,11 +485,26 @@ class _DetailBody extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
-                      NetAvatar(
-                        url: student['profile_photo'] as String?,
-                        radius: 44,
-                        fallbackLetter:
-                            (student['name'] as String? ?? '?')[0],
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          NetAvatar(
+                            url: photoUrl,
+                            radius: 44,
+                            fallbackLetter:
+                                (student['name'] as String? ?? '?')[0],
+                          ),
+                          GestureDetector(
+                            onTap: () => _pickAndUploadImage(
+                                context, student['id'] as int),
+                            child: CircleAvatar(
+                              radius: 14,
+                              backgroundColor: AppColors.primary,
+                              child: const Icon(Icons.camera_alt_rounded,
+                                  color: Colors.white, size: 14),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Text(student['name'] as String? ?? 'Student',
@@ -441,12 +534,6 @@ class _DetailBody extends StatelessWidget {
             child: Column(children: [
               _InfoSection(title: 'Student Info', rows: [
                 InfoRow(
-                    icon: Icons.badge_rounded,
-                    label: 'Roll Number',
-                    value: student['roll_number']?.toString() ??
-                        student['admission_no']?.toString() ?? '-'),
-                const SizedBox(height: 12),
-                InfoRow(
                     icon: Icons.wc_rounded,
                     label: 'Gender',
                     value: student['gender'] as String? ?? '-'),
@@ -455,7 +542,8 @@ class _DetailBody extends StatelessWidget {
                     icon: Icons.cake_rounded,
                     label: 'Date of Birth',
                     value: student['dob'] as String? ??
-                        student['date_of_birth'] as String? ?? '-'),
+                        student['date_of_birth'] as String? ??
+                        '-'),
                 if (address.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   InfoRow(
@@ -476,7 +564,8 @@ class _DetailBody extends StatelessWidget {
                       icon: Icons.phone_rounded,
                       label: 'Phone',
                       value: parent['phone'] as String? ??
-                          parent['mobile'] as String? ?? '-'),
+                          parent['mobile'] as String? ??
+                          '-'),
                   if (parent['email'] != null) ...[
                     const SizedBox(height: 12),
                     InfoRow(
