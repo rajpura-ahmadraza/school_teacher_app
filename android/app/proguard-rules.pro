@@ -1,0 +1,7 @@
+-keep class io.flutter.** { *; }
+-keep class io.flutter.plugins.** { *; }
+-keep class io.flutter.plugin.** { *; }
+-keep class com.it_nomads.fluttersecurestorage.** { *; }
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shown while Flutter engine initialises -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:statusBarColor">#4338CA</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">#4338CA</item>
+    </style>
+
+    <!-- Applied once Flutter renders its first frame -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">#4338CA</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+    </style>
+</resources>
