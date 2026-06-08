@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../core/api/api_client.dart';
 import '../core/routes/app_routes.dart';
 import '../core/theme/app_theme.dart';
@@ -845,45 +844,6 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
         ],
       ),
     );
-  }
-
-  Future<void> _downloadImage(String url) async {
-    if (url.isEmpty) return;
-    try {
-      Get.showOverlay(
-        asyncFunction: () async {
-          final dio = Dio();
-          final tempDir = await getTemporaryDirectory();
-          final filename = url.split('/').last.split('?').first;
-          final savePath = '${tempDir.path}/$filename';
-
-          await dio.download(url, savePath);
-
-          Get.snackbar(
-            'Success',
-            'Image downloaded successfully!',
-            backgroundColor: AppColors.success,
-            colorText: Colors.white,
-            mainButton: TextButton(
-              onPressed: () => OpenFile.open(savePath),
-              child: const Text('OPEN',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          );
-        },
-        loadingWidget: const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to download image: $e',
-        backgroundColor: AppColors.danger,
-        colorText: Colors.white,
-      );
-    }
   }
 }
 
