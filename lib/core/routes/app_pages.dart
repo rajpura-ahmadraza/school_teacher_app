@@ -13,6 +13,7 @@ import '../../features/leaves/leaves_screen.dart';
 import '../../features/gallery/gallery_screen.dart';
 import '../../features/calendar/calendar_screen.dart';
 import '../../features/bus_tracking/bus_tracking_screen.dart';
+import '../../features/notifications/notifications_screen.dart';
 import '../bindings/app_binding.dart';
 import 'app_routes.dart';
 
@@ -76,6 +77,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.busTracking,
       page: () => const BusTrackingScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.notifications,
+      page: () => const NotificationsScreen(),
     ),
   ];
 }

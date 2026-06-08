@@ -47,7 +47,9 @@ class DashboardController extends GetxController {
         final prefs = await SharedPreferences.getInstance();
         final List<String>? stored = prefs.getStringList('local_homeworks');
         if (stored != null) {
-          final localHws = stored.map((s) => Map<String, dynamic>.from(jsonDecode(s) as Map)).toList();
+          final localHws = stored
+              .map((s) => Map<String, dynamic>.from(jsonDecode(s) as Map))
+              .toList();
           for (final localHw in localHws) {
             final localId = localHw['id']?.toString();
             if (localId != null) {
@@ -121,7 +123,7 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 150,
+                  expandedHeight: 140,
                   pinned: false,
                   stretch: true,
                   backgroundColor: Colors.transparent,
@@ -192,7 +194,25 @@ class DashboardScreen extends StatelessWidget {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () => _showLogoutConfirm(context, auth),
+                                    onTap: () =>
+                                        Get.toNamed(AppRoutes.notifications),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white
+                                            .withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                          Icons.notifications_rounded,
+                                          color: Colors.white,
+                                          size: 20),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () =>
+                                        _showLogoutConfirm(context, auth),
                                     child: Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
