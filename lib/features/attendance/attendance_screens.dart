@@ -35,6 +35,10 @@ class AttendanceController extends GetxController {
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     reportMonth.value = '${now.year}-${now.month.toString().padLeft(2, '0')}';
     loadClasses();
+
+    ever(selectedDate, (_) {
+      fetchAttendanceForSelectedDate();
+    });
   }
 
   Future<void> loadClasses() async {
@@ -73,17 +77,62 @@ class AttendanceController extends GetxController {
         list = List<dynamic>.from(raw['data'] ?? raw['students'] ?? []);
       }
       students.value = list;
-      for (final s in list) {
-        final sid = s['id'] is int
-            ? s['id'] as int
-            : int.tryParse(s['id'].toString()) ?? 0;
-        attendance[sid] = 'P';
-      }
+      await fetchAttendanceForSelectedDate();
     } catch (e) {
       Get.snackbar('Error', e.toString(),
           backgroundColor: AppColors.danger, colorText: Colors.white);
     } finally {
       studentsLoading.value = false;
+    }
+  }
+
+  Future<void> fetchAttendanceForSelectedDate() async {
+    final cls = selectedClass.value;
+    if (cls == null) return;
+    final classId = cls['id'];
+    final date = selectedDate.value;
+    if (date.isEmpty) return;
+
+    try {
+      final resp = await _api.get('/attendance',
+          params: {'class_id': classId.toString(), 'date': date});
+      final raw = resp.data;
+      List<dynamic> records = [];
+      if (raw is List) {
+        records = raw;
+      } else if (raw is Map) {
+        records = List<dynamic>.from(raw['data'] ?? []);
+      }
+
+      final Map<int, String> existing = {};
+      for (final r in records) {
+        final sid = r['student_id'] is int
+            ? r['student_id'] as int
+            : int.tryParse(r['student_id'].toString()) ?? 0;
+        final status = r['status']?.toString().toLowerCase();
+        if (sid != 0 && status != null) {
+          if (status == 'present') {
+            existing[sid] = 'P';
+          } else if (status == 'absent') {
+            existing[sid] = 'A';
+          } else if (status == 'late') {
+            existing[sid] = 'L';
+          }
+        }
+      }
+
+      for (final s in students) {
+        final sid = s['id'] is int
+            ? s['id'] as int
+            : int.tryParse(s['id'].toString()) ?? 0;
+        if (existing.containsKey(sid)) {
+          attendance[sid] = existing[sid]!;
+        } else {
+          attendance[sid] = 'P';
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching attendance: $e');
     }
   }
 
@@ -100,54 +149,28 @@ class AttendanceController extends GetxController {
   Future<bool> submitAttendance() async {
     submitting.value = true;
     try {
-      final records = attendance.entries
-          .map((e) => {'student_id': e.key, 'status': e.value})
-          .toList();
+      final records = attendance.entries.map((e) {
+        final studentId = e.key;
+        final statusVal = e.value;
+        final apiStatus = statusVal == 'P'
+            ? 'present'
+            : statusVal == 'A'
+                ? 'absent'
+                : 'late';
+        return {
+          'student_id': studentId,
+          'status': apiStatus,
+        };
+      }).toList();
+
       final payload = {
         'class_id': selectedClass.value!['id'],
         'date': selectedDate.value,
-        'records': records,
+        'attendance': records,
       };
 
-      // Try POST /attendance first
-      try {
-        await _api.post('/attendance', payload);
-        return true;
-      } catch (e1) {
-        final code1 =
-            (e1 is ApiException) ? e1.statusCode : 0;
-
-        // If 405 (Method Not Allowed), try PUT on /students/attendance
-        if (code1 == 405) {
-          try {
-            await _api.put('/students/attendance', payload);
-            return true;
-          } catch (e2) {
-            final code2 =
-                (e2 is ApiException) ? e2.statusCode : 0;
-
-            // Fallback: try PATCH
-            if (code2 == 405 || code2 == 404) {
-              try {
-                await _api.put('/attendance/save', payload);
-                return true;
-              } catch (_) {}
-            }
-          }
-          // All write attempts failed — show a user-friendly message
-          Get.snackbar(
-            'Attendance Saved Locally',
-            'Attendance has been recorded on this device. The server does not support remote saving at this time.',
-            backgroundColor: Colors.orange,
-            colorText: Colors.white,
-            duration: const Duration(seconds: 4),
-          );
-          return true; // Return true so UI shows "success" state
-        }
-
-        // Other non-405 error — surface it
-        rethrow;
-      }
+      await _api.post('/attendance/mark-class', payload);
+      return true;
     } catch (e) {
       final msg = (e is ApiException) ? e.displayMessage : e.toString();
       Get.snackbar('Error', msg,

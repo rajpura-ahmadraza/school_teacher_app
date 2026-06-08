@@ -302,7 +302,10 @@ class DashboardScreen extends StatelessWidget {
                             value: presentToday.toString(),
                             icon: Icons.check_circle_rounded,
                             gradient: AppColors.gradientGreen,
-                            onTap: () => Get.toNamed(AppRoutes.attendance),
+                            onTap: () async {
+                              await Get.toNamed(AppRoutes.attendance);
+                              ctrl.loadAll(silent: true);
+                            },
                           ),
                         ),
                         // FadeInUp(
@@ -350,7 +353,10 @@ class DashboardScreen extends StatelessWidget {
                           icon: Icons.fact_check_rounded,
                           label: 'Attendance',
                           color: AppColors.primary,
-                          onTap: () => Get.toNamed(AppRoutes.attendance),
+                          onTap: () async {
+                            await Get.toNamed(AppRoutes.attendance);
+                            ctrl.loadAll(silent: true);
+                          },
                         ),
                         _QuickAction(
                           icon: Icons.book_rounded,

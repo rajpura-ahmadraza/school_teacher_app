@@ -53,6 +53,9 @@ dependencies:
 
   # Notifications
   flutter_local_notifications: ^21.0.0
+  firebase_core: ^4.9.0
+  firebase_messaging: ^16.2.2
+  device_info_plus: ^12.4.0
 
   # Utils
   shared_preferences: ^2.5.5
@@ -63,6 +66,7 @@ dependencies:
   timeago: ^3.7.1
 
   cupertino_icons: ^1.0.9
+  gal: ^2.3.2
 
 dev_dependencies:
   flutter_test:

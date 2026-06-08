@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:get/get.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../api/api_client.dart';
 import '../routes/app_routes.dart';
 
@@ -46,14 +50,83 @@ class AuthController extends GetxController {
     Get.offAllNamed(AppRoutes.login);
   }
 
+  Future<Map<String, dynamic>> _getDeviceInfo() async {
+    final Map<String, dynamic> deviceData = {
+      'device_model': 'Unknown',
+      'device_type': 'Unknown',
+      'device_platform': 'Unknown',
+      'device_uuid': 'Unknown',
+      'device_version': 'Unknown',
+      'device_manufacturer': 'Unknown',
+      'device_IsVirtual': 'false',
+    };
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        deviceData['device_model'] = androidInfo.model;
+        deviceData['device_type'] = 'Android';
+        deviceData['device_platform'] =
+            'Android ${androidInfo.version.release}';
+        deviceData['device_uuid'] = androidInfo.id;
+        deviceData['device_version'] = androidInfo.version.sdkInt.toString();
+        deviceData['device_manufacturer'] = androidInfo.manufacturer;
+        deviceData['device_IsVirtual'] =
+            (!androidInfo.isPhysicalDevice).toString();
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        deviceData['device_model'] = iosInfo.model;
+        deviceData['device_type'] = 'iOS';
+        deviceData['device_platform'] = iosInfo.systemName;
+        deviceData['device_uuid'] = iosInfo.identifierForVendor ?? 'Unknown';
+        deviceData['device_version'] = iosInfo.systemVersion;
+        deviceData['device_manufacturer'] = 'Apple';
+        deviceData['device_IsVirtual'] = (!iosInfo.isPhysicalDevice).toString();
+      }
+    } catch (_) {}
+    return deviceData;
+  }
+
+  Future<String?> _getFcmToken() async {
+    try {
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
+      return await FirebaseMessaging.instance.getToken();
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<String?> login(String email, String password) async {
     isLoading.value = true;
     error.value = '';
     try {
-      final resp = await _api.post('/auth/login', {
+      final deviceInfo = await _getDeviceInfo();
+      final userFcm = await _getFcmToken();
+
+      final params = {
         'email': email.trim(),
         'password': password,
-      });
+        'device_id': userFcm?.toString() ?? ' ',
+        'fcm_token': userFcm?.toString() ?? ' ',
+        'device_info': deviceInfo['device_model']?.toString() ?? 'Unknown',
+        'device_type': deviceInfo['device_type']?.toString() ?? 'Unknown',
+        'device_model': deviceInfo['device_model']?.toString() ?? 'Unknown',
+        'device_platform':
+            deviceInfo['device_platform']?.toString() ?? 'Unknown',
+        'device_uuid': deviceInfo['device_uuid']?.toString() ?? 'Unknown',
+        'device_version': deviceInfo['device_version']?.toString() ?? 'Unknown',
+        'device_manufacturer':
+            deviceInfo['device_manufacturer']?.toString() ?? 'Unknown',
+        'device_IsVirtual':
+            deviceInfo['device_IsVirtual']?.toString() ?? 'false',
+        'app_version_code': GetPlatform.isAndroid ? '1' : '1',
+      };
+
+      print(params);
+
+      final resp = await _api.post('/auth/login', params);
       final u = Map<String, dynamic>.from(resp.data['user'] as Map);
       if (u['role'] != 'teacher') {
         isLoading.value = false;

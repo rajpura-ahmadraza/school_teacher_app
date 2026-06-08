@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:gal/gal.dart';
 import '../core/api/api_client.dart';
 import '../core/routes/app_routes.dart';
 import '../core/theme/app_theme.dart';
@@ -56,8 +57,20 @@ class TimetableController extends GetxController {
       if (raw is List) {
         timetable.value = raw;
       } else if (raw is Map) {
-        timetable.value = List<dynamic>.from(
-            raw['data'] ?? raw['timetable'] ?? raw['timetables'] ?? []);
+        final ttData = raw['data'] ?? raw['timetable'] ?? raw['timetables'];
+        if (ttData is Map) {
+          final List<dynamic> flatList = [];
+          ttData.forEach((key, val) {
+            if (val is List) {
+              flatList.addAll(val);
+            }
+          });
+          timetable.value = flatList;
+        } else if (ttData is List) {
+          timetable.value = ttData;
+        } else {
+          timetable.value = [];
+        }
       } else {
         timetable.value = [];
       }
@@ -168,9 +181,13 @@ class TimetableScreen extends StatelessWidget {
                   },
                   dropdownMenuEntries: ctrl.classes.map<DropdownMenuEntry<dynamic>>((cls) {
                     final c = Map<String, dynamic>.from(cls as Map);
+                    final name = c['name'] ?? c['class_name'] ?? 'Class';
+                    final section = c['section'] != null && c['section'].toString().trim().isNotEmpty
+                        ? ' - ${c['section']}'
+                        : '';
                     return DropdownMenuEntry<dynamic>(
                       value: c['id'],
-                      label: c['name'] ?? '',
+                      label: '$name$section',
                       style: ButtonStyle(
                         textStyle: WidgetStateProperty.all(
                           const TextStyle(
@@ -197,12 +214,28 @@ class TimetableScreen extends StatelessWidget {
                               color: AppColors.primary))
                       : TabBarView(
                           children: _days.map((day) {
-                            final dayIndex = _days.indexOf(day) + 1;
-                            final periods = ctrl.timetable
-                                .where((t) =>
-                                    (t as Map)['day'] == dayIndex ||
-                                    (t)['day_name'] == day)
-                                .toList();
+                            final targetDay = day.toLowerCase();
+                            final selectedId = ctrl.selectedClass.value?['id']?.toString();
+                            final periods = ctrl.timetable.where((t) {
+                              if (t is! Map) return false;
+
+                              // Filter by selected class ID
+                              final cId = t['class_id']?.toString();
+                              if (selectedId != null && cId != null && cId != selectedId) {
+                                return false;
+                              }
+
+                              final d = t['day']?.toString().toLowerCase();
+                              final dn = t['day_name']?.toString().toLowerCase();
+
+                              final isNumeric = int.tryParse(d ?? '') != null;
+                              if (isNumeric) {
+                                final dayIndex = _days.indexOf(day) + 1;
+                                return int.parse(d!) == dayIndex;
+                              }
+
+                              return d == targetDay || dn == targetDay;
+                            }).toList();
                             if (periods.isEmpty) {
                               return const EmptyState(
                                   icon: Icons.event_busy_rounded,
@@ -1185,9 +1218,12 @@ class GalleryScreen extends StatelessWidget {
 
           await dio.download(url, savePath);
 
+          // Save to device gallery
+          await Gal.putImage(savePath);
+
           Get.snackbar(
             'Success',
-            'Image downloaded successfully!',
+            'Image saved to gallery!',
             backgroundColor: AppColors.success,
             colorText: Colors.white,
             mainButton: TextButton(
@@ -1205,7 +1241,7 @@ class GalleryScreen extends StatelessWidget {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to download image: $e',
+        'Failed to save image: $e',
         backgroundColor: AppColors.danger,
         colorText: Colors.white,
       );
