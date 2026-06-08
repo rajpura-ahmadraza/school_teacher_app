@@ -124,40 +124,65 @@ class TimetableScreen extends StatelessWidget {
                 color: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: ctrl.classes.map((cls) {
-                      final c = Map<String, dynamic>.from(cls as Map);
-                      final sel = ctrl.selectedClass.value?['id'] == c['id'];
-                      return GestureDetector(
-                        onTap: () => ctrl.loadTimetable(c),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            gradient: sel ? AppColors.gradientPrimary : null,
-                            color: sel ? null : Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color: sel
-                                    ? Colors.transparent
-                                    : Colors.grey.shade300),
-                          ),
-                          child: Text('${c['name'] ?? ''}',
-                              style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                  color: sel
-                                      ? Colors.white
-                                      : AppColors.textPrimary)),
-                        ),
-                      );
-                    }).toList(),
+                width: double.infinity,
+                child: DropdownMenu<dynamic>(
+                  expandedInsets: EdgeInsets.zero,
+                  initialSelection: ctrl.selectedClass.value?['id'],
+                  hintText: 'Select Class',
+                  textStyle: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
                   ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    filled: true,
+                    fillColor: const Color(0xFFFAFAFA),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                    ),
+                  ),
+                  menuStyle: const MenuStyle(
+                    backgroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+                  ),
+                  onSelected: (dynamic newValue) {
+                    if (newValue != null) {
+                      final cls = ctrl.classes.firstWhere(
+                        (c) => (c as Map)['id'] == newValue,
+                        orElse: () => null,
+                      );
+                      if (cls != null) {
+                        ctrl.loadTimetable(Map<String, dynamic>.from(cls as Map));
+                      }
+                    }
+                  },
+                  dropdownMenuEntries: ctrl.classes.map<DropdownMenuEntry<dynamic>>((cls) {
+                    final c = Map<String, dynamic>.from(cls as Map);
+                    return DropdownMenuEntry<dynamic>(
+                      value: c['id'],
+                      label: c['name'] ?? '',
+                      style: ButtonStyle(
+                        textStyle: WidgetStateProperty.all(
+                          const TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
             Expanded(

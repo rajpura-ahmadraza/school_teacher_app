@@ -192,7 +192,7 @@ class DashboardScreen extends StatelessWidget {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () => auth.logout(),
+                                    onTap: () => _showLogoutConfirm(context, auth),
                                     child: Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
@@ -438,6 +438,40 @@ class DashboardScreen extends StatelessWidget {
               SystemNavigator.pop();
             },
             child: const Text('Exit',
+                style: TextStyle(
+                    fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirm(BuildContext context, AuthController auth) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Logout',
+            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
+        content: const Text('Are you sure you want to log out?',
+            style: TextStyle(fontFamily: 'Inter')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No', style: TextStyle(fontFamily: 'Inter')),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              auth.logout();
+            },
+            child: const Text('Yes',
                 style: TextStyle(
                     fontFamily: 'Inter', fontWeight: FontWeight.w600)),
           ),
