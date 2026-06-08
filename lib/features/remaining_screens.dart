@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../core/api/api_client.dart';
 import '../core/routes/app_routes.dart';
 import '../core/theme/app_theme.dart';
@@ -52,7 +57,8 @@ class TimetableController extends GetxController {
       if (raw is List) {
         timetable.value = raw;
       } else if (raw is Map) {
-        timetable.value = List<dynamic>.from(raw['data'] ?? raw['timetable'] ?? raw['timetables'] ?? []);
+        timetable.value = List<dynamic>.from(
+            raw['data'] ?? raw['timetable'] ?? raw['timetables'] ?? []);
       } else {
         timetable.value = [];
       }
@@ -546,6 +552,7 @@ class GalleryController extends GetxController {
   final _api = ApiClient.instance;
   final RxList<dynamic> albums = <dynamic>[].obs;
   final RxBool isLoading = true.obs;
+  final RxString selectedAlbum = 'all'.obs;
 
   @override
   void onInit() {
@@ -559,7 +566,31 @@ class GalleryController extends GetxController {
       final r = await _api.get('/gallery');
       final raw = r.data;
       if (raw is List) {
-        albums.value = raw;
+        final List<Map<String, dynamic>> grouped = [];
+        for (var item in raw) {
+          if (item is Map) {
+            final title = item['title']?.toString() ??
+                item['name']?.toString() ??
+                'Album';
+            final rawPhotos =
+                List<dynamic>.from(item['photos'] ?? item['images'] ?? []);
+            final photos = rawPhotos.map((p) {
+              final pMap =
+                  p is Map ? Map<String, dynamic>.from(p) : <String, dynamic>{};
+              pMap['url'] = pMap['url'] ??
+                  pMap['image_url'] ??
+                  pMap['thumbnail_url'] ??
+                  pMap['image_path'] ??
+                  '';
+              return pMap;
+            }).toList();
+            grouped.add({
+              'title': title,
+              'photos': photos,
+            });
+          }
+        }
+        albums.value = grouped;
       } else if (raw is Map) {
         // Extract photos
         List<dynamic> allPhotos = [];
@@ -591,11 +622,14 @@ class GalleryController extends GetxController {
           final photosInAlbum = allPhotos.where((p) {
             if (p is! Map) return false;
             final albumVal = p['album'];
-            return albumVal?.toString().trim().toLowerCase() == name.trim().toLowerCase();
+            return albumVal?.toString().trim().toLowerCase() ==
+                name.trim().toLowerCase();
           }).map((p) {
             final pMap = Map<String, dynamic>.from(p as Map);
-            // The UI template accesses 'url' for image source
-            pMap['url'] = pMap['image_url'] ?? pMap['thumbnail_url'] ?? pMap['image_path'] ?? '';
+            pMap['url'] = pMap['image_url'] ??
+                pMap['thumbnail_url'] ??
+                pMap['image_path'] ??
+                '';
             return pMap;
           }).toList();
 
@@ -611,7 +645,245 @@ class GalleryController extends GetxController {
     } catch (_) {
       albums.value = [];
     }
+
+    // Validate if the currently selected album is still valid. If not, reset to 'all'
+    if (selectedAlbum.value != 'all' &&
+        !albumTitles.contains(selectedAlbum.value)) {
+      selectedAlbum.value = 'all';
+    }
+
     isLoading.value = false;
+  }
+
+  List<String> get albumTitles {
+    final titles = <String>['all'];
+    for (var a in albums) {
+      if (a is Map) {
+        final title = a['title']?.toString();
+        if (title != null && title.isNotEmpty) {
+          titles.add(title);
+        }
+      }
+    }
+    return titles.toSet().toList();
+  }
+
+  List<dynamic> get currentPhotos {
+    if (selectedAlbum.value == 'all') {
+      final allPhotos = <dynamic>[];
+      for (var a in albums) {
+        if (a is Map) {
+          final photos = a['photos'] ?? a['images'];
+          if (photos is List) {
+            allPhotos.addAll(photos);
+          }
+        }
+      }
+      return allPhotos;
+    } else {
+      for (var a in albums) {
+        if (a is Map &&
+            a['title']?.toString().toLowerCase() ==
+                selectedAlbum.value.toLowerCase()) {
+          final photos = a['photos'] ?? a['images'];
+          if (photos is List) {
+            return photos;
+          }
+        }
+      }
+      return [];
+    }
+  }
+}
+
+class FullScreenImageViewer extends StatefulWidget {
+  final List<dynamic> photos;
+  final int initialIndex;
+
+  const FullScreenImageViewer({
+    super.key,
+    required this.photos,
+    required this.initialIndex,
+  });
+
+  @override
+  State<FullScreenImageViewer> createState() => _FullScreenImageViewerState();
+}
+
+class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          // Swipeable/Zoomable view
+          GestureDetector(
+            onVerticalDragEnd: (details) {
+              if (details.primaryVelocity != null &&
+                  details.primaryVelocity! > 300) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.photos.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final photo = widget.photos[index];
+                final url =
+                    (photo is Map ? photo['url'] : photo.toString()) ?? '';
+                return InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 3.0,
+                  child: Center(
+                    child: url.isEmpty
+                        ? const Center(
+                            child: Icon(Icons.broken_image_rounded,
+                                color: Colors.grey, size: 64),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: url,
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.white),
+                            ),
+                            errorWidget: (context, url, error) => const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.broken_image_rounded,
+                                    color: Colors.grey, size: 64),
+                                SizedBox(height: 12),
+                                Text(
+                                  'Failed to load image',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Navigation chevrons (if multiple photos)
+          if (widget.photos.length > 1) ...[
+            if (_currentIndex > 0)
+              Positioned(
+                left: 16,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      _pageController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black.withOpacity(0.3),
+                      ),
+                      child: const Icon(Icons.chevron_left_rounded,
+                          color: Colors.white, size: 36),
+                    ),
+                  ),
+                ),
+              ),
+            if (_currentIndex < widget.photos.length - 1)
+              Positioned(
+                right: 16,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      _pageController.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black.withOpacity(0.3),
+                      ),
+                      child: const Icon(Icons.chevron_right_rounded,
+                          color: Colors.white, size: 36),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _downloadImage(String url) async {
+    if (url.isEmpty) return;
+    try {
+      Get.showOverlay(
+        asyncFunction: () async {
+          final dio = Dio();
+          final tempDir = await getTemporaryDirectory();
+          final filename = url.split('/').last.split('?').first;
+          final savePath = '${tempDir.path}/$filename';
+
+          await dio.download(url, savePath);
+
+          Get.snackbar(
+            'Success',
+            'Image downloaded successfully!',
+            backgroundColor: AppColors.success,
+            colorText: Colors.white,
+            mainButton: TextButton(
+              onPressed: () => OpenFile.open(savePath),
+              child: const Text('OPEN',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          );
+        },
+        loadingWidget: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to download image: $e',
+        backgroundColor: AppColors.danger,
+        colorText: Colors.white,
+      );
+    }
   }
 }
 
@@ -624,172 +896,335 @@ class GalleryScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
-        flexibleSpace: Container(
-            decoration:
-                const BoxDecoration(gradient: AppColors.gradientPrimary)),
+        toolbarHeight: 90, // Height vadharo (80, 90, 100 je joiye te)
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.offNamed(AppRoutes.dashboard),
-        ),
-        title: const Text('Gallery',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
-      ),
-      body: Obx(() {
-        if (ctrl.isLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
-        }
-        if (ctrl.albums.isEmpty) {
-          return const EmptyState(
-              icon: Icons.photo_library_outlined,
-              title: 'No Albums',
-              subtitle: 'No gallery content available yet');
-        }
-        return RefreshIndicator(
-          onRefresh: ctrl.load,
-          child: GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.85,
+        centerTitle: true,
+        leadingWidth: 60,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF9333EA),
+                Color(0xFFDB2777),
+              ],
             ),
-            itemCount: ctrl.albums.length,
-            itemBuilder: (ctx, i) {
-              final album = ctrl.albums[i] as Map<String, dynamic>;
-              final images =
-                  List<dynamic>.from(album['images'] ?? album['photos'] ?? []);
-              final thumb = images.isNotEmpty
-                  ? ((images.first as Map?)?['url'] as String?)
-                  : null;
-              return GestureDetector(
-                onTap: () => _openAlbum(context, album, images),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(0.06), blurRadius: 8)
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Stack(fit: StackFit.expand, children: [
-                      thumb != null
-                          ? Image.network(thumb,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                    color: AppColors.primaryLight,
-                                    child: const Icon(
-                                        Icons.photo_library_rounded,
-                                        color: AppColors.primary,
-                                        size: 40),
-                                  ))
-                          : Container(
-                              color: AppColors.primaryLight,
-                              child: const Icon(Icons.photo_library_rounded,
-                                  color: AppColors.primary, size: 40)),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.7),
-                                Colors.transparent,
-                              ],
+          ),
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            top: 8.0,
+            bottom: 8.0,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.black,
+                size: 28,
+              ),
+              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+            ),
+          ),
+        ),
+        title: const Text(
+          'Gallery',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          Obx(() {
+            if (ctrl.isLoading.value) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              );
+            }
+            if (ctrl.albums.isEmpty) {
+              return const EmptyState(
+                icon: Icons.photo_library_outlined,
+                title: 'No Albums',
+                subtitle: 'No gallery content available yet',
+              );
+            }
+            final photos = ctrl.currentPhotos;
+            return RefreshIndicator(
+              onRefresh: ctrl.load,
+              color: AppColors.primary,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Albums Section Row
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 4,
+                            height: 18,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(album['title'] as String? ?? 'Album',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13)),
-                                Text('${images.length} photos',
-                                    style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontFamily: 'Inter',
-                                        fontSize: 11)),
-                              ]),
-                        ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Albums',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
                       ),
-                    ]),
-                  ),
+                    ),
+
+                    // Horizontal categories
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: ctrl.albumTitles.map((title) {
+                          final isSelected = ctrl.selectedAlbum.value == title;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: GestureDetector(
+                              onTap: () => ctrl.selectedAlbum.value = title,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.primary
+                                      : AppColors.primary.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Grid of image cards
+                    photos.isEmpty
+                        ? Container(
+                            height: 200,
+                            alignment: Alignment.center,
+                            child: const Text(
+                              'No photos in this album',
+                              style: TextStyle(
+                                  color: AppColors.textSecondary, fontSize: 14),
+                            ),
+                          )
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 1.0,
+                            ),
+                            itemCount: photos.length,
+                            itemBuilder: (ctx, i) {
+                              final photo = photos[i];
+                              final url = (photo is Map
+                                      ? photo['url']
+                                      : photo.toString()) ??
+                                  '';
+                              return GestureDetector(
+                                onTap: () => _openImage(context, photos, i),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        url.isEmpty
+                                            ? Container(
+                                                color: AppColors.primaryLight,
+                                                child: const Icon(
+                                                  Icons.broken_image_rounded,
+                                                  color: AppColors.primary,
+                                                  size: 32,
+                                                ),
+                                              )
+                                            : CachedNetworkImage(
+                                                imageUrl: url,
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    Container(
+                                                  color: Colors.grey.shade100,
+                                                  child: const Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            color: AppColors
+                                                                .primary),
+                                                  ),
+                                                ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Container(
+                                                  color: AppColors.primaryLight,
+                                                  child: const Icon(
+                                                    Icons.broken_image_rounded,
+                                                    color: AppColors.primary,
+                                                    size: 32,
+                                                  ),
+                                                ),
+                                              ),
+
+                                        // Floating download button
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: GestureDetector(
+                                            onTap: () => _downloadImage(url),
+                                            child: Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary,
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.2),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: const Icon(
+                                                Icons.download_rounded,
+                                                color: Colors.white,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
-              );
-            },
-          ),
-        );
-      }),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 
-  void _openAlbum(BuildContext ctx, Map album, List images) {
-    showModalBottomSheet(
-      context: ctx,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.9,
-        builder: (_, sc) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(album['title'] as String? ?? 'Album',
-                  style: const TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18)),
-            ),
-            Expanded(
-              child: GridView.builder(
-                controller: sc,
-                padding: const EdgeInsets.all(12),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 4,
-                  mainAxisSpacing: 4,
-                ),
-                itemCount: images.length,
-                itemBuilder: (c2, i) {
-                  final url = (images[i] as Map?)?['url'] as String? ?? '';
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(url,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                            color: Colors.grey.shade200,
-                            child: const Icon(Icons.broken_image_rounded,
-                                color: Colors.grey))),
-                  );
-                },
-              ),
-            ),
-          ]),
+  void _openImage(
+      BuildContext context, List<dynamic> photos, int initialIndex) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FullScreenImageViewer(
+          photos: photos,
+          initialIndex: initialIndex,
         ),
+        fullscreenDialog: true,
       ),
     );
+  }
+
+  Future<void> _downloadImage(String url) async {
+    if (url.isEmpty) return;
+    try {
+      Get.showOverlay(
+        asyncFunction: () async {
+          final dio = Dio();
+          final tempDir = await getTemporaryDirectory();
+          final filename = url.split('/').last.split('?').first;
+          final savePath = '${tempDir.path}/$filename';
+
+          await dio.download(url, savePath);
+
+          Get.snackbar(
+            'Success',
+            'Image downloaded successfully!',
+            backgroundColor: AppColors.success,
+            colorText: Colors.white,
+            mainButton: TextButton(
+              onPressed: () => OpenFile.open(savePath),
+              child: const Text('OPEN',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          );
+        },
+        loadingWidget: const Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to download image: $e',
+        backgroundColor: AppColors.danger,
+        colorText: Colors.white,
+      );
+    }
   }
 }
 

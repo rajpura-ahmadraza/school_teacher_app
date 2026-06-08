@@ -49,9 +49,11 @@ class DashboardController extends GetxController {
         if (stored != null) {
           final localHws = stored.map((s) => Map<String, dynamic>.from(jsonDecode(s) as Map)).toList();
           for (final localHw in localHws) {
-            final localId = localHw['id'];
-            hwList.removeWhere((item) => item['id'] == localId);
-            hwList.add(localHw);
+            final localId = localHw['id']?.toString();
+            if (localId != null) {
+              hwList.removeWhere((item) => item['id']?.toString() == localId);
+              hwList.add(localHw);
+            }
           }
         }
       } catch (e) {
@@ -334,7 +336,10 @@ class DashboardScreen extends StatelessWidget {
                           icon: Icons.book_rounded,
                           label: 'Homework',
                           color: AppColors.secondary,
-                          onTap: () => Get.toNamed(AppRoutes.homework),
+                          onTap: () async {
+                            await Get.toNamed(AppRoutes.homework);
+                            ctrl.loadAll(silent: true);
+                          },
                         ),
                         _QuickAction(
                           icon: Icons.people_rounded,
@@ -372,7 +377,10 @@ class DashboardScreen extends StatelessWidget {
                         child: SectionHeader(
                           title: 'Recent Homework',
                           actionLabel: 'View All',
-                          onAction: () => Get.toNamed(AppRoutes.homework),
+                          onAction: () async {
+                            await Get.toNamed(AppRoutes.homework);
+                            ctrl.loadAll(silent: true);
+                          },
                         ),
                       ),
                     ),

@@ -105,12 +105,14 @@ class HomeworkController extends GetxController {
             raw['data'] ?? raw['homeworks'] ?? raw['homework'] ?? []);
       }
 
-      // Merge local homeworks
+      // Merge local homeworks using type-safe string comparisons
       final localHws = await _getLocalHomeworks();
       for (final localHw in localHws) {
-        final localId = localHw['id'];
-        list.removeWhere((item) => item['id'] == localId);
-        if (classId == null || localHw['class_id'] == classId) {
+        final localId = localHw['id']?.toString();
+        if (localId == null) continue;
+        list.removeWhere((item) => item['id']?.toString() == localId);
+        final hwClassId = localHw['class_id']?.toString();
+        if (classId == null || hwClassId == classId.toString()) {
           list.add(localHw);
         }
       }
@@ -127,7 +129,8 @@ class HomeworkController extends GetxController {
         final localHws = await _getLocalHomeworks();
         List<dynamic> list = [];
         for (final localHw in localHws) {
-          if (classId == null || localHw['class_id'] == classId) {
+          final hwClassId = localHw['class_id']?.toString();
+          if (classId == null || hwClassId == classId.toString()) {
             list.add(localHw);
           }
         }
@@ -158,17 +161,27 @@ class HomeworkController extends GetxController {
 
       // Extract homework map from response and save locally
       final rawData = resp.data;
-      final homeworkData = (rawData is Map && rawData['homework'] != null)
-          ? Map<String, dynamic>.from(rawData['homework'] as Map)
-          : (rawData is Map ? Map<String, dynamic>.from(rawData) : null);
+      Map<String, dynamic>? homeworkData;
+      if (rawData is Map) {
+        if (rawData['homework'] is Map) {
+          homeworkData = Map<String, dynamic>.from(rawData['homework'] as Map);
+        } else if (rawData['data'] is Map) {
+          homeworkData = Map<String, dynamic>.from(rawData['data'] as Map);
+        } else {
+          homeworkData = Map<String, dynamic>.from(rawData);
+        }
+      }
 
       if (homeworkData != null) {
         final localHws = await _getLocalHomeworks();
-        if (existingId != null) {
-          localHws.removeWhere((item) => item['id'] == existingId);
+        final localId = homeworkData['id']?.toString();
+        if (localId != null) {
+          localHws.removeWhere((item) =>
+              item['id']?.toString() == localId ||
+              (existingId != null && item['id']?.toString() == existingId.toString()));
+          localHws.add(homeworkData);
+          await _saveLocalHomeworks(localHws);
         }
-        localHws.add(homeworkData);
-        await _saveLocalHomeworks(localHws);
       }
 
       return true;
@@ -186,10 +199,10 @@ class HomeworkController extends GetxController {
 
       // Also delete from local storage
       final localHws = await _getLocalHomeworks();
-      localHws.removeWhere((item) => item['id'] == id);
+      localHws.removeWhere((item) => item['id']?.toString() == id.toString());
       await _saveLocalHomeworks(localHws);
 
-      homeworkList.removeWhere((h) => (h as Map)['id'] == id);
+      homeworkList.removeWhere((h) => h['id']?.toString() == id.toString());
       if (Get.isRegistered<DashboardController>()) {
         Get.find<DashboardController>().loadAll(silent: true);
       }
