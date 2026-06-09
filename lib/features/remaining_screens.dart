@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:gal/gal.dart';
 import '../core/api/api_client.dart';
 import '../core/routes/app_routes.dart';
 import '../core/theme/app_theme.dart';
@@ -116,7 +112,7 @@ class TimetableScreen extends StatelessWidget {
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700)),
           bottom: TabBar(
-            isScrollable: true,
+            isScrollable: false,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white60,
             indicatorColor: Colors.white,
@@ -151,7 +147,8 @@ class TimetableScreen extends StatelessWidget {
                   inputDecorationTheme: InputDecorationTheme(
                     filled: true,
                     fillColor: const Color(0xFFFAFAFA),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -162,11 +159,13 @@ class TimetableScreen extends StatelessWidget {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                      borderSide: const BorderSide(
+                          color: AppColors.primary, width: 1.5),
                     ),
                   ),
                   menuStyle: const MenuStyle(
-                    backgroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+                    backgroundColor:
+                        WidgetStatePropertyAll<Color>(Colors.white),
                   ),
                   onSelected: (dynamic newValue) {
                     if (newValue != null) {
@@ -175,14 +174,17 @@ class TimetableScreen extends StatelessWidget {
                         orElse: () => null,
                       );
                       if (cls != null) {
-                        ctrl.loadTimetable(Map<String, dynamic>.from(cls as Map));
+                        ctrl.loadTimetable(
+                            Map<String, dynamic>.from(cls as Map));
                       }
                     }
                   },
-                  dropdownMenuEntries: ctrl.classes.map<DropdownMenuEntry<dynamic>>((cls) {
+                  dropdownMenuEntries:
+                      ctrl.classes.map<DropdownMenuEntry<dynamic>>((cls) {
                     final c = Map<String, dynamic>.from(cls as Map);
                     final name = c['name'] ?? c['class_name'] ?? 'Class';
-                    final section = c['section'] != null && c['section'].toString().trim().isNotEmpty
+                    final section = c['section'] != null &&
+                            c['section'].toString().trim().isNotEmpty
                         ? ' - ${c['section']}'
                         : '';
                     return DropdownMenuEntry<dynamic>(
@@ -215,18 +217,22 @@ class TimetableScreen extends StatelessWidget {
                       : TabBarView(
                           children: _days.map((day) {
                             final targetDay = day.toLowerCase();
-                            final selectedId = ctrl.selectedClass.value?['id']?.toString();
+                            final selectedId =
+                                ctrl.selectedClass.value?['id']?.toString();
                             final periods = ctrl.timetable.where((t) {
                               if (t is! Map) return false;
 
                               // Filter by selected class ID
                               final cId = t['class_id']?.toString();
-                              if (selectedId != null && cId != null && cId != selectedId) {
+                              if (selectedId != null &&
+                                  cId != null &&
+                                  cId != selectedId) {
                                 return false;
                               }
 
                               final d = t['day']?.toString().toLowerCase();
-                              final dn = t['day_name']?.toString().toLowerCase();
+                              final dn =
+                                  t['day_name']?.toString().toLowerCase();
 
                               final isNumeric = int.tryParse(d ?? '') != null;
                               if (isNumeric) {
@@ -899,6 +905,59 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 ),
               ),
           ],
+
+          // Top bar overlay with Close and Download buttons
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Close button
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.black.withOpacity(0.4),
+                    ),
+                    child: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
+
+                // Page Indicator
+                if (widget.photos.length > 1)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      '${_currentIndex + 1} / ${widget.photos.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(),
+
+                // Empty space to balance the Close button and keep Page Indicator centered
+                const SizedBox(width: 40),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1145,36 +1204,6 @@ class GalleryScreen extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-
-                                        // Floating download button
-                                        Positioned(
-                                          top: 8,
-                                          right: 8,
-                                          child: GestureDetector(
-                                            onTap: () => _downloadImage(url),
-                                            child: Container(
-                                              width: 32,
-                                              height: 32,
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primary,
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.2),
-                                                    blurRadius: 6,
-                                                    offset: const Offset(0, 2),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: const Icon(
-                                                Icons.download_rounded,
-                                                color: Colors.white,
-                                                size: 16,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
@@ -1204,48 +1233,6 @@ class GalleryScreen extends StatelessWidget {
         fullscreenDialog: true,
       ),
     );
-  }
-
-  Future<void> _downloadImage(String url) async {
-    if (url.isEmpty) return;
-    try {
-      Get.showOverlay(
-        asyncFunction: () async {
-          final dio = Dio();
-          final tempDir = await getTemporaryDirectory();
-          final filename = url.split('/').last.split('?').first;
-          final savePath = '${tempDir.path}/$filename';
-
-          await dio.download(url, savePath);
-
-          // Save to device gallery
-          await Gal.putImage(savePath);
-
-          Get.snackbar(
-            'Success',
-            'Image saved to gallery!',
-            backgroundColor: AppColors.success,
-            colorText: Colors.white,
-            mainButton: TextButton(
-              onPressed: () => OpenFile.open(savePath),
-              child: const Text('OPEN',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          );
-        },
-        loadingWidget: const Center(
-          child: CircularProgressIndicator(color: AppColors.primary),
-        ),
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to save image: $e',
-        backgroundColor: AppColors.danger,
-        colorText: Colors.white,
-      );
-    }
   }
 }
 

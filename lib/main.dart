@@ -28,8 +28,7 @@ void main() async {
       await Firebase.initializeApp(
         options: const FirebaseOptions(
           apiKey: 'AIzaSyCmL0xq-K7Ax-NrO9VEHGDg8evkeyJlQZ8',
-          appId:
-              '1:30883525731:ios:75cc0c37aa56038f887456', // Keep in sync with the Android config client entry
+          appId: '1:30883525731:ios:75cc0c37aa56038f887456',
           messagingSenderId: '30883525731',
           projectId: 'school-management-19ee2',
           storageBucket: 'school-management-19ee2.firebasestorage.app',
@@ -40,7 +39,7 @@ void main() async {
       await Firebase.initializeApp();
     }
 
-    debugPrint('✅ Firebase initialized successfully');
+    debugPrint('Firebase initialized successfully');
 
     // Background Notifications Handler
     FirebaseMessaging.onBackgroundMessage(
@@ -55,10 +54,10 @@ void main() async {
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('📱 FCM Token: $token');
     } catch (e) {
-      debugPrint('❌ Failed to get FCM token: $e');
+      debugPrint('Failed to get FCM token: $e');
     }
   } catch (e) {
-    debugPrint('❌ Failed to initialize Firebase or Notifications: $e');
+    debugPrint('Failed to initialize Firebase or Notifications: $e');
   }
 
   await SystemChrome.setPreferredOrientations([
