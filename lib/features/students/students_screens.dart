@@ -19,21 +19,76 @@ class StudentsController extends GetxController {
   final RxString error = ''.obs;
   final RxInt total = 0.obs;
 
+  // Standard / Class filter
+  final RxList<Map<String, dynamic>> classList = <Map<String, dynamic>>[].obs;
+  final Rx<Map<String, dynamic>?> selectedClass = Rx(null); // null = All
+
   int _page = 1;
   String _search = '';
 
   @override
   void onInit() {
     super.onInit();
+    _loadAllStudentsForClasses();
     loadStudents(refresh: true);
   }
 
-  Future<void> loadStudents({bool refresh = false, String search = ''}) async {
+  // Fetch ALL students (no class filter) and extract unique classes for dropdown
+  Future<void> _loadAllStudentsForClasses() async {
+    try {
+      // Fetch up to 200 students to extract all teacher-visible classes
+      final resp = await _api.get('/students', params: {
+        'per_page': '200',
+        'page': '1',
+      });
+      final raw = resp.data;
+      final List<dynamic> allStudents =
+          List<dynamic>.from(raw['data'] as List? ?? raw as List? ?? []);
+
+      // Extract unique classes from students
+      final Map<dynamic, Map<String, dynamic>> seen = {};
+      for (final s in allStudents) {
+        final cls = (s as Map)['class'] as Map?;
+        if (cls == null) continue;
+        final id = cls['id'];
+        if (id != null && !seen.containsKey(id)) {
+          seen[id] = {
+            'id': id,
+            'name': cls['name'] as String? ?? 'Class',
+            'section': cls['section'] as String? ?? '',
+          };
+        }
+      }
+
+      // Sort by name then section
+      final sorted = seen.values.toList()
+        ..sort((a, b) {
+          final nameCompare =
+              (a['name'] as String).compareTo(b['name'] as String);
+          if (nameCompare != 0) return nameCompare;
+          return (a['section'] as String).compareTo(b['section'] as String);
+        });
+
+      classList.value = sorted;
+    } catch (_) {
+      // silently ignore
+    }
+  }
+
+  Future<void> loadStudents({
+    bool refresh = false,
+    String search = '',
+    Map<String, dynamic>? classFilter,
+    bool keepClass = false,
+  }) async {
     if (refresh) {
       _page = 1;
       _search = search;
       students.clear();
       hasMore.value = true;
+      if (!keepClass && classFilter != null) {
+        selectedClass.value = classFilter;
+      }
     }
     if (!hasMore.value) return;
     isLoading.value = true;
@@ -44,13 +99,34 @@ class StudentsController extends GetxController {
         'page': _page.toString(),
       };
       if (_search.isNotEmpty) params['search'] = _search;
+      final cls = selectedClass.value;
+      if (cls != null) {
+        final id = cls['id'];
+        if (id != null) params['class_id'] = id.toString();
+      }
       final resp = await _api.get('/students', params: params);
       final raw = resp.data;
-      final List<dynamic> list =
+      List<dynamic> list =
           List<dynamic>.from(raw['data'] as List? ?? raw as List? ?? []);
       final lastPage = _asInt(raw['last_page']) ?? 1;
       total.value = _asInt(raw['total']) ?? students.length + list.length;
-      students.addAll(list);
+      // ── Name-only filter: exclude admission_no matches ────────
+      if (_search.isNotEmpty) {
+        final q = _search.toLowerCase();
+        list = list.where((s) {
+          final name = ((s as Map)['name'] as String? ?? '').toLowerCase();
+          return name.contains(q);
+        }).toList();
+      }
+      // Deduplicate: only add students whose ID is not already in the list
+      final existingIds = students
+          .map((s) => (s as Map)['id'])
+          .toSet();
+      final uniqueList = list.where((s) {
+        final id = (s as Map)['id'];
+        return id != null && !existingIds.contains(id);
+      }).toList();
+      students.addAll(uniqueList);
       hasMore.value = _page < lastPage;
       _page++;
     } catch (e) {
@@ -58,6 +134,11 @@ class StudentsController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void selectClass(Map<String, dynamic>? cls) {
+    selectedClass.value = cls;
+    loadStudents(refresh: true, search: _search, keepClass: true);
   }
 
   Future<void> loadStudentDetail(int id) async {
@@ -119,6 +200,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
   late final StudentsController ctrl;
   final _searchCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
+  final _stdDropdownKey = GlobalKey();
+  OverlayEntry? _dropdownOverlay;
+  bool _dropdownOpen = false;
 
   @override
   void initState() {
@@ -139,8 +223,56 @@ class _StudentsScreenState extends State<StudentsScreen> {
     }
   }
 
+  void _openDropdown() {
+    if (_dropdownOpen) {
+      _closeDropdown();
+      return;
+    }
+    final renderBox =
+        _stdDropdownKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    _dropdownOverlay = OverlayEntry(
+      builder: (context) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: _closeDropdown,
+        child: Stack(
+          children: [
+            Positioned(
+              left: offset.dx,
+              top: offset.dy + size.height + 4,
+              width: size.width,
+              child: Material(
+                color: Colors.transparent,
+                child: _StandardDropdownPanel(
+                  ctrl: ctrl,
+                  onSelect: (cls) {
+                    ctrl.selectClass(cls);
+                    _closeDropdown();
+                    setState(() {});
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    Overlay.of(context).insert(_dropdownOverlay!);
+    setState(() => _dropdownOpen = true);
+  }
+
+  void _closeDropdown() {
+    _dropdownOverlay?.remove();
+    _dropdownOverlay = null;
+    if (mounted) setState(() => _dropdownOpen = false);
+  }
+
   @override
   void dispose() {
+    _closeDropdown();
     _searchCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -214,38 +346,118 @@ class _StudentsScreenState extends State<StudentsScreen> {
               ),
             ),
           ),
-          // ── Search bar ────────────────────────────────────────
+          // ── Search bar + Standard Dropdown (same row) ─────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-            child: TextField(
-              controller: _searchCtrl,
-              onChanged: (v) => ctrl.loadStudents(refresh: true, search: v),
-              style: const TextStyle(fontFamily: 'Inter', fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'Search by name or roll number…',
-                hintStyle: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    color: AppColors.textTertiary),
-                prefixIcon: const Icon(Icons.search_rounded,
-                    color: AppColors.textTertiary, size: 22),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          ctrl.loadStudents(refresh: true);
-                        })
-                    : null,
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none),
+            child: Row(children: [
+              // Search field (expanded)
+              Expanded(
+                child: SizedBox(
+                  height: 48,
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (v) => ctrl.loadStudents(
+                        refresh: true, search: v, keepClass: true),
+                    style:
+                        const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'Search by name',
+                      hintStyle: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          color: AppColors.textTertiary),
+                      prefixIcon: const Icon(Icons.search_rounded,
+                          color: AppColors.textTertiary, size: 20),
+                      suffixIcon: _searchCtrl.text.isNotEmpty
+                          ? IconButton(
+                              icon:
+                                  const Icon(Icons.clear_rounded, size: 16),
+                              onPressed: () {
+                                _searchCtrl.clear();
+                                ctrl.loadStudents(
+                                    refresh: true, keepClass: true);
+                              })
+                          : null,
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 0),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 10),
+              // Compact Standard dropdown button
+              Obx(() {
+                final selected = ctrl.selectedClass.value;
+                String label;
+                if (selected == null) {
+                  label = 'All';
+                } else {
+                  final name = selected['name'] as String? ?? 'Std';
+                  final section = selected['section'] as String? ?? '';
+                  label = section.isNotEmpty ? '$name-$section' : name;
+                }
+                return GestureDetector(
+                  key: _stdDropdownKey,
+                  onTap: _openDropdown,
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: _dropdownOpen
+                          ? const Color(0xFF9333EA)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _dropdownOpen
+                            ? const Color(0xFF9333EA)
+                            : Colors.transparent,
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.class_outlined,
+                          size: 16,
+                          color: _dropdownOpen
+                              ? Colors.white
+                              : const Color(0xFF9333EA)),
+                      const SizedBox(width: 6),
+                      Text(
+                        label,
+                        style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: _dropdownOpen
+                                ? Colors.white
+                                : AppColors.textPrimary),
+                      ),
+                      const SizedBox(width: 4),
+                      AnimatedRotation(
+                        turns: _dropdownOpen ? 0.5 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(Icons.keyboard_arrow_down_rounded,
+                            color: _dropdownOpen
+                                ? Colors.white
+                                : AppColors.textTertiary,
+                            size: 18),
+                      ),
+                    ]),
+                  ),
+                );
+              }),
+            ]),
           ),
           // ── List ──────────────────────────────────────────────
           Expanded(
@@ -270,8 +482,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     subtitle: 'No students found');
               }
               return RefreshIndicator(
-                onRefresh: () =>
-                    ctrl.loadStudents(refresh: true, search: _searchCtrl.text),
+                onRefresh: () => ctrl.loadStudents(
+                    refresh: true,
+                    search: _searchCtrl.text,
+                    keepClass: true),
                 child: ListView.separated(
                   controller: _scrollCtrl,
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
@@ -298,6 +512,112 @@ class _StudentsScreenState extends State<StudentsScreen> {
           ),
         ]),
       );
+}
+
+// ── Standard Dropdown Panel (Overlay) ────────────────────────
+class _StandardDropdownPanel extends StatelessWidget {
+  final StudentsController ctrl;
+  final void Function(Map<String, dynamic>?) onSelect;
+  const _StandardDropdownPanel(
+      {required this.ctrl, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final classes = ctrl.classList;
+      final selected = ctrl.selectedClass.value;
+
+      return Container(
+        constraints: const BoxConstraints(maxHeight: 260),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── All option ──
+                _DropdownItem(
+                  label: 'All',
+                  isSelected: selected == null,
+                  onTap: () => onSelect(null),
+                ),
+                if (classes.isNotEmpty)
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                ...classes.map((cls) {
+                  final name = cls['name'] as String? ?? 'Class';
+                  final section = cls['section'] as String? ?? '';
+                  final fullLabel = section.isNotEmpty ? '$name - $section' : name;
+                  final isSelected =
+                      selected != null && selected['id'] == cls['id'];
+                  return _DropdownItem(
+                    label: fullLabel,
+                    isSelected: isSelected,
+                    onTap: () => onSelect(cls),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
+
+class _DropdownItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  const _DropdownItem(
+      {required this.label,
+      required this.isSelected,
+      required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        color: isSelected
+            ? const Color(0xFF9333EA).withOpacity(0.07)
+            : Colors.transparent,
+        child: Row(children: [
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 14,
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? const Color(0xFF9333EA)
+                    : AppColors.textPrimary,
+              ),
+            ),
+          ),
+          if (isSelected)
+            const Icon(Icons.check_rounded,
+                color: Color(0xFF9333EA), size: 18),
+        ]),
+      ),
+    );
+  }
 }
 
 class _StudentCard extends StatelessWidget {
@@ -412,7 +732,6 @@ class _DetailBody extends StatelessWidget {
   final Map<String, dynamic> student;
   const _DetailBody({required this.student});
 
-
   @override
   Widget build(BuildContext context) {
     final cls = student['class'] as Map? ?? {};
@@ -448,8 +767,7 @@ class _DetailBody extends StatelessWidget {
                       NetAvatar(
                         url: photoUrl,
                         radius: 44,
-                        fallbackLetter:
-                            (student['name'] as String? ?? '?')[0],
+                        fallbackLetter: (student['name'] as String? ?? '?')[0],
                       ),
                       const SizedBox(height: 12),
                       Text(student['name'] as String? ?? 'Student',
@@ -490,7 +808,8 @@ class _DetailBody extends StatelessWidget {
                 InfoRow(
                     icon: Icons.cake_rounded,
                     label: 'Date of Birth',
-                    value: student['dob'] == null && student['date_of_birth'] == null
+                    value: student['dob'] == null &&
+                            student['date_of_birth'] == null
                         ? '-'
                         : formatYmdToDmy(student['dob'] as String? ??
                             student['date_of_birth'] as String?)),

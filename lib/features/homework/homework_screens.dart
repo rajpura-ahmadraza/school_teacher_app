@@ -484,67 +484,70 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                 ctrl.selectedClass.value?['id']?.toString() ??
                                     '')
                             ?.toInt()),
-                        child: ListView.separated(
-                          controller: _scrollCtrl,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.all(16),
-                          itemCount: ctrl.homeworkList.length + (ctrl.hasMore.value ? 1 : 0),
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (ctx, i) {
-                            if (i == ctrl.homeworkList.length) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  child: CircularProgressIndicator(color: AppColors.primary),
+                        child: SlidableAutoCloseBehavior(
+                          child: ListView.separated(
+                            controller: _scrollCtrl,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(16),
+                            itemCount: ctrl.homeworkList.length + (ctrl.hasMore.value ? 1 : 0),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (ctx, i) {
+                              if (i == ctrl.homeworkList.length) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    child: CircularProgressIndicator(color: AppColors.primary),
+                                  ),
+                                );
+                              }
+                              final hw = Map<String, dynamic>.from(
+                                  ctrl.homeworkList[i] as Map);
+                              return Slidable(
+                                groupTag: 'homework_list',
+                                endActionPane: ActionPane(
+                                  motion: const DrawerMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (_) async {
+                                        await Get.toNamed(AppRoutes.homeworkForm,
+                                            arguments: hw);
+                                        ctrl.loadHomework(num.tryParse(ctrl
+                                                    .selectedClass.value?['id']
+                                                    ?.toString() ??
+                                                '')
+                                            ?.toInt());
+                                      },
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.edit_rounded,
+                                      label: 'Edit',
+                                      borderRadius: const BorderRadius.horizontal(
+                                          left: Radius.circular(14)),
+                                    ),
+                                    SlidableAction(
+                                      onPressed: (_) async {
+                                        final ok = await _confirm(ctx);
+                                        if (ok) {
+                                          ctrl.deleteHomework(num.tryParse(
+                                                      hw['id']?.toString() ?? '')
+                                                  ?.toInt() ??
+                                              0);
+                                        }
+                                      },
+                                      backgroundColor: AppColors.danger,
+                                      foregroundColor: Colors.white,
+                                      icon: Icons.delete_rounded,
+                                      label: 'Delete',
+                                      borderRadius: const BorderRadius.horizontal(
+                                          right: Radius.circular(14)),
+                                    ),
+                                  ],
                                 ),
+                                child: _HomeworkCard(hw: hw),
                               );
-                            }
-                            final hw = Map<String, dynamic>.from(
-                                ctrl.homeworkList[i] as Map);
-                            return Slidable(
-                              endActionPane: ActionPane(
-                                motion: const DrawerMotion(),
-                                children: [
-                                  SlidableAction(
-                                    onPressed: (_) async {
-                                      await Get.toNamed(AppRoutes.homeworkForm,
-                                          arguments: hw);
-                                      ctrl.loadHomework(num.tryParse(ctrl
-                                                  .selectedClass.value?['id']
-                                                  ?.toString() ??
-                                              '')
-                                          ?.toInt());
-                                    },
-                                    backgroundColor: AppColors.primary,
-                                    foregroundColor: Colors.white,
-                                    icon: Icons.edit_rounded,
-                                    label: 'Edit',
-                                    borderRadius: const BorderRadius.horizontal(
-                                        left: Radius.circular(14)),
-                                  ),
-                                  SlidableAction(
-                                    onPressed: (_) async {
-                                      final ok = await _confirm(ctx);
-                                      if (ok) {
-                                        ctrl.deleteHomework(num.tryParse(
-                                                    hw['id']?.toString() ?? '')
-                                                ?.toInt() ??
-                                            0);
-                                      }
-                                    },
-                                    backgroundColor: AppColors.danger,
-                                    foregroundColor: Colors.white,
-                                    icon: Icons.delete_rounded,
-                                    label: 'Delete',
-                                    borderRadius: const BorderRadius.horizontal(
-                                        right: Radius.circular(14)),
-                                  ),
-                                ],
-                              ),
-                              child: _HomeworkCard(hw: hw),
-                            );
-                          },
+                            },
+                          ),
                         ),
                       ),
           ),
