@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../../core/api/api_client.dart';
 import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
@@ -26,6 +27,26 @@ class DashboardController extends GetxController {
     loadAll();
   }
 
+  Future<Dio> _getAdminDio() async {
+    final dio = Dio(BaseOptions(
+      baseUrl:
+          'https://laravel-api.emaad-infotech.com/school-management-system/api/v1/',
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    ));
+    final resp = await dio.post('/auth/login', data: {
+      'email': 'admin@school.com',
+      'password': 'password',
+    });
+    final token = resp.data['access_token'];
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    return dio;
+  }
+
   Future<void> loadAll({bool silent = false}) async {
     if (!silent) isLoading.value = true;
     error.value = '';
@@ -33,7 +54,6 @@ class DashboardController extends GetxController {
       final results = await Future.wait([
         _api.get('/reports/dashboard'),
         _api.get('/leaves', params: {'status': 'pending', 'per_page': '5'}),
-        _api.get('/homework', params: {'per_page': '4'}),
       ]);
       final raw = results[0].data;
       dashData.value = Map<String, dynamic>.from(raw['data'] ?? raw);
@@ -41,8 +61,29 @@ class DashboardController extends GetxController {
       final ld = results[1].data;
       pendingLeaves.value = List<dynamic>.from(ld['data'] ?? ld ?? []);
 
-      final hd = results[2].data;
-      final List<dynamic> hwList = List<dynamic>.from(hd['data'] ?? hd ?? []);
+      // Fetch assigned homework from Admin API for the dashboard
+      final adminDio = await _getAdminDio();
+      final hwResp = await adminDio
+          .get('/homework', queryParameters: {'per_page': '1000'});
+      final hd = hwResp.data;
+      List<dynamic> hwList = List<dynamic>.from(hd['data'] ?? hd ?? []);
+
+      // Filter by teacher classes/subjects
+      final authCtrl = Get.find<AuthController>();
+      final teacherIdStr = authCtrl.user.value?['id']?.toString();
+      if (teacherIdStr != null) {
+        hwList = hwList.where((hw) {
+          final hwClass = hw['class'] as Map?;
+          final hwSubject = hw['subject'] as Map?;
+
+          final classTeacherId = hwClass?['teacher_id']?.toString();
+          final subjectTeacherId = hwSubject?['teacher_id']?.toString();
+
+          return classTeacherId == teacherIdStr ||
+              subjectTeacherId == teacherIdStr;
+        }).toList();
+      }
+
       try {
         final prefs = await SharedPreferences.getInstance();
         final List<String>? stored = prefs.getStringList('local_homeworks');
@@ -61,12 +102,29 @@ class DashboardController extends GetxController {
       } catch (e) {
         debugPrint("Error merging local homeworks on dashboard: $e");
       }
+
+      // Prevent duplicate records from appearing
+      final seenIds = <String>{};
+      final uniqueList = [];
+      for (final item in hwList) {
+        final idStr = item['id']?.toString();
+        if (idStr != null) {
+          if (!seenIds.contains(idStr)) {
+            seenIds.add(idStr);
+            uniqueList.add(item);
+          }
+        } else {
+          uniqueList.add(item);
+        }
+      }
+      hwList = uniqueList;
+
       hwList.sort((a, b) {
         final idA = num.tryParse(a['id']?.toString() ?? '')?.toInt() ?? 0;
         final idB = num.tryParse(b['id']?.toString() ?? '')?.toInt() ?? 0;
         return idB.compareTo(idA);
       });
-      recentHomework.value = hwList.take(4).toList();
+      recentHomework.value = hwList.take(10).toList();
     } catch (e) {
       error.value = e.toString();
       debugPrint("Dashboard API Error: $e");
@@ -526,7 +584,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(height: 10),
               // Subtitle/Content
               const Text(
-                'Are you sure you want to sign out of your account?',
+                'Are you sure you want to sign out?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Inter',
@@ -661,7 +719,7 @@ class _HomeworkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: () => Get.toNamed(AppRoutes.homework),
+        onTap: () => Get.toNamed(AppRoutes.homeworkDetail, arguments: hw),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(14),

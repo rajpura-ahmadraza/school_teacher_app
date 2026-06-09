@@ -464,3 +464,84 @@ void showToast(BuildContext context, String message,
     ),
   );
 }
+
+// ── Date Formatting Utilities ──────────────────────────────────
+String formatYmdToDmy(String? ymdStr) {
+  if (ymdStr == null || ymdStr.trim().isEmpty) return '';
+  try {
+    String clean = ymdStr.trim();
+    if (clean.contains('T')) {
+      clean = clean.split('T')[0];
+    } else if (clean.contains(' ')) {
+      clean = clean.split(' ')[0];
+    }
+    final parts = clean.split('-');
+    if (parts.length == 3) {
+      final year = parts[0];
+      final month = parts[1].padLeft(2, '0');
+      final day = parts[2].padLeft(2, '0');
+      return '$day/$month/$year';
+    }
+    final dt = DateTime.parse(ymdStr);
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  } catch (_) {
+    return ymdStr;
+  }
+}
+
+String formatDmyToYmd(String? dmyStr) {
+  if (dmyStr == null || dmyStr.trim().isEmpty) return '';
+  try {
+    final parts = dmyStr.trim().split('/');
+    if (parts.length == 3) {
+      final day = parts[0].padLeft(2, '0');
+      final month = parts[1].padLeft(2, '0');
+      final year = parts[2];
+      return '$year-$month-$day';
+    }
+  } catch (_) {}
+  return dmyStr;
+}
+
+String formatYmToMy(String? ymStr) {
+  if (ymStr == null || ymStr.trim().isEmpty) return '';
+  try {
+    final parts = ymStr.trim().split('-');
+    if (parts.length >= 2) {
+      final year = parts[0];
+      final month = parts[1].padLeft(2, '0');
+      return '$month/$year';
+    }
+  } catch (_) {}
+  return ymStr;
+}
+
+String formatDateTimeToDmy(DateTime? dt) {
+  if (dt == null) return '';
+  return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+}
+
+String formatTimeToAmPm(String? timeStr) {
+  if (timeStr == null || timeStr.trim().isEmpty) return '';
+  try {
+    final clean = timeStr.trim();
+    final parts = clean.split(':');
+    if (parts.isNotEmpty) {
+      int hour = int.tryParse(parts[0]) ?? 0;
+      int minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+      
+      final period = hour >= 12 ? 'PM' : 'AM';
+      
+      int displayHour = hour % 12;
+      if (displayHour == 0) {
+        displayHour = 12;
+      }
+      
+      final minuteStr = minute.toString().padLeft(2, '0');
+      final hourStr = displayHour.toString().padLeft(2, '0');
+      return '$hourStr:$minuteStr $period';
+    }
+  } catch (_) {}
+  return timeStr;
+}
+

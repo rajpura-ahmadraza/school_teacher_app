@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/api/api_client.dart';
+import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common_widgets.dart';
@@ -20,6 +21,20 @@ class AttendanceController extends GetxController {
   final RxMap<int, String> attendance = <int, String>{}.obs; // id -> P/A/L
   final RxBool submitting = false.obs;
   final RxString selectedDate = ''.obs;
+
+  bool get isPastDate {
+    try {
+      final dateStr = selectedDate.value;
+      if (dateStr.isEmpty) return false;
+      final parsed = DateTime.parse(dateStr);
+      final today = DateTime.now();
+      final todayOnlyDate = DateTime(today.year, today.month, today.day);
+      final parsedOnlyDate = DateTime(parsed.year, parsed.month, parsed.day);
+      return parsedOnlyDate.isBefore(todayOnlyDate);
+    } catch (_) {
+      return false;
+    }
+  }
 
   // Report
   final Rx<Map<String, dynamic>?> reportData = Rx(null);
@@ -46,12 +61,27 @@ class AttendanceController extends GetxController {
     try {
       final resp = await _api.get('/classes');
       final raw = resp.data;
+      List<dynamic> list = [];
       if (raw is List) {
-        classes.value = raw;
+        list = raw;
       } else if (raw is Map) {
-        classes.value = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
-      } else {
-        classes.value = [];
+        list = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
+      }
+      
+      final authCtrl = Get.find<AuthController>();
+      final teacherIdStr = authCtrl.user.value?['id']?.toString();
+      if (teacherIdStr != null) {
+        list = list.where((c) => c['teacher_id']?.toString() == teacherIdStr).toList();
+      }
+      classes.value = list;
+      if (list.isNotEmpty) {
+        final firstCls = Map<String, dynamic>.from(list.first as Map);
+        if (selectedClass.value == null) {
+          loadStudents(firstCls);
+        }
+        if (reportClass.value == null) {
+          reportClass.value = firstCls;
+        }
       }
     } catch (e) {
       Get.snackbar('Error', e.toString(),
@@ -128,7 +158,7 @@ class AttendanceController extends GetxController {
         if (existing.containsKey(sid)) {
           attendance[sid] = existing[sid]!;
         } else {
-          attendance[sid] = 'P';
+          attendance[sid] = '';
         }
       }
     } catch (e) {
@@ -147,6 +177,12 @@ class AttendanceController extends GetxController {
   }
 
   Future<bool> submitAttendance() async {
+    final unmarkedCount = attendance.values.where((v) => v.isEmpty).length;
+    if (unmarkedCount > 0) {
+      Get.snackbar('Validation Error', 'Please mark attendance for all students before submitting.',
+          backgroundColor: AppColors.danger, colorText: Colors.white);
+      return false;
+    }
     submitting.value = true;
     try {
       final records = attendance.entries.map((e) {
@@ -394,7 +430,7 @@ class _AttendanceBody extends StatelessWidget {
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
+                        initialDate: DateTime.tryParse(ctrl.selectedDate.value) ?? DateTime.now(),
                         firstDate: DateTime(2020),
                         lastDate: DateTime.now(),
                       );
@@ -408,20 +444,44 @@ class _AttendanceBody extends StatelessWidget {
                         const Icon(Icons.calendar_today_rounded,
                             size: 16, color: AppColors.primary),
                         const SizedBox(width: 6),
-                        Obx(() => Text(ctrl.selectedDate.value,
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: AppColors.primary,
-                            ))),
+                         Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
+                             style: const TextStyle(
+                               fontFamily: 'Inter',
+                               fontWeight: FontWeight.w600,
+                               fontSize: 13,
+                               color: AppColors.primary,
+                             ))),
                       ],
                     ),
                   ),
                   const Spacer(),
-                  _BulkBtn('All P', Colors.green, () => ctrl.markAll('P')),
-                  const SizedBox(width: 8),
-                  _BulkBtn('All A', Colors.red, () => ctrl.markAll('A')),
+                  if (!ctrl.isPastDate) ...[
+                    _BulkBtn('All P', Colors.green, () => ctrl.markAll('P')),
+                    const SizedBox(width: 8),
+                    _BulkBtn('All A', Colors.red, () => ctrl.markAll('A')),
+                  ] else
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.visibility_rounded, size: 14, color: Colors.blue),
+                          SizedBox(width: 4),
+                          Text(
+                            'View Only',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -438,47 +498,48 @@ class _AttendanceBody extends StatelessWidget {
                       : int.tryParse(s['id'].toString()) ?? 0;
                   return Obx(() => _StudentAttendanceTile(
                         student: s,
-                        status: ctrl.attendance[sid] ?? 'P',
-                        onChanged: (v) => ctrl.setStatus(sid, v),
+                        status: ctrl.attendance[sid] ?? '',
+                        onChanged: ctrl.isPastDate ? null : (v) => ctrl.setStatus(sid, v),
                       ));
                 },
               ),
             ),
             // Submit button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              child: Obx(() => SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: ctrl.submitting.value
-                          ? null
-                          : () async {
-                              final ok = await ctrl.submitAttendance();
-                              if (ok && context.mounted) {
-                                showToast(context, 'Attendance saved!');
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+            if (!ctrl.isPastDate)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: Obx(() => SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: ctrl.submitting.value
+                            ? null
+                            : () async {
+                                final ok = await ctrl.submitAttendance();
+                                if (ok && context.mounted) {
+                                  showToast(context, 'Attendance saved!');
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child: ctrl.submitting.value
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
+                            : const Text('Submit Attendance',
+                                style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16)),
                       ),
-                      child: ctrl.submitting.value
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : const Text('Submit Attendance',
-                              style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16)),
-                    ),
-                  )),
-            ),
+                    )),
+              ),
           ],
         );
       });
@@ -513,7 +574,7 @@ class _BulkBtn extends StatelessWidget {
 class _StudentAttendanceTile extends StatelessWidget {
   final Map<String, dynamic> student;
   final String status;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
   const _StudentAttendanceTile(
       {required this.student, required this.status, required this.onChanged});
 
@@ -580,7 +641,7 @@ class _StudentAttendanceTile extends StatelessWidget {
                         ? Colors.red
                         : Colors.orange;
                 return GestureDetector(
-                  onTap: () => onChanged(s),
+                  onTap: onChanged == null ? null : () => onChanged!(s),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     margin: const EdgeInsets.only(left: 6),
@@ -609,13 +670,178 @@ class _StudentAttendanceTile extends StatelessWidget {
       );
 }
 
+Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctrl) async {
+  final now = DateTime.now();
+  final initialYm = ctrl.reportMonth.value.split('-');
+  int tempYear = initialYm.isNotEmpty ? (int.tryParse(initialYm[0]) ?? now.year) : now.year;
+  int tempMonth = initialYm.length > 1 ? (int.tryParse(initialYm[1]) ?? now.month) : now.month;
+
+  final months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  await showDialog<void>(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            surfaceTintColor: Colors.white,
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text(
+              'Select Month & Year',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            content: SizedBox(
+              width: 320,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Year Selection Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: tempYear > 2020
+                            ? () => setState(() => tempYear--)
+                            : null,
+                        icon: const Icon(Icons.chevron_left_rounded, color: AppColors.primary),
+                      ),
+                      Text(
+                        '$tempYear',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: tempYear < now.year
+                            ? () => setState(() => tempYear++)
+                            : null,
+                        icon: const Icon(Icons.chevron_right_rounded, color: AppColors.primary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Month Grid
+                  SizedBox(
+                    height: 200,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                        childAspectRatio: 2.2,
+                      ),
+                      itemCount: 12,
+                      itemBuilder: (ctx, index) {
+                        final mNum = index + 1;
+                        final isSelected = tempMonth == mNum;
+                        final isFutureMonth = tempYear == now.year && mNum > now.month;
+                        
+                        return GestureDetector(
+                          onTap: isFutureMonth
+                              ? null
+                              : () => setState(() => tempMonth = mNum),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : isFutureMonth
+                                      ? Colors.grey.shade100
+                                      : Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.primary
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                months[index].substring(0, 3),
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : isFutureMonth
+                                          ? Colors.grey.shade400
+                                          : AppColors.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontFamily: 'Inter', color: Colors.grey),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ctrl.reportMonth.value =
+                      '$tempYear-${tempMonth.toString().padLeft(2, '0')}';
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('OK', style: TextStyle(fontFamily: 'Inter')),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 // ── Attendance Report Screen ──────────────────────────────────
-class AttendanceReportScreen extends StatelessWidget {
+class AttendanceReportScreen extends StatefulWidget {
   const AttendanceReportScreen({super.key});
 
   @override
+  State<AttendanceReportScreen> createState() => _AttendanceReportScreenState();
+}
+
+class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
+  late final AttendanceController ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    ctrl = Get.find<AttendanceController>();
+    final now = DateTime.now();
+    ctrl.reportMonth.value = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    ctrl.reportData.value = null; // Clear previous report data when entering screen
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ctrl = Get.find<AttendanceController>();
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -648,42 +874,63 @@ class AttendanceReportScreen extends StatelessWidget {
                       final currentSelection = ctrl.classes.firstWhereOrNull(
                         (c) => c['id'] == selectedId,
                       );
-                      return DropdownButtonFormField<dynamic>(
-                        value: currentSelection,
-                        decoration: InputDecoration(
-                          labelText: 'Select Class',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                      final label = currentSelection != null
+                          ? '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}'
+                          : 'Select Class';
+                      
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          hoverColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
                         ),
-                        items: ctrl.classes.map((c) {
-                          return DropdownMenuItem<dynamic>(
-                            value: c,
-                            child: Text(
+                        child: PopupMenuButton<dynamic>(
+                          surfaceTintColor: Colors.white,
+                          color: Colors.white,
+                          offset: const Offset(0, 52),
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: Color(0xFFE2E8F0)),
+                          ),
+                          constraints: BoxConstraints(
+                            minWidth: MediaQuery.of(context).size.width - 32,
+                            maxWidth: MediaQuery.of(context).size.width - 32,
+                          ),
+                          onSelected: (v) => ctrl.reportClass.value = v,
+                          itemBuilder: (ctx) => ctrl.classes.map((c) {
+                            return PopupMenuItem<dynamic>(
+                              value: c,
+                              child: Text(
                                 '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                                style: const TextStyle(fontFamily: 'Inter')),
-                          );
-                        }).toList(),
-                        onChanged: (v) => ctrl.reportClass.value = v,
+                                style: const TextStyle(fontFamily: 'Inter'),
+                              ),
+                            );
+                          }).toList(),
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: 'Select Class',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 10),
+                              suffixIcon: const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: AppColors.textSecondary),
+                            ),
+                            child: Text(
+                              label,
+                              style: const TextStyle(
+                                  fontFamily: 'Inter', fontSize: 14),
+                            ),
+                          ),
+                        ),
                       );
                     })(),
                     const SizedBox(height: 12),
                     // Month picker
                     GestureDetector(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now(),
-                          initialEntryMode: DatePickerEntryMode.calendarOnly,
-                        );
-                        if (picked != null) {
-                          ctrl.reportMonth.value =
-                              '${picked.year}-${picked.month.toString().padLeft(2, '0')}';
-                        }
-                      },
+                      onTap: () => _showMonthYearPicker(context, ctrl),
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -695,9 +942,9 @@ class AttendanceReportScreen extends StatelessWidget {
                           const Icon(Icons.calendar_month_rounded,
                               size: 18, color: AppColors.primary),
                           const SizedBox(width: 8),
-                          Text(ctrl.reportMonth.value,
-                              style: const TextStyle(
-                                  fontFamily: 'Inter', fontSize: 14)),
+                           Text(formatYmToMy(ctrl.reportMonth.value),
+                               style: const TextStyle(
+                                   fontFamily: 'Inter', fontSize: 14)),
                         ]),
                       ),
                     ),

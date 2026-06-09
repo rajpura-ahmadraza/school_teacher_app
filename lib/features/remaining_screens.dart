@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../core/api/api_client.dart';
+import '../core/controllers/auth_controller.dart';
 import '../core/routes/app_routes.dart';
 import '../core/theme/app_theme.dart';
 import '../core/widgets/common_widgets.dart';
@@ -29,12 +30,21 @@ class TimetableController extends GetxController {
     try {
       final r = await _api.get('/classes');
       final raw = r.data;
+      List<dynamic> list = [];
       if (raw is List) {
-        classes.value = raw;
+        list = raw;
       } else if (raw is Map) {
-        classes.value = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
-      } else {
-        classes.value = [];
+        list = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
+      }
+      
+      final authCtrl = Get.find<AuthController>();
+      final teacherIdStr = authCtrl.user.value?['id']?.toString();
+      if (teacherIdStr != null) {
+        list = list.where((c) => c['teacher_id']?.toString() == teacherIdStr).toList();
+      }
+      classes.value = list;
+      if (list.isNotEmpty && selectedClass.value == null) {
+        loadTimetable(Map<String, dynamic>.from(list.first as Map));
       }
     } catch (_) {
       classes.value = [];
@@ -304,7 +314,7 @@ class TimetableScreen extends StatelessWidget {
                                                     fontWeight: FontWeight.w700,
                                                     fontSize: 15)),
                                             Text(
-                                                '${p['start_time'] ?? ''} – ${p['end_time'] ?? ''}',
+                                                '${formatTimeToAmPm(p['start_time'] as String?)} – ${formatTimeToAmPm(p['end_time'] as String?)}',
                                                 style: const TextStyle(
                                                     fontFamily: 'Inter',
                                                     fontSize: 13,
@@ -333,32 +343,54 @@ class TimetableScreen extends StatelessWidget {
 class LeavesController extends GetxController {
   final _api = ApiClient.instance;
   final RxList<dynamic> leaves = <dynamic>[].obs;
-  final RxBool isLoading = true.obs;
+  final RxBool isLoading = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMore = true.obs;
   final RxString filterStatus = 'pending'.obs;
+  int _page = 1;
 
   @override
   void onInit() {
     super.onInit();
-    loadLeaves();
+    loadLeaves(refresh: true);
   }
 
-  Future<void> loadLeaves() async {
-    isLoading.value = true;
-    try {
-      final r = await _api.get('/leaves',
-          params: {'status': filterStatus.value, 'per_page': '50'});
-      final raw = r.data;
-      if (raw is List) {
-        leaves.value = raw;
-      } else if (raw is Map) {
-        leaves.value = List<dynamic>.from(raw['data'] ?? raw['leaves'] ?? []);
-      } else {
-        leaves.value = [];
-      }
-    } catch (_) {
-      leaves.value = [];
+  Future<void> loadLeaves({bool refresh = false}) async {
+    if (refresh) {
+      _page = 1;
+      hasMore.value = true;
+      leaves.clear();
+      isLoading.value = true;
+    } else {
+      if (isLoading.value || isLoadingMore.value || !hasMore.value) return;
+      isLoadingMore.value = true;
     }
-    isLoading.value = false;
+
+    try {
+      final r = await _api.get('/leaves', params: {
+        'status': filterStatus.value,
+        'per_page': '15',
+        'page': _page.toString(),
+      });
+      final raw = r.data;
+      List<dynamic> list = [];
+      int lastPage = 1;
+      if (raw is List) {
+        list = raw;
+      } else if (raw is Map) {
+        list = List<dynamic>.from(raw['data'] ?? raw['leaves'] ?? []);
+        lastPage = raw['last_page'] ?? 1;
+      }
+      
+      leaves.addAll(list);
+      hasMore.value = _page < lastPage && list.length == 15;
+      _page++;
+    } catch (_) {
+      if (refresh) leaves.value = [];
+    } finally {
+      isLoading.value = false;
+      isLoadingMore.value = false;
+    }
   }
 
   Future<void> reviewLeave(int id, String status) async {
@@ -375,12 +407,40 @@ class LeavesController extends GetxController {
   }
 }
 
-class LeavesScreen extends StatelessWidget {
+class LeavesScreen extends StatefulWidget {
   const LeavesScreen({super.key});
 
   @override
+  State<LeavesScreen> createState() => _LeavesScreenState();
+}
+
+class _LeavesScreenState extends State<LeavesScreen> {
+  late final LeavesController ctrl;
+  final _scrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    ctrl = Get.put(LeavesController());
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200) {
+      if (!ctrl.isLoading.value && !ctrl.isLoadingMore.value && ctrl.hasMore.value) {
+        ctrl.loadLeaves();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(LeavesController());
     final statuses = ['pending', 'approved', 'rejected'];
 
     return Scaffold(
@@ -402,37 +462,63 @@ class LeavesScreen extends StatelessWidget {
                 fontWeight: FontWeight.w700)),
       ),
       body: Column(children: [
-        // Status filter tabs
+        // Status filter dropdown
         Container(
           color: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Obx(() => Row(
-                children: statuses.map((s) {
-                  final sel = ctrl.filterStatus.value == s;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        ctrl.filterStatus.value = s;
-                        ctrl.loadLeaves();
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          gradient: sel ? AppColors.gradientPrimary : null,
-                          color: sel ? null : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(20),
+          width: double.infinity,
+          child: Obx(() => DropdownMenu<String>(
+                expandedInsets: EdgeInsets.zero,
+                initialSelection: ctrl.filterStatus.value,
+                requestFocusOnTap: false,
+                enableSearch: false,
+                textStyle: const TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: const Color(0xFFFAFAFA),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                ),
+                menuStyle: const MenuStyle(
+                  backgroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+                ),
+                onSelected: (String? newValue) {
+                  if (newValue != null && ctrl.filterStatus.value != newValue) {
+                    ctrl.filterStatus.value = newValue;
+                    ctrl.loadLeaves(refresh: true);
+                  }
+                },
+                dropdownMenuEntries:
+                    statuses.map<DropdownMenuEntry<String>>((s) {
+                  return DropdownMenuEntry<String>(
+                    value: s,
+                    label: s[0].toUpperCase() + s.substring(1),
+                    style: ButtonStyle(
+                      textStyle: WidgetStateProperty.all(
+                        const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
                         ),
-                        child: Text(s[0].toUpperCase() + s.substring(1),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                                color: sel
-                                    ? Colors.white
-                                    : AppColors.textSecondary)),
                       ),
                     ),
                   );
@@ -454,12 +540,22 @@ class LeavesScreen extends StatelessWidget {
               );
             }
             return RefreshIndicator(
-              onRefresh: ctrl.loadLeaves,
+              onRefresh: () => ctrl.loadLeaves(refresh: true),
               child: ListView.separated(
+                controller: _scrollCtrl,
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
-                itemCount: ctrl.leaves.length,
+                itemCount: ctrl.leaves.length + (ctrl.hasMore.value ? 1 : 0),
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (ctx, i) {
+                  if (i == ctrl.leaves.length) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      ),
+                    );
+                  }
                   final leave =
                       Map<String, dynamic>.from(ctrl.leaves[i] as Map);
                   return _LeaveCard(
@@ -493,8 +589,16 @@ class _LeaveCard extends StatelessWidget {
     final statusColor = status == 'pending'
         ? AppColors.warning
         : status == 'approved'
-            ? AppColors.secondary
+            ? AppColors.success
             : AppColors.danger;
+    final studentPhotoUrl = student['profile_photo'] as String? ??
+        student['image'] as String? ??
+        student['photo'] as String? ??
+        student['avatar'] as String? ??
+        student['admission_image'] as String? ??
+        leave['profile_photo'] as String? ??
+        leave['student_image'] as String? ??
+        leave['image'] as String?;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -512,7 +616,7 @@ class _LeaveCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           NetAvatar(
-            url: student['profile_photo'] as String?,
+            url: studentPhotoUrl,
             radius: 22,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
@@ -525,7 +629,7 @@ class _LeaveCard extends StatelessWidget {
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: 15)),
-              Text('$from → $to',
+              Text('${formatYmdToDmy(from)} → ${formatYmdToDmy(to)}',
                   style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
@@ -547,6 +651,7 @@ class _LeaveCard extends StatelessWidget {
           Row(children: [
             Expanded(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () => onReview('rejected'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
@@ -575,27 +680,28 @@ class _LeaveCard extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: () => onReview('approved'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary.withOpacity(0.08),
+                    color: AppColors.success.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color: AppColors.secondary.withOpacity(0.25)),
+                        color: AppColors.success.withOpacity(0.25)),
                   ),
                   child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.check_rounded,
-                            color: AppColors.secondary, size: 16),
+                            color: AppColors.success, size: 16),
                         SizedBox(width: 6),
                         Text('Approve',
                             style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.secondary)),
+                                color: AppColors.success)),
                       ]),
                 ),
               ),

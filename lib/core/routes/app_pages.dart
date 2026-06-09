@@ -59,6 +59,11 @@ class AppPages {
             existing: Get.arguments as Map<String, dynamic>?),
     ),
     GetPage(
+      name: AppRoutes.homeworkDetail,
+      page: () => HomeworkDetailScreen(
+            homework: Get.arguments as Map<String, dynamic>),
+    ),
+    GetPage(
       name: AppRoutes.timetable,
       page: () => const TimetableScreen(),
     ),

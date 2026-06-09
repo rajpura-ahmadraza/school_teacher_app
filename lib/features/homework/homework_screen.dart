@@ -1,1 +1,1 @@
-export 'homework_screens.dart' show HomeworkScreen;
+export 'homework_screens.dart' show HomeworkScreen, HomeworkDetailScreen;

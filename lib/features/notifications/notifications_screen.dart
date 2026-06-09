@@ -40,8 +40,12 @@ class NotificationModel {
 }
 
 class NotificationsController extends GetxController {
+  final RxList<NotificationModel> allNotifications = <NotificationModel>[].obs;
   final RxList<NotificationModel> notifications = <NotificationModel>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMore = true.obs;
+  int _page = 1;
   final NotificationService _service = NotificationService.instance;
 
   @override
@@ -52,6 +56,7 @@ class NotificationsController extends GetxController {
     // Listen to real-time incoming foreground notifications
     _service.newNotificationStream.listen((n) {
       final newModel = NotificationModel.fromJson(n, DateTime.now().millisecondsSinceEpoch.toString());
+      allNotifications.insert(0, newModel);
       notifications.insert(0, newModel);
     });
   }
@@ -60,27 +65,53 @@ class NotificationsController extends GetxController {
     isLoading.value = true;
     try {
       final saved = await _service.getSavedNotifications();
-      notifications.value = saved.asMap().entries.map((entry) {
+      allNotifications.value = saved.asMap().entries.map((entry) {
         return NotificationModel.fromJson(entry.value, entry.key.toString());
       }).toList();
+      _page = 1;
+      notifications.value = allNotifications.take(15).toList();
+      hasMore.value = notifications.length < allNotifications.length;
     } catch (_) {
+      allNotifications.value = [];
+      _page = 1;
       notifications.value = [];
+      hasMore.value = false;
     } finally {
       isLoading.value = false;
     }
   }
 
+  void loadMore() {
+    if (isLoadingMore.value || !hasMore.value) return;
+    isLoadingMore.value = true;
+    final start = _page * 15;
+    final nextItems = allNotifications.skip(start).take(15).toList();
+    if (nextItems.isNotEmpty) {
+      notifications.addAll(nextItems);
+      _page++;
+    }
+    hasMore.value = notifications.length < allNotifications.length;
+    isLoadingMore.value = false;
+  }
+
   Future<void> markAsRead(String id) async {
-    final index = notifications.indexWhere((n) => n.id == id);
-    if (index != -1 && !notifications[index].isRead.value) {
-      await _service.markNotificationAsRead(index);
-      notifications[index].isRead.value = true;
+    final allIdx = allNotifications.indexWhere((n) => n.id == id);
+    if (allIdx != -1 && !allNotifications[allIdx].isRead.value) {
+      await _service.markNotificationAsRead(allIdx);
+      allNotifications[allIdx].isRead.value = true;
+      final dispIdx = notifications.indexWhere((n) => n.id == id);
+      if (dispIdx != -1) {
+        notifications[dispIdx].isRead.value = true;
+      }
       notifications.refresh();
     }
   }
 
   Future<void> markAllAsRead() async {
     await _service.markAllNotificationsAsRead();
+    for (var n in allNotifications) {
+      n.isRead.value = true;
+    }
     for (var n in notifications) {
       n.isRead.value = true;
     }
@@ -88,22 +119,56 @@ class NotificationsController extends GetxController {
   }
 
   Future<void> deleteNotification(String id) async {
-    final index = notifications.indexWhere((n) => n.id == id);
-    if (index != -1) {
-      await _service.deleteNotification(index);
-      notifications.removeAt(index);
+    final allIdx = allNotifications.indexWhere((n) => n.id == id);
+    if (allIdx != -1) {
+      await _service.deleteNotification(allIdx);
+      allNotifications.removeAt(allIdx);
+      final dispIdx = notifications.indexWhere((n) => n.id == id);
+      if (dispIdx != -1) {
+        notifications.removeAt(dispIdx);
+      }
       notifications.refresh();
     }
   }
 
   Future<void> clearAll() async {
     await _service.clearNotifications();
+    allNotifications.clear();
     notifications.clear();
   }
 }
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  late final NotificationsController ctrl;
+  final _scrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    ctrl = Get.put(NotificationsController());
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200) {
+      if (!ctrl.isLoading.value && !ctrl.isLoadingMore.value && ctrl.hasMore.value) {
+        ctrl.loadMore();
+      }
+    }
+  }
 
   IconData _getIcon(String type) {
     switch (type) {
@@ -148,8 +213,6 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(NotificationsController());
-
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -245,10 +308,20 @@ class NotificationsScreen extends StatelessWidget {
           color: AppColors.primary,
           onRefresh: ctrl.loadNotifications,
           child: ListView.separated(
+            controller: _scrollCtrl,
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16),
-            itemCount: ctrl.notifications.length,
+            itemCount: ctrl.notifications.length + (ctrl.hasMore.value ? 1 : 0),
             separatorBuilder: (_, __) => const SizedBox(height: 10),
             itemBuilder: (ctx, i) {
+              if (i == ctrl.notifications.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+                );
+              }
               final item = ctrl.notifications[i];
               final iconColor = _getColor(item.type);
 

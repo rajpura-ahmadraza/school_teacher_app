@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:image_picker/image_picker.dart';
 import '../../core/api/api_client.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
@@ -413,45 +412,6 @@ class _DetailBody extends StatelessWidget {
   final Map<String, dynamic> student;
   const _DetailBody({required this.student});
 
-  void _pickAndUploadImage(BuildContext context, int studentId) async {
-    final picker = ImagePicker();
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library_rounded),
-              title: const Text('Gallery'),
-              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt_rounded),
-              title: const Text('Camera'),
-              onTap: () => Navigator.pop(ctx, ImageSource.camera),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (source != null) {
-      final image = await picker.pickImage(source: source, imageQuality: 80);
-      if (image != null) {
-        if (!context.mounted) return;
-        showToast(context, 'Uploading image…');
-        final ctrl = Get.find<StudentsController>();
-        final success = await ctrl.uploadStudentPhoto(studentId, image.path);
-        if (!context.mounted) return;
-        if (success) {
-          showToast(context, 'Image uploaded successfully!');
-        } else {
-          showToast(context, 'Failed to upload image', isError: true);
-        }
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -485,26 +445,11 @@ class _DetailBody extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          NetAvatar(
-                            url: photoUrl,
-                            radius: 44,
-                            fallbackLetter:
-                                (student['name'] as String? ?? '?')[0],
-                          ),
-                          GestureDetector(
-                            onTap: () => _pickAndUploadImage(
-                                context, student['id'] as int),
-                            child: CircleAvatar(
-                              radius: 14,
-                              backgroundColor: AppColors.primary,
-                              child: const Icon(Icons.camera_alt_rounded,
-                                  color: Colors.white, size: 14),
-                            ),
-                          ),
-                        ],
+                      NetAvatar(
+                        url: photoUrl,
+                        radius: 44,
+                        fallbackLetter:
+                            (student['name'] as String? ?? '?')[0],
                       ),
                       const SizedBox(height: 12),
                       Text(student['name'] as String? ?? 'Student',
@@ -536,14 +481,19 @@ class _DetailBody extends StatelessWidget {
                 InfoRow(
                     icon: Icons.wc_rounded,
                     label: 'Gender',
-                    value: student['gender'] as String? ?? '-'),
+                    value: (() {
+                      final g = student['gender'] as String?;
+                      if (g == null || g.isEmpty) return '-';
+                      return g[0].toUpperCase() + g.substring(1).toLowerCase();
+                    })()),
                 const SizedBox(height: 12),
                 InfoRow(
                     icon: Icons.cake_rounded,
                     label: 'Date of Birth',
-                    value: student['dob'] as String? ??
-                        student['date_of_birth'] as String? ??
-                        '-'),
+                    value: student['dob'] == null && student['date_of_birth'] == null
+                        ? '-'
+                        : formatYmdToDmy(student['dob'] as String? ??
+                            student['date_of_birth'] as String?)),
                 if (address.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   InfoRow(

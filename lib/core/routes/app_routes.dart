@@ -8,6 +8,7 @@ abstract class AppRoutes {
   static const attendanceReport = '/attendance/report';
   static const homework = '/homework';
   static const homeworkForm = '/homework/form';
+  static const homeworkDetail = '/homework/detail';
   static const timetable = '/timetable';
   static const leaves = '/leaves';
   static const gallery = '/gallery';
