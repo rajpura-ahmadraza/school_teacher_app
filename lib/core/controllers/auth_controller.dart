@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:get/get.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -61,27 +60,37 @@ class AuthController extends GetxController {
       'device_IsVirtual': 'false',
     };
     try {
-      final deviceInfo = DeviceInfoPlugin();
-      if (Platform.isAndroid) {
-        final androidInfo = await deviceInfo.androidInfo;
-        deviceData['device_model'] = androidInfo.model;
-        deviceData['device_type'] = 'Android';
-        deviceData['device_platform'] =
-            'Android ${androidInfo.version.release}';
-        deviceData['device_uuid'] = androidInfo.id;
-        deviceData['device_version'] = androidInfo.version.sdkInt.toString();
-        deviceData['device_manufacturer'] = androidInfo.manufacturer;
-        deviceData['device_IsVirtual'] =
-            (!androidInfo.isPhysicalDevice).toString();
-      } else if (Platform.isIOS) {
-        final iosInfo = await deviceInfo.iosInfo;
-        deviceData['device_model'] = iosInfo.model;
-        deviceData['device_type'] = 'iOS';
-        deviceData['device_platform'] = iosInfo.systemName;
-        deviceData['device_uuid'] = iosInfo.identifierForVendor ?? 'Unknown';
-        deviceData['device_version'] = iosInfo.systemVersion;
-        deviceData['device_manufacturer'] = 'Apple';
-        deviceData['device_IsVirtual'] = (!iosInfo.isPhysicalDevice).toString();
+      if (GetPlatform.isWeb) {
+        deviceData['device_model'] = 'Web Browser';
+        deviceData['device_type'] = 'Web';
+        deviceData['device_platform'] = 'Web';
+        deviceData['device_uuid'] = 'Web';
+        deviceData['device_version'] = '1.0';
+        deviceData['device_manufacturer'] = 'Web';
+        deviceData['device_IsVirtual'] = 'false';
+      } else {
+        final deviceInfo = DeviceInfoPlugin();
+        if (GetPlatform.isAndroid) {
+          final androidInfo = await deviceInfo.androidInfo;
+          deviceData['device_model'] = androidInfo.model;
+          deviceData['device_type'] = 'Android';
+          deviceData['device_platform'] =
+              'Android ${androidInfo.version.release}';
+          deviceData['device_uuid'] = androidInfo.id;
+          deviceData['device_version'] = androidInfo.version.sdkInt.toString();
+          deviceData['device_manufacturer'] = androidInfo.manufacturer;
+          deviceData['device_IsVirtual'] =
+              (!androidInfo.isPhysicalDevice).toString();
+        } else if (GetPlatform.isIOS) {
+          final iosInfo = await deviceInfo.iosInfo;
+          deviceData['device_model'] = iosInfo.model;
+          deviceData['device_type'] = 'iOS';
+          deviceData['device_platform'] = iosInfo.systemName;
+          deviceData['device_uuid'] = iosInfo.identifierForVendor ?? 'Unknown';
+          deviceData['device_version'] = iosInfo.systemVersion;
+          deviceData['device_manufacturer'] = 'Apple';
+          deviceData['device_IsVirtual'] = (!iosInfo.isPhysicalDevice).toString();
+        }
       }
     } catch (_) {}
     return deviceData;

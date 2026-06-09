@@ -181,148 +181,227 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 140,
-                  pinned: false,
+                  expandedHeight: 150,
+                  pinned: true,
                   stretch: true,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: AppColors.primary,
                   automaticallyImplyLeading: false,
-                  flexibleSpace: FlexibleSpaceBar(
-                    stretchModes: const [StretchMode.zoomBackground],
-                    background: Stack(
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            gradient: AppColors.gradientPrimary,
-                          ),
-                        ),
-                        Positioned(
-                          right: -30,
-                          top: -20,
-                          child: Container(
-                            width: 160,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.08),
+                  flexibleSpace: LayoutBuilder(
+                    builder: (BuildContext context, BoxConstraints constraints) {
+                      final double top = constraints.biggest.height;
+                      final double statusBarHeight = MediaQuery.of(context).padding.top;
+                      final double minHeight = statusBarHeight + kToolbarHeight;
+                      final double maxHeight = 150.0;
+                      
+                      final double delta = maxHeight - minHeight;
+                      final double collapsePercent = ((maxHeight - top) / delta).clamp(0.0, 1.0);
+                      
+                      final double expandedOpacity = (1.0 - (collapsePercent / 0.5)).clamp(0.0, 1.0);
+                      final double collapsedOpacity = ((collapsePercent - 0.5) / 0.5).clamp(0.0, 1.0);
+                      
+                      return Stack(
+                        fit: StackFit.expand,
+                        clipBehavior: Clip.hardEdge,
+                        children: [
+                          Container(
+                            decoration: const BoxDecoration(
+                              gradient: AppColors.gradientPrimary,
                             ),
                           ),
-                        ),
-                        Positioned(
-                          left: -40,
-                          bottom: 20,
-                          child: Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.05),
+                          Positioned(
+                            right: -30,
+                            top: -20,
+                            child: Container(
+                              width: 160,
+                              height: 160,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.08),
+                              ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text('${_greeting()}, 👋',
-                                            style: TextStyle(
-                                              color: Colors.white
-                                                  .withOpacity(0.85),
-                                              fontFamily: 'Inter',
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                        const SizedBox(height: 4),
-                                        Text(name,
-                                            style: const TextStyle(
+                          Positioned(
+                            left: -40,
+                            bottom: 20,
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.05),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 115,
+                            child: IgnorePointer(
+                              ignoring: collapsePercent > 0.5,
+                              child: Opacity(
+                                opacity: expandedOpacity,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 15),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('${_greeting()}, 👋',
+                                                    style: TextStyle(
+                                                      color: Colors.white.withOpacity(0.85),
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w500,
+                                                    )),
+                                                const SizedBox(height: 4),
+                                                Text(name,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: 'Inter',
+                                                      fontSize: 26,
+                                                      fontWeight: FontWeight.w800,
+                                                    )),
+                                              ],
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () => Get.toNamed(AppRoutes.notifications),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.15),
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: const Icon(
+                                                  Icons.notifications_rounded,
+                                                  color: Colors.white,
+                                                  size: 20),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          GestureDetector(
+                                            onTap: () => _showLogoutConfirm(context, auth),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.15),
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: const Icon(Icons.logout_rounded,
+                                                  color: Colors.white, size: 20),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.15),
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xFF4ADE80),
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              user?['employee_id'] != null
+                                                  ? 'ID: ${user!['employee_id']}'
+                                                  : user?['email'] as String? ?? 'Teacher',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Inter',
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            top: statusBarHeight,
+                            height: kToolbarHeight,
+                            child: IgnorePointer(
+                              ignoring: collapsePercent <= 0.5,
+                              child: Opacity(
+                                opacity: collapsedOpacity,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Inter',
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => Get.toNamed(AppRoutes.notifications),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: const Icon(
+                                              Icons.notifications_rounded,
                                               color: Colors.white,
-                                              fontFamily: 'Inter',
-                                              fontSize: 26,
-                                              fontWeight: FontWeight.w800,
-                                            )),
-                                      ],
-                                    ),
+                                              size: 20),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () => _showLogoutConfirm(context, auth),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: const Icon(Icons.logout_rounded,
+                                              color: Colors.white, size: 20),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  GestureDetector(
-                                    onTap: () =>
-                                        Get.toNamed(AppRoutes.notifications),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white
-                                            .withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(
-                                          Icons.notifications_rounded,
-                                          color: Colors.white,
-                                          size: 20),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  GestureDetector(
-                                    onTap: () =>
-                                        _showLogoutConfirm(context, auth),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: const Icon(Icons.logout_rounded,
-                                          color: Colors.white, size: 20),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Container(
-                                      width: 8,
-                                      height: 8,
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFF4ADE80),
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      user?['employee_id'] != null
-                                          ? 'ID: ${user!['employee_id']}'
-                                          : user?['email'] as String? ??
-                                              'Teacher',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Inter',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    }
                   ),
                 ),
 
