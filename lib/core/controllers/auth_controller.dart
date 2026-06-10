@@ -40,9 +40,9 @@ class AuthController extends GetxController {
           isInitializing.value = false;
           
           final elapsed = DateTime.now().difference(startTime);
-          if (elapsed.inMilliseconds < 3000) {
+          if (elapsed.inMilliseconds < 2000) {
             await Future.delayed(
-              Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+              Duration(milliseconds: 2000 - elapsed.inMilliseconds),
             );
           }
           Get.offAllNamed(AppRoutes.dashboard);
@@ -56,9 +56,9 @@ class AuthController extends GetxController {
     isInitializing.value = false;
     
     final elapsed = DateTime.now().difference(startTime);
-    if (elapsed.inMilliseconds < 3000) {
+    if (elapsed.inMilliseconds < 2000) {
       await Future.delayed(
-        Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+        Duration(milliseconds: 2000 - elapsed.inMilliseconds),
       );
     }
     Get.offAllNamed(AppRoutes.login);

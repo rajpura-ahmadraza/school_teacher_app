@@ -181,7 +181,7 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 110,
+                  expandedHeight: 125,
                   pinned: true,
                   stretch: true,
                   backgroundColor: AppColors.primary,
@@ -192,7 +192,7 @@ class DashboardScreen extends StatelessWidget {
                     final double statusBarHeight =
                         MediaQuery.of(context).padding.top;
                     final double minHeight = statusBarHeight + kToolbarHeight;
-                    final double maxHeight = 150.0;
+                    const double maxHeight = 150.0;
 
                     final double delta = maxHeight - minHeight;
                     final double collapsePercent =
