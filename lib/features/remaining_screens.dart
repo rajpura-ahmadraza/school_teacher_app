@@ -545,9 +545,13 @@ class _LeavesScreenState extends State<LeavesScreen> {
                   child: CircularProgressIndicator(color: AppColors.primary));
             }
             if (ctrl.leaves.isEmpty) {
+              final statusText = ctrl.filterStatus.value;
+              final capitalized = statusText.isNotEmpty
+                  ? statusText[0].toUpperCase() + statusText.substring(1)
+                  : '';
               return EmptyState(
                 icon: Icons.event_available_rounded,
-                title: 'No ${ctrl.filterStatus.value} leaves',
+                title: 'No $capitalized leaves',
                 subtitle: 'All caught up!',
               );
             }
@@ -644,14 +648,17 @@ class _LeaveCard extends StatelessWidget {
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: Get.height / 50.4)),
-              Text('${formatYmdToDmy(from)} → ${formatYmdToDmy(to)}',
+              Text('${formatYmdToDmy(from)} To ${formatYmdToDmy(to)}',
                   style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: Get.height / 63,
                       color: AppColors.textSecondary)),
             ]),
           ),
-          StatusBadge(label: status, color: statusColor),
+          StatusBadge(
+            label: status.isNotEmpty ? status[0].toUpperCase() + status.substring(1) : '',
+            color: statusColor,
+          ),
         ]),
         if (reason.isNotEmpty) ...[
           SizedBox(height: Get.height / 75.6),
@@ -738,74 +745,109 @@ class GalleryController extends GetxController {
   final _api = ApiClient.instance;
   final RxList<dynamic> albums = <dynamic>[].obs;
   final RxBool isLoading = true.obs;
-  final RxString selectedAlbum = 'all'.obs;
+  final RxString selectedAlbum = ''.obs;
+
+  final List<Map<String, dynamic>> _allGroupedAlbums = [];
+  final RxBool hasMore = true.obs;
+  final RxBool isLoadMoreLoading = false.obs;
+  int _displayedCount = 10;
 
   @override
   void onInit() {
     super.onInit();
-    load();
+    ever(selectedAlbum, (_) {
+      _displayedCount = 10;
+      _updateDisplayedAlbums();
+      updateHasMore();
+    });
+    load(refresh: true);
   }
 
-  Future<void> load() async {
-    isLoading.value = true;
-    try {
-      final r = await _api.get('/gallery');
-      final raw = r.data;
-      if (raw is List) {
-        final List<Map<String, dynamic>> grouped = [];
-        for (var item in raw) {
-          if (item is Map) {
-            final title = item['title']?.toString() ??
-                item['name']?.toString() ??
-                'Album';
-            final rawPhotos =
-                List<dynamic>.from(item['photos'] ?? item['images'] ?? []);
-            final photos = rawPhotos.map((p) {
-              final pMap =
-                  p is Map ? Map<String, dynamic>.from(p) : <String, dynamic>{};
-              pMap['url'] = pMap['url'] ??
-                  pMap['image_url'] ??
-                  pMap['thumbnail_url'] ??
-                  pMap['image_path'] ??
-                  '';
-              return pMap;
-            }).toList();
-            grouped.add({
-              'title': title,
-              'photos': photos,
-            });
+  Future<void> load({bool refresh = false}) async {
+    if (refresh) {
+      isLoading.value = true;
+      _allGroupedAlbums.clear();
+      albums.clear();
+      _displayedCount = 10;
+      hasMore.value = true;
+
+      try {
+        final authCtrl = Get.find<AuthController>();
+        final teacherId = authCtrl.user.value?['id'];
+        final Set<int> teacherClassIds = {};
+
+        try {
+          final classesResp = await _api.get('/classes');
+          final classesRaw = classesResp.data;
+          List<dynamic> classesList = [];
+          if (classesRaw is List) {
+            classesList = classesRaw;
+          } else if (classesRaw is Map) {
+            classesList = List<dynamic>.from(classesRaw['data'] ?? classesRaw['classes'] ?? []);
+          }
+          if (teacherId != null) {
+            final teacherIdStr = teacherId.toString();
+            for (final c in classesList) {
+              if (c is Map && c['teacher_id']?.toString() == teacherIdStr) {
+                final cid = c['id'];
+                if (cid is int) {
+                  teacherClassIds.add(cid);
+                } else if (cid != null) {
+                  final parsed = int.tryParse(cid.toString());
+                  if (parsed != null) teacherClassIds.add(parsed);
+                }
+              }
+            }
+          }
+        } catch (_) {}
+
+        final r = await _api.get('/gallery', params: {
+          'per_page': '1000',
+        });
+        final raw = r.data;
+        List<dynamic> rawPhotosList = [];
+        
+        if (raw is List) {
+          for (var item in raw) {
+            if (item is Map) {
+              final rawPhotos = List<dynamic>.from(item['photos'] ?? item['images'] ?? []);
+              for (var p in rawPhotos) {
+                if (p is Map) {
+                  final pMap = Map<String, dynamic>.from(p);
+                  pMap['album'] = pMap['album'] ?? item['title']?.toString() ?? item['name']?.toString() ?? 'Album';
+                  rawPhotosList.add(pMap);
+                }
+              }
+            }
+          }
+        } else if (raw is Map) {
+          final photosNode = raw['photos'];
+          if (photosNode is Map) {
+            rawPhotosList = List<dynamic>.from(photosNode['data'] ?? []);
+          } else if (photosNode is List) {
+            rawPhotosList = photosNode;
+          } else if (raw['data'] is List) {
+            rawPhotosList = raw['data'];
           }
         }
-        albums.value = grouped;
-      } else if (raw is Map) {
-        // Extract photos
-        List<dynamic> allPhotos = [];
-        final photosNode = raw['photos'];
-        if (photosNode is Map) {
-          allPhotos = List<dynamic>.from(photosNode['data'] ?? []);
-        } else if (photosNode is List) {
-          allPhotos = photosNode;
-        } else if (raw['data'] is List) {
-          allPhotos = raw['data'];
-        }
 
-        // Extract album names
-        List<String> albumNames = [];
-        final albumsNode = raw['albums'];
-        if (albumsNode is List) {
-          albumNames = albumsNode.map((e) => e.toString()).toList();
-        } else {
-          albumNames = allPhotos
-              .map((p) => (p is Map) ? p['album']?.toString() : null)
-              .whereType<String>()
-              .toSet()
-              .toList();
-        }
+        final filtered = rawPhotosList.where((p) {
+          if (p is! Map) return false;
+          final cid = p['class_id'];
+          if (cid == null) return false;
+          final parsedCid = int.tryParse(cid.toString());
+          return parsedCid != null && teacherClassIds.contains(parsedCid);
+        }).toList();
 
-        // Group photos by album name
+        final List<String> albumNames = filtered
+            .map((p) => (p is Map) ? p['album']?.toString() : null)
+            .whereType<String>()
+            .toSet()
+            .toList();
+
         final List<Map<String, dynamic>> grouped = [];
         for (final name in albumNames) {
-          final photosInAlbum = allPhotos.where((p) {
+          final photosInAlbum = filtered.where((p) {
             if (p is! Map) return false;
             final albumVal = p['album'];
             return albumVal?.toString().trim().toLowerCase() ==
@@ -819,66 +861,94 @@ class GalleryController extends GetxController {
             return pMap;
           }).toList();
 
-          grouped.add({
-            'title': name,
-            'photos': photosInAlbum,
-          });
+          if (photosInAlbum.isNotEmpty) {
+            grouped.add({
+              'title': name,
+              'photos': photosInAlbum,
+            });
+          }
         }
-        albums.value = grouped;
-      } else {
-        albums.value = [];
-      }
-    } catch (_) {
-      albums.value = [];
+        _allGroupedAlbums.clear();
+        _allGroupedAlbums.addAll(grouped);
+      } catch (_) {}
+    } else {
+      if (!hasMore.value) return;
+      isLoadMoreLoading.value = true;
+      await Future.delayed(const Duration(milliseconds: 500));
+      _displayedCount += 10;
     }
 
-    // Validate if the currently selected album is still valid. If not, reset to 'all'
-    if (selectedAlbum.value != 'all' &&
+    if (selectedAlbum.value.isEmpty ||
         !albumTitles.contains(selectedAlbum.value)) {
-      selectedAlbum.value = 'all';
+      if (albumTitles.isNotEmpty) {
+        selectedAlbum.value = albumTitles.first;
+      } else {
+        selectedAlbum.value = '';
+      }
+    } else {
+      _updateDisplayedAlbums();
+      updateHasMore();
     }
 
     isLoading.value = false;
+    isLoadMoreLoading.value = false;
+  }
+
+  void _updateDisplayedAlbums() {
+    final List<Map<String, dynamic>> resolved = [];
+    for (final album in _allGroupedAlbums) {
+      final title = album['title'] as String;
+      final allPhotosInAlbum = album['photos'] as List;
+      final isSelected = selectedAlbum.value.toLowerCase() == title.toLowerCase();
+      final photosToShow = isSelected
+          ? allPhotosInAlbum.take(_displayedCount).toList()
+          : allPhotosInAlbum.take(10).toList();
+
+      resolved.add({
+        'title': title,
+        'photos': photosToShow,
+      });
+    }
+    albums.value = resolved;
+  }
+
+  List<dynamic> _getPhotosForAlbum(String albumTitle) {
+    for (final a in _allGroupedAlbums) {
+      if (a['title']?.toString().toLowerCase() == albumTitle.toLowerCase()) {
+        return a['photos'] as List;
+      }
+    }
+    return [];
+  }
+
+  void updateHasMore() {
+    final allPhotosInSelected = _getPhotosForAlbum(selectedAlbum.value);
+    hasMore.value = allPhotosInSelected.length > _displayedCount;
   }
 
   List<String> get albumTitles {
-    final titles = <String>['all'];
-    for (var a in albums) {
-      if (a is Map) {
-        final title = a['title']?.toString();
-        if (title != null && title.isNotEmpty) {
-          titles.add(title);
-        }
+    final titles = <String>[];
+    for (var a in _allGroupedAlbums) {
+      final title = a['title']?.toString();
+      if (title != null && title.isNotEmpty) {
+        titles.add(title);
       }
     }
     return titles.toSet().toList();
   }
 
   List<dynamic> get currentPhotos {
-    if (selectedAlbum.value == 'all') {
-      final allPhotos = <dynamic>[];
-      for (var a in albums) {
-        if (a is Map) {
-          final photos = a['photos'] ?? a['images'];
-          if (photos is List) {
-            allPhotos.addAll(photos);
-          }
+    for (var a in albums) {
+      if (a is Map &&
+          a['title']?.toString().toLowerCase() ==
+              selectedAlbum.value.toLowerCase()) {
+        final photos = a['photos'] ?? a['images'];
+        if (photos is List) {
+          return photos;
         }
       }
-      return allPhotos;
-    } else {
-      for (var a in albums) {
-        if (a is Map &&
-            a['title']?.toString().toLowerCase() ==
-                selectedAlbum.value.toLowerCase()) {
-          final photos = a['photos'] ?? a['images'];
-          if (photos is List) {
-            return photos;
-          }
-        }
-      }
-      return [];
     }
+    return [];
   }
 }
 
@@ -1089,12 +1159,41 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
   }
 }
 
-class GalleryScreen extends StatelessWidget {
+class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
   @override
+  State<GalleryScreen> createState() => _GalleryScreenState();
+}
+
+class _GalleryScreenState extends State<GalleryScreen> {
+  late final GalleryController ctrl;
+  final _scrollCtrl = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    ctrl = Get.put(GalleryController());
+    _scrollCtrl.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_scrollCtrl.position.pixels >=
+        _scrollCtrl.position.maxScrollExtent - 200) {
+      if (!ctrl.isLoading.value && !ctrl.isLoadMoreLoading.value && ctrl.hasMore.value) {
+        ctrl.load();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ctrl = Get.put(GalleryController());
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -1172,9 +1271,10 @@ class GalleryScreen extends StatelessWidget {
             }
             final photos = ctrl.currentPhotos;
             return RefreshIndicator(
-              onRefresh: ctrl.load,
+              onRefresh: () => ctrl.load(refresh: true),
               color: AppColors.primary,
               child: SingleChildScrollView(
+                controller: _scrollCtrl,
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1345,6 +1445,17 @@ class GalleryScreen extends StatelessWidget {
                               );
                             },
                           ),
+                    Obx(() {
+                      if (ctrl.isLoadMoreLoading.value) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: Get.height / 63),
+                            child: const CircularProgressIndicator(color: AppColors.primary),
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    }),
                     SizedBox(height: Get.height / 23.62),
                   ],
                 ),

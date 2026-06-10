@@ -24,6 +24,7 @@ class AuthController extends GetxController {
 
   Future<void> _init() async {
     isInitializing.value = true;
+    final startTime = DateTime.now();
     try {
       final savedToken = await _api.getToken();
       if (savedToken != null && savedToken.isNotEmpty) {
@@ -37,6 +38,13 @@ class AuthController extends GetxController {
           token.value = savedToken;
           user.value = u;
           isInitializing.value = false;
+          
+          final elapsed = DateTime.now().difference(startTime);
+          if (elapsed.inMilliseconds < 3000) {
+            await Future.delayed(
+              Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+            );
+          }
           Get.offAllNamed(AppRoutes.dashboard);
           return;
         }
@@ -46,6 +54,13 @@ class AuthController extends GetxController {
     token.value = '';
     user.value = null;
     isInitializing.value = false;
+    
+    final elapsed = DateTime.now().difference(startTime);
+    if (elapsed.inMilliseconds < 3000) {
+      await Future.delayed(
+        Duration(milliseconds: 3000 - elapsed.inMilliseconds),
+      );
+    }
     Get.offAllNamed(AppRoutes.login);
   }
 

@@ -14,7 +14,7 @@ void main() async {
   print('Logging in...');
   try {
     final loginResp = await dio.post('/auth/login', data: {
-      'email': 'teacher1@school.com',
+      'email': 'teacher3@school.com',
       'password': 'password',
     });
     final token = loginResp.data['access_token'];
@@ -26,15 +26,22 @@ void main() async {
   }
 
   try {
-    final resp = await dio.get('/gallery');
-    print('\nSUCCESS: GET /gallery');
+    final resp = await dio.get('/gallery', queryParameters: {'page': '2', 'per_page': '10'});
+    print('\nSUCCESS: GET /gallery (page 2)');
     final raw = resp.data;
 
     // Run the parsing logic we wrote in remaining_screens.dart
     if (raw is Map) {
+      print('raw keys: ${raw.keys}');
+      final photosNode = raw['photos'];
+      if (photosNode is Map) {
+        print('photosNode keys: ${photosNode.keys}');
+        print('photosNode current_page: ${photosNode['current_page']}');
+        print('photosNode last_page: ${photosNode['last_page']}');
+        print('photosNode total: ${photosNode['total']}');
+      }
       // Extract photos
       List<dynamic> allPhotos = [];
-      final photosNode = raw['photos'];
       if (photosNode is Map) {
         allPhotos = List<dynamic>.from(photosNode['data'] ?? []);
       } else if (photosNode is List) {
@@ -79,7 +86,7 @@ void main() async {
       for (final album in grouped) {
         print('Album: ${album['title']} (${album['photos'].length} photos)');
         if (album['photos'].isNotEmpty) {
-          print('  First photo URL: ${album['photos'].first['url']}');
+          print('  First photo details: ${album['photos'].first}');
         }
       }
       print('\nPASSED: Data structured correctly for the Gallery UI!');

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
 import '../../core/api/api_client.dart';
+import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common_widgets.dart';
@@ -33,43 +34,46 @@ class StudentsController extends GetxController {
     loadStudents(refresh: true);
   }
 
-  // Fetch ALL students (no class filter) and extract unique classes for dropdown
+  // Fetch ALL classes assigned to the teacher for the dropdown
   Future<void> _loadAllStudentsForClasses() async {
     try {
-      // Fetch up to 200 students to extract all teacher-visible classes
-      final resp = await _api.get('/students', params: {
-        'per_page': '200',
-        'page': '1',
-      });
+      final resp = await _api.get('/classes');
       final raw = resp.data;
-      final List<dynamic> allStudents =
-          List<dynamic>.from(raw['data'] as List? ?? raw as List? ?? []);
+      List<dynamic> list = [];
+      if (raw is List) {
+        list = raw;
+      } else if (raw is Map) {
+        list = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
+      }
 
-      // Extract unique classes from students
-      final Map<dynamic, Map<String, dynamic>> seen = {};
-      for (final s in allStudents) {
-        final cls = (s as Map)['class'] as Map?;
-        if (cls == null) continue;
-        final id = cls['id'];
-        if (id != null && !seen.containsKey(id)) {
-          seen[id] = {
-            'id': id,
-            'name': cls['name'] as String? ?? 'Class',
-            'section': cls['section'] as String? ?? '',
-          };
+      final authCtrl = Get.find<AuthController>();
+      final teacherIdStr = authCtrl.user.value?['id']?.toString();
+      if (teacherIdStr != null) {
+        list = list
+            .where((c) => c['teacher_id']?.toString() == teacherIdStr)
+            .toList();
+      }
+
+      final List<Map<String, dynamic>> resolved = [];
+      for (final c in list) {
+        if (c is Map) {
+          resolved.add({
+            'id': c['id'],
+            'name': c['name'] as String? ?? c['class_name'] as String? ?? 'Class',
+            'section': c['section'] as String? ?? '',
+          });
         }
       }
 
       // Sort by name then section
-      final sorted = seen.values.toList()
-        ..sort((a, b) {
-          final nameCompare =
-              (a['name'] as String).compareTo(b['name'] as String);
-          if (nameCompare != 0) return nameCompare;
-          return (a['section'] as String).compareTo(b['section'] as String);
-        });
+      resolved.sort((a, b) {
+        final nameCompare =
+            (a['name'] as String).compareTo(b['name'] as String);
+        if (nameCompare != 0) return nameCompare;
+        return (a['section'] as String).compareTo(b['section'] as String);
+      });
 
-      classList.value = sorted;
+      classList.value = resolved;
     } catch (_) {
       // silently ignore
     }

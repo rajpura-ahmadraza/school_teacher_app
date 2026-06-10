@@ -509,6 +509,15 @@ String formatYmToMy(String? ymStr) {
     final parts = ymStr.trim().split('-');
     if (parts.length >= 2) {
       final year = parts[0];
+      final monthInt = int.tryParse(parts[1]);
+      if (monthInt != null && monthInt >= 1 && monthInt <= 12) {
+        const shortMonths = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        final monthName = shortMonths[monthInt - 1];
+        return '$monthName/$year';
+      }
       final month = parts[1].padLeft(2, '0');
       return '$month/$year';
     }

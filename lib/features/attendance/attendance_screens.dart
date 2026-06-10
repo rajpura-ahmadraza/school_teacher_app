@@ -515,6 +515,125 @@ class _AttendanceBody extends StatelessWidget {
                 ],
               ),
             ),
+            // Legend bar
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.only(
+                left: Get.height / 47.25,
+                right: Get.height / 47.25,
+                top: Get.height / 94.5,
+                bottom: Get.height / 63,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: Get.height / 38,
+                        height: Get.height / 38,
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(Get.height / 189),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'P',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700,
+                              fontSize: Get.height / 75.6,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: Get.height / 126),
+                      Text(
+                        'Present',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          fontSize: Get.height / 75.6,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: Get.height / 47.25),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: Get.height / 38,
+                        height: Get.height / 38,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(Get.height / 189),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'A',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700,
+                              fontSize: Get.height / 75.6,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: Get.height / 126),
+                      Text(
+                        'Absent',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          fontSize: Get.height / 75.6,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: Get.height / 47.25),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: Get.height / 38,
+                        height: Get.height / 38,
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(Get.height / 189),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'L',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700,
+                              fontSize: Get.height / 75.6,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: Get.height / 126),
+                      Text(
+                        'Late',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          fontSize: Get.height / 75.6,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
             // Student list
             Expanded(
               child: ListView.separated(
