@@ -176,6 +176,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 void _showExitConfirm(BuildContext context) {
   showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (_) => AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text(

@@ -119,9 +119,7 @@ class StudentsController extends GetxController {
         }).toList();
       }
       // Deduplicate: only add students whose ID is not already in the list
-      final existingIds = students
-          .map((s) => (s as Map)['id'])
-          .toSet();
+      final existingIds = students.map((s) => (s as Map)['id']).toSet();
       final uniqueList = list.where((s) {
         final id = (s as Map)['id'];
         return id != null && !existingIds.contains(id);
@@ -294,51 +292,57 @@ class _StudentsScreenState extends State<StudentsScreen> {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 22),
+                padding: EdgeInsets.fromLTRB(
+                  Get.height / 37.8,
+                  Get.height / 63,
+                  Get.height / 37.8,
+                  Get.height / 34.36,
+                ),
                 child: Row(children: [
                   GestureDetector(
                     onTap: () => Get.offNamed(AppRoutes.dashboard),
                     child: Container(
-                      width: 40,
-                      height: 40,
+                      width: Get.height / 18.9,
+                      height: Get.height / 18.9,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.16),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(Get.height / 63),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_rounded,
-                          color: Colors.white, size: 18),
+                      child: Icon(Icons.arrow_back_ios_rounded,
+                          color: Colors.white, size: Get.height / 42),
                     ),
                   ),
-                  const SizedBox(width: 14),
-                  const Expanded(
+                  SizedBox(width: Get.height / 54),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Students',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 24,
+                                fontSize: Get.height / 31.5,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white)),
                         Text('Manage your class roster',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 13,
+                                fontSize: Get.height / 58.15,
                                 color: Colors.white70)),
                       ],
                     ),
                   ),
                   Obx(() => Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: Get.height / 63,
+                            vertical: Get.height / 94.5),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.16),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Get.height / 63),
                         ),
                         child: Text('${ctrl.total.value}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 16,
+                                fontSize: Get.height / 47.25,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white)),
                       )),
@@ -348,30 +352,36 @@ class _StudentsScreenState extends State<StudentsScreen> {
           ),
           // ── Search bar + Standard Dropdown (same row) ─────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            padding: EdgeInsets.fromLTRB(
+              Get.height / 47.25,
+              Get.height / 54,
+              Get.height / 47.25,
+              Get.height / 94.5,
+            ),
             child: Row(children: [
               // Search field (expanded)
               Expanded(
                 child: SizedBox(
-                  height: 48,
+                  height: Get.height / 15.75,
                   child: TextField(
                     controller: _searchCtrl,
                     onChanged: (v) => ctrl.loadStudents(
                         refresh: true, search: v, keepClass: true),
-                    style:
-                        const TextStyle(fontFamily: 'Inter', fontSize: 14),
+                    style: TextStyle(
+                        fontFamily: 'Inter', fontSize: Get.height / 54),
                     decoration: InputDecoration(
                       hintText: 'Search by name',
-                      hintStyle: const TextStyle(
+                      hintStyle: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 14,
+                          fontSize: Get.height / 54,
                           color: AppColors.textTertiary),
-                      prefixIcon: const Icon(Icons.search_rounded,
-                          color: AppColors.textTertiary, size: 20),
+                      prefixIcon: Icon(Icons.search_rounded,
+                          color: AppColors.textTertiary,
+                          size: Get.height / 37.8),
                       suffixIcon: _searchCtrl.text.isNotEmpty
                           ? IconButton(
-                              icon:
-                                  const Icon(Icons.clear_rounded, size: 16),
+                              icon: Icon(Icons.clear_rounded,
+                                  size: Get.height / 47.25),
                               onPressed: () {
                                 _searchCtrl.clear();
                                 ctrl.loadStudents(
@@ -380,16 +390,16 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           : null,
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 0),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: Get.height / 63, vertical: 0),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Get.height / 63),
                           borderSide: BorderSide.none),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: Get.height / 75.6),
               // Compact Standard dropdown button
               Obx(() {
                 final selected = ctrl.selectedClass.value;
@@ -405,13 +415,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   key: _stdDropdownKey,
                   onTap: _openDropdown,
                   child: Container(
-                    height: 48,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    height: Get.height / 15.75,
+                    padding: EdgeInsets.symmetric(horizontal: Get.height / 63),
                     decoration: BoxDecoration(
                       color: _dropdownOpen
                           ? const Color(0xFF9333EA)
                           : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Get.height / 63),
                       border: Border.all(
                         color: _dropdownOpen
                             ? const Color(0xFF9333EA)
@@ -428,22 +438,22 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     ),
                     child: Row(mainAxisSize: MainAxisSize.min, children: [
                       Icon(Icons.class_outlined,
-                          size: 16,
+                          size: Get.height / 47.25,
                           color: _dropdownOpen
                               ? Colors.white
                               : const Color(0xFF9333EA)),
-                      const SizedBox(width: 6),
+                      SizedBox(width: Get.height / 126),
                       Text(
                         label,
                         style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 13,
+                            fontSize: Get.height / 58.15,
                             fontWeight: FontWeight.w700,
                             color: _dropdownOpen
                                 ? Colors.white
                                 : AppColors.textPrimary),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: Get.height / 189),
                       AnimatedRotation(
                         turns: _dropdownOpen ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
@@ -451,7 +461,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                             color: _dropdownOpen
                                 ? Colors.white
                                 : AppColors.textTertiary,
-                            size: 18),
+                            size: Get.height / 42),
                       ),
                     ]),
                   ),
@@ -464,10 +474,12 @@ class _StudentsScreenState extends State<StudentsScreen> {
             child: Obx(() {
               if (ctrl.isLoading.value && ctrl.students.isEmpty) {
                 return ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(Get.height / 47.25),
                   itemCount: 8,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (_, __) => const ShimmerCard(height: 78),
+                  separatorBuilder: (_, __) =>
+                      SizedBox(height: Get.height / 75.6),
+                  itemBuilder: (_, __) =>
+                      ShimmerCard(height: Get.height / 9.69),
                 );
               }
               if (ctrl.error.value.isNotEmpty && ctrl.students.isEmpty) {
@@ -483,21 +495,25 @@ class _StudentsScreenState extends State<StudentsScreen> {
               }
               return RefreshIndicator(
                 onRefresh: () => ctrl.loadStudents(
-                    refresh: true,
-                    search: _searchCtrl.text,
-                    keepClass: true),
+                    refresh: true, search: _searchCtrl.text, keepClass: true),
                 child: ListView.separated(
                   controller: _scrollCtrl,
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                  padding: EdgeInsets.fromLTRB(
+                    Get.height / 47.25,
+                    Get.height / 189,
+                    Get.height / 47.25,
+                    Get.height / 37.8,
+                  ),
                   itemCount:
                       ctrl.students.length + (ctrl.hasMore.value ? 1 : 0),
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, __) =>
+                      SizedBox(height: Get.height / 75.6),
                   itemBuilder: (ctx, i) {
                     if (i == ctrl.students.length) {
-                      return const Center(
+                      return Center(
                           child: Padding(
-                              padding: EdgeInsets.all(16),
-                              child: CircularProgressIndicator(
+                              padding: EdgeInsets.all(Get.height / 47.25),
+                              child: const CircularProgressIndicator(
                                   color: AppColors.primary)));
                     }
                     final s = ctrl.students[i] as Map<String, dynamic>;
@@ -518,8 +534,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
 class _StandardDropdownPanel extends StatelessWidget {
   final StudentsController ctrl;
   final void Function(Map<String, dynamic>?) onSelect;
-  const _StandardDropdownPanel(
-      {required this.ctrl, required this.onSelect});
+  const _StandardDropdownPanel({required this.ctrl, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -528,14 +543,14 @@ class _StandardDropdownPanel extends StatelessWidget {
       final selected = ctrl.selectedClass.value;
 
       return Container(
-        constraints: const BoxConstraints(maxHeight: 260),
+        constraints: BoxConstraints(maxHeight: Get.height / 2.90),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(Get.height / 54),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.12),
-              blurRadius: 16,
+              blurRadius: Get.height / 47.25,
               offset: const Offset(0, 6),
             ),
           ],
@@ -543,7 +558,7 @@ class _StandardDropdownPanel extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(14),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 6),
+            padding: EdgeInsets.symmetric(vertical: Get.height / 126),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -558,7 +573,8 @@ class _StandardDropdownPanel extends StatelessWidget {
                 ...classes.map((cls) {
                   final name = cls['name'] as String? ?? 'Class';
                   final section = cls['section'] as String? ?? '';
-                  final fullLabel = section.isNotEmpty ? '$name - $section' : name;
+                  final fullLabel =
+                      section.isNotEmpty ? '$name - $section' : name;
                   final isSelected =
                       selected != null && selected['id'] == cls['id'];
                   return _DropdownItem(
@@ -581,9 +597,7 @@ class _DropdownItem extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   const _DropdownItem(
-      {required this.label,
-      required this.isSelected,
-      required this.onTap});
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -591,8 +605,8 @@ class _DropdownItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+        padding: EdgeInsets.symmetric(
+            horizontal: Get.height / 47.25, vertical: Get.height / 58.15),
         color: isSelected
             ? const Color(0xFF9333EA).withOpacity(0.07)
             : Colors.transparent,
@@ -602,9 +616,8 @@ class _DropdownItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 14,
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: Get.height / 54,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? const Color(0xFF9333EA)
                     : AppColors.textPrimary,
@@ -612,8 +625,8 @@ class _DropdownItem extends StatelessWidget {
             ),
           ),
           if (isSelected)
-            const Icon(Icons.check_rounded,
-                color: Color(0xFF9333EA), size: 18),
+            Icon(Icons.check_rounded,
+                color: Color(0xFF9333EA), size: Get.height / 42),
         ]),
       ),
     );
@@ -640,10 +653,10 @@ class _StudentCard extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoutes.studentDetail,
           arguments: student['id'] as int? ?? 0),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(Get.height / 54),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Get.height / 47.25),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -654,24 +667,24 @@ class _StudentCard extends StatelessWidget {
         child: Row(children: [
           NetAvatar(
             url: photoUrl,
-            radius: 26,
+            radius: Get.height / 29.07,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: Get.height / 54),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(student['name'] as String? ?? 'Student',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                      fontSize: Get.height / 50.4,
                       color: AppColors.textPrimary)),
-              const SizedBox(height: 2),
+              SizedBox(height: Get.height / 378),
               Text('$clsName${section.isNotEmpty ? ' – $section' : ''}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 12,
+                      fontSize: Get.height / 63,
                       color: AppColors.textSecondary)),
             ]),
           ),
@@ -763,13 +776,13 @@ class _DetailBody extends StatelessWidget {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 40),
+                      SizedBox(height: Get.height / 18.9),
                       NetAvatar(
                         url: photoUrl,
-                        radius: 44,
+                        radius: Get.height / 17.18,
                         fallbackLetter: (student['name'] as String? ?? '?')[0],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: Get.height / 63),
                       Text(student['name'] as String? ?? 'Student',
                           style: const TextStyle(
                               color: Colors.white,
@@ -778,10 +791,10 @@ class _DetailBody extends StatelessWidget {
                               fontSize: 22)),
                       Text(
                           '${cls['name'] ?? ''} ${cls['section'] != null ? '– ${cls['section']}' : ''}',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white70,
                               fontFamily: 'Inter',
-                              fontSize: 14)),
+                              fontSize: Get.height / 54)),
                     ]),
               ),
             ]),
@@ -793,7 +806,7 @@ class _DetailBody extends StatelessWidget {
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(Get.height / 47.25),
             child: Column(children: [
               _InfoSection(title: 'Student Info', rows: [
                 InfoRow(
@@ -804,7 +817,7 @@ class _DetailBody extends StatelessWidget {
                       if (g == null || g.isEmpty) return '-';
                       return g[0].toUpperCase() + g.substring(1).toLowerCase();
                     })()),
-                const SizedBox(height: 12),
+                SizedBox(height: Get.height / 63),
                 InfoRow(
                     icon: Icons.cake_rounded,
                     label: 'Date of Birth',
@@ -814,21 +827,21 @@ class _DetailBody extends StatelessWidget {
                         : formatYmdToDmy(student['dob'] as String? ??
                             student['date_of_birth'] as String?)),
                 if (address.isNotEmpty) ...[
-                  const SizedBox(height: 12),
+                  SizedBox(height: Get.height / 63),
                   InfoRow(
                       icon: Icons.home_rounded,
                       label: 'Address',
                       value: address),
                 ],
               ]),
-              const SizedBox(height: 16),
+              SizedBox(height: Get.height / 47.25),
               if (parent.isNotEmpty)
                 _InfoSection(title: 'Parent / Guardian', rows: [
                   InfoRow(
                       icon: Icons.person_rounded,
                       label: 'Name',
                       value: parent['name'] as String? ?? '-'),
-                  const SizedBox(height: 12),
+                  SizedBox(height: Get.height / 63),
                   InfoRow(
                       icon: Icons.phone_rounded,
                       label: 'Phone',
@@ -836,14 +849,14 @@ class _DetailBody extends StatelessWidget {
                           parent['mobile'] as String? ??
                           '-'),
                   if (parent['email'] != null) ...[
-                    const SizedBox(height: 12),
+                    SizedBox(height: Get.height / 63),
                     InfoRow(
                         icon: Icons.email_rounded,
                         label: 'Email',
                         value: parent['email'] as String),
                   ],
                 ]),
-              const SizedBox(height: 32),
+              const SizedBox(height: 23.62),
             ]),
           ),
         ),
@@ -860,10 +873,10 @@ class _InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
+        padding: EdgeInsets.all(Get.height / 42),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(Get.height / 47.25),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -873,12 +886,12 @@ class _InfoSection extends StatelessWidget {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                  fontSize: 16,
+                  fontSize: Get.height / 47.25,
                   color: AppColors.textPrimary)),
-          const SizedBox(height: 16),
+          SizedBox(height: Get.height / 47.25),
           ...rows,
         ]),
       );

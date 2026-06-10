@@ -20,8 +20,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 5))
-      ..forward();
+    _ctrl =
+        AnimationController(vsync: this, duration: const Duration(seconds: 5))
+          ..forward();
 
     _fade = CurvedAnimation(
         parent: _ctrl, curve: const Interval(0.0, 0.6, curve: Curves.easeOut));
@@ -50,9 +51,11 @@ class _SplashScreenState extends State<SplashScreen>
         fit: StackFit.expand,
         children: [
           Positioned(
-            top: -120, right: -80,
+            top: -120,
+            right: -80,
             child: Container(
-              width: 320, height: 320,
+              width: Get.height / 2.36,
+              height: Get.height / 2.36,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.primary.withOpacity(0.07),
@@ -60,9 +63,11 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
           Positioned(
-            bottom: -100, left: -60,
+            bottom: -100,
+            left: -60,
             child: Container(
-              width: 280, height: 280,
+              width: Get.height / 2.7,
+              height: Get.height / 2.7,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.secondary.withOpacity(0.06),
@@ -84,7 +89,8 @@ class _SplashScreenState extends State<SplashScreen>
                     children: [
                       Stack(alignment: Alignment.center, children: [
                         Container(
-                          width: 120, height: 120,
+                          width: Get.height / 6.3,
+                          height: Get.height / 6.3,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: AppColors.gradientPrimary,
@@ -98,38 +104,40 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                         Container(
-                          width: 96, height: 96,
+                          width: Get.height / 7.87,
+                          height: Get.height / 7.87,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: AppColors.primary.withOpacity(0.15), width: 2),
+                                color: AppColors.primary.withOpacity(0.15),
+                                width: Get.height / 378),
                           ),
                           child: ShaderMask(
                             shaderCallback: (bounds) =>
                                 AppColors.gradientPrimary.createShader(bounds),
-                            child: const Icon(Icons.school_rounded,
-                                size: 48, color: Colors.white),
+                            child: Icon(Icons.school_rounded,
+                                size: Get.height / 15.75, color: Colors.white),
                           ),
                         ),
                       ]),
-                      const SizedBox(height: 28),
+                      SizedBox(height: Get.height / 13.5),
                       ShaderMask(
                         shaderCallback: (bounds) =>
                             AppColors.gradientPrimary.createShader(bounds),
-                        child: const Text('School Teacher',
+                        child: Text('School Teacher',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 32,
+                              fontSize: Get.height / 23.62,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                             )),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: Get.height / 94.5),
                       Text('Manage · Teach · Inspire',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 15,
+                            fontSize: Get.height / 50.4,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textSecondary.withOpacity(0.9),
                             letterSpacing: 1.2,
@@ -147,7 +155,8 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   child: const Wrap(
                     alignment: WrapAlignment.center,
-                    spacing: 8, runSpacing: 8,
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
                       _Pill('Attendance'),
                       _Pill('Homework'),
@@ -164,29 +173,30 @@ class _SplashScreenState extends State<SplashScreen>
                       FadeTransition(opacity: _fade, child: child),
                   child: Column(children: [
                     SizedBox(
-                      width: 28, height: 28,
+                      width: Get.height / 27,
+                      height: Get.height / 27,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
                         color: AppColors.primary.withOpacity(0.8),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    const Text('Loading...',
+                    SizedBox(height: Get.height / 63),
+                    Text('Loading...',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 12,
+                          fontSize: Get.height / 63,
                           color: AppColors.textTertiary,
                         )),
                   ]),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: Get.height / 31.5),
                 Text('v1.0.0  ·  SchoolMS',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 11,
+                      fontSize: Get.height / 68.72,
                       color: AppColors.textTertiary.withOpacity(0.7),
                     )),
-                const SizedBox(height: 16),
+                SizedBox(height: Get.height / 47.25),
               ],
             ),
           ),
@@ -202,16 +212,21 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: Get.height / 54,
+          vertical: Get.height / 126,
+        ),
         decoration: BoxDecoration(
           color: AppColors.primaryLight,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(
+            Get.height / 37.8,
+          ),
           border: Border.all(color: AppColors.primary.withOpacity(0.12)),
         ),
         child: Text(label,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 12,
+              fontSize: Get.height / 63,
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
             )),

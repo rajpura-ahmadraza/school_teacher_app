@@ -181,7 +181,7 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 140,
+                  expandedHeight: 110,
                   pinned: true,
                   stretch: true,
                   backgroundColor: AppColors.primary,
@@ -216,8 +216,8 @@ class DashboardScreen extends StatelessWidget {
                           right: -30,
                           top: -20,
                           child: Container(
-                            width: 160,
-                            height: 160,
+                            width: Get.height / 4.72,
+                            height: Get.height / 4.72,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.08),
@@ -228,8 +228,8 @@ class DashboardScreen extends StatelessWidget {
                           left: -40,
                           bottom: 20,
                           child: Container(
-                            width: 120,
-                            height: 120,
+                            width: Get.height / 6.3,
+                            height: Get.height / 6.3,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.05),
@@ -240,14 +240,18 @@ class DashboardScreen extends StatelessWidget {
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          height: 115,
+                          height: Get.height / 6.57,
                           child: IgnorePointer(
                             ignoring: collapsePercent > 0.5,
                             child: Opacity(
                               opacity: expandedOpacity,
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 0, 20, 15),
+                                padding: EdgeInsets.fromLTRB(
+                                  Get.height / 37.8,
+                                  0,
+                                  Get.height / 37.85,
+                                  Get.height / 50.4,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -264,15 +268,16 @@ class DashboardScreen extends StatelessWidget {
                                                     color: Colors.white
                                                         .withOpacity(0.85),
                                                     fontFamily: 'Inter',
-                                                    fontSize: 14,
+                                                    fontSize: Get.height / 54,
                                                     fontWeight: FontWeight.w500,
                                                   )),
-                                              const SizedBox(height: 4),
+                                              SizedBox(
+                                                  height: Get.height / 189),
                                               Text(name,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                     color: Colors.white,
                                                     fontFamily: 'Inter',
-                                                    fontSize: 26,
+                                                    fontSize: Get.height / 29.7,
                                                     fontWeight: FontWeight.w800,
                                                   )),
                                             ],
@@ -282,68 +287,77 @@ class DashboardScreen extends StatelessWidget {
                                           onTap: () => Get.toNamed(
                                               AppRoutes.notifications),
                                           child: Container(
-                                            padding: const EdgeInsets.all(10),
+                                            padding: EdgeInsets.all(
+                                                Get.height / 75.6),
                                             decoration: BoxDecoration(
                                               color: Colors.white
                                                   .withOpacity(0.15),
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(
+                                                      Get.height / 63),
                                             ),
-                                            child: const Icon(
+                                            child: Icon(
                                                 Icons.notifications_rounded,
                                                 color: Colors.white,
-                                                size: 20),
+                                                size: Get.height / 37.8),
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
+                                        SizedBox(width: Get.height / 94.5),
                                         GestureDetector(
                                           onTap: () =>
                                               _showLogoutConfirm(context, auth),
                                           child: Container(
-                                            padding: const EdgeInsets.all(10),
+                                            padding: EdgeInsets.all(
+                                                Get.height / 75.6),
                                             decoration: BoxDecoration(
                                               color: Colors.white
                                                   .withOpacity(0.15),
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(
+                                                      Get.height / 63),
                                             ),
-                                            child: const Icon(
-                                                Icons.logout_rounded,
-                                                color: Colors.white,
-                                                size: 20),
+                                            child: Icon(
+                                              Icons.logout_rounded,
+                                              color: Colors.white,
+                                              size: Get.height / 37.8,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      height: Get.height / 63,
+                                    ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: Get.height / 63,
+                                          vertical: Get.height / 126),
                                       decoration: BoxDecoration(
                                         color: Colors.white.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(
+                                            Get.height / 37.8),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
-                                            width: 8,
-                                            height: 8,
+                                            width: Get.height / 94.5,
+                                            height: Get.height / 94.5,
                                             decoration: const BoxDecoration(
                                               color: Color(0xFF4ADE80),
                                               shape: BoxShape.circle,
                                             ),
                                           ),
-                                          const SizedBox(width: 6),
+                                          SizedBox(width: Get.height / 126),
                                           Text(
                                             user?['employee_id'] != null
                                                 ? 'ID: ${user!['employee_id']}'
                                                 : user?['email'] as String? ??
                                                     'Teacher',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Inter',
-                                              fontSize: 12,
+                                              fontSize: Get.height / 63,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -366,17 +380,17 @@ class DashboardScreen extends StatelessWidget {
                             child: Opacity(
                               opacity: collapsedOpacity,
                               child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: Get.height / 37.8),
                                 child: Row(
                                   children: [
                                     Expanded(
                                       child: Text(
                                         name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
                                           fontFamily: 'Inter',
-                                          fontSize: 20,
+                                          fontSize: Get.height / 37.8,
                                           fontWeight: FontWeight.w700,
                                         ),
                                         maxLines: 1,
@@ -387,31 +401,35 @@ class DashboardScreen extends StatelessWidget {
                                       onTap: () =>
                                           Get.toNamed(AppRoutes.notifications),
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding:
+                                            EdgeInsets.all(Get.height / 75.6),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                              Get.height / 37.8),
                                         ),
-                                        child: const Icon(
-                                            Icons.notifications_rounded,
+                                        child: Icon(Icons.notifications_rounded,
                                             color: Colors.white,
-                                            size: 20),
+                                            size: Get.height / 37.8),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(
+                                      width: Get.height / 94.5,
+                                    ),
                                     GestureDetector(
                                       onTap: () =>
                                           _showLogoutConfirm(context, auth),
                                       child: Container(
-                                        padding: const EdgeInsets.all(10),
+                                        padding:
+                                            EdgeInsets.all(Get.height / 75.6),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                              Get.height / 63),
                                         ),
-                                        child: const Icon(Icons.logout_rounded,
-                                            color: Colors.white, size: 20),
+                                        child: Icon(Icons.logout_rounded,
+                                            color: Colors.white,
+                                            size: Get.height / 37.8),
                                       ),
                                     ),
                                   ],
@@ -435,7 +453,8 @@ class DashboardScreen extends StatelessWidget {
                 else ...[
                   // Stats grid
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                    padding: EdgeInsets.fromLTRB(Get.height / 47.25,
+                        Get.height / 37.8, Get.height / 47.25, 0),
                     sliver: SliverGrid.count(
                       crossAxisCount: 2,
                       crossAxisSpacing: 12,
@@ -492,14 +511,17 @@ class DashboardScreen extends StatelessWidget {
                   ),
 
                   // Quick Actions
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(0, 24, 0, 12),
+                      padding: EdgeInsets.fromLTRB(
+                          0, Get.height / 31.5, 0, Get.height / 63),
                       child: SectionHeader(title: 'Quick Actions'),
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Get.height / 47.25,
+                    ),
                     sliver: SliverGrid.count(
                       crossAxisCount: 3,
                       crossAxisSpacing: 12,
@@ -556,7 +578,8 @@ class DashboardScreen extends StatelessWidget {
                   if (ctrl.recentHomework.isNotEmpty) ...[
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 24, 0, 12),
+                        padding: EdgeInsets.fromLTRB(
+                            0, Get.height / 31.5, 0, Get.height / 31.5),
                         child: SectionHeader(
                           title: 'Recent Homework',
                           actionLabel: 'View All',
@@ -568,7 +591,12 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                     SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: EdgeInsets.fromLTRB(
+                        Get.height / 47.25,
+                        0,
+                        Get.height / 47.25,
+                        Get.height / 50.4,
+                      ),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (ctx, i) {
@@ -584,8 +612,6 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-
-                  const SliverToBoxAdapter(child: SizedBox(height: 32)),
                 ],
               ],
             ),
@@ -598,54 +624,29 @@ class DashboardScreen extends StatelessWidget {
   void _showExitConfirm(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Exit App?',
-            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w700)),
-        content: const Text('Do you want to close the app?',
-            style: TextStyle(fontFamily: 'Inter')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(fontFamily: 'Inter')),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              SystemNavigator.pop();
-            },
-            child: const Text('Exit',
-                style: TextStyle(
-                    fontFamily: 'Inter', fontWeight: FontWeight.w600)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLogoutConfirm(BuildContext context, AuthController auth) {
-    showDialog<void>(
-      context: context,
+      barrierDismissible: false,
       builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            Get.height / 31.5,
+          ),
+        ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(
+            Get.height / 31.5,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(
+              Get.height / 31.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
+                blurRadius: Get.height / 37.8,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -653,65 +654,88 @@ class DashboardScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon with custom circular gradient background
+              // Beautiful Double-Ring Gradient Glow Icon Header
               Container(
-                width: 64,
-                height: 64,
+                width: Get.height / 11.11,
+                height: Get.height / 11.11,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.danger.withOpacity(0.1),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withOpacity(0.15),
+                      AppColors.secondary.withOpacity(0.15)
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.logout_rounded,
-                    color: AppColors.danger,
-                    size: 32,
+                child: Center(
+                  child: Container(
+                    width: Get.height / 15.12,
+                    height: Get.height / 15.12,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.power_settings_new_rounded,
+                        color: AppColors.primary,
+                        size: Get.height / 27,
+                      ),
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(
+                height: Get.height / 37.8,
+              ),
               // Title
-              const Text(
-                'Logout',
+              Text(
+                'Exit App?',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 20,
+                  fontSize: Get.height / 37.8,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 10),
-              // Subtitle/Content
-              const Text(
-                'Are you sure you want to sign out?',
+              SizedBox(height: Get.height / 75.6),
+              // Description
+              Text(
+                'Are you sure you want to close the app?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: Get.height / 54,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 24),
-              // Buttons
+              SizedBox(height: Get.height / 31.5),
+              // Premium buttons side by side
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        padding: EdgeInsets.symmetric(
+                          vertical: Get.height / 54,
                         ),
-                        side: BorderSide(color: Colors.grey.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            Get.height / 63,
+                          ),
+                        ),
+                        side: const BorderSide(color: Color(0xFFE2E8F0)),
                         foregroundColor: AppColors.textSecondary,
                       ),
                       onPressed: () => Navigator.pop(context),
-                      child: const Text(
+                      child: Text(
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: Get.height / 50.4,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -721,23 +745,172 @@ class DashboardScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding:
+                            EdgeInsets.symmetric(vertical: Get.height / 54),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Get.height / 63),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        SystemNavigator.pop();
+                      },
+                      child: Text(
+                        'Exit',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: Get.height / 50.4,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutConfirm(BuildContext context, AuthController auth) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            Get.height / 31.5,
+          ),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: EdgeInsets.all(
+            Get.height / 34.5,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(
+              Get.height / 31.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: Get.height / 37.8,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon with custom circular gradient background
+              Container(
+                width: Get.height / 11.81,
+                height: Get.height / 11.81,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.danger.withOpacity(0.1),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.logout_rounded,
+                    color: AppColors.danger,
+                    size: Get.height / 23.62,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: Get.height / 37.8,
+              ),
+              // Title
+              Text(
+                'Logout',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: Get.height / 37.8,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              SizedBox(
+                height: Get.height / 75.6,
+              ),
+              // Subtitle/Content
+              Text(
+                'Are you sure you want to sign out?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: Get.height / 54,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              SizedBox(
+                height: Get.height / 31.5,
+              ),
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: Get.height / 54,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            Get.height / 63,
+                          ),
+                        ),
+                        side: BorderSide(color: Colors.grey.shade200),
+                        foregroundColor: AppColors.textSecondary,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: Get.height / 50.4,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: Get.height / 63,
+                  ),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.danger,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: EdgeInsets.symmetric(
+                          vertical: Get.height / 54,
+                        ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(
+                            Get.height / 63,
+                          ),
                         ),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                         auth.logout();
                       },
-                      child: const Text(
+                      child: Text(
                         'Logout',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: Get.height / 50.4,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -772,7 +945,9 @@ class _QuickAction extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(
+              Get.height / 47.25,
+            ),
             border: Border.all(color: const Color(0xFFF1F5F9)),
             boxShadow: [
               BoxShadow(
@@ -786,22 +961,28 @@ class _QuickAction extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: Get.height / 17.18,
+                height: Get.height / 17.18,
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(Get.height / 63),
                   border: Border.all(color: color.withOpacity(0.2)),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: Get.height / 37.8,
+                ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(
+                height: Get.height / 94.5,
+              ),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: Get.height / 63,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -820,11 +1001,13 @@ class _HomeworkTile extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: () => Get.toNamed(AppRoutes.homeworkDetail, arguments: hw),
         child: Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
+          margin: EdgeInsets.only(bottom: Get.height / 75.6),
+          padding: EdgeInsets.all(Get.height / 54),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(
+              Get.height / 54,
+            ),
             border: Border.all(color: const Color(0xFFF1F5F9)),
             boxShadow: [
               BoxShadow(
@@ -837,16 +1020,23 @@ class _HomeworkTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: Get.height / 18.9,
+                height: Get.height / 18.9,
                 decoration: BoxDecoration(
                   gradient: AppColors.gradientOrange,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(
+                    Get.height / 75.6,
+                  ),
                 ),
-                child: const Icon(Icons.assignment_rounded,
-                    color: Colors.white, size: 20),
+                child: Icon(
+                  Icons.assignment_rounded,
+                  color: Colors.white,
+                  size: Get.height / 37.8,
+                ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(
+                width: Get.height / 63,
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -854,20 +1044,20 @@ class _HomeworkTile extends StatelessWidget {
                     Text(hw['title'] as String? ?? 'Homework',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 14,
+                          fontSize: Get.height / 54,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         )),
-                    const SizedBox(height: 2),
+                    SizedBox(height: Get.height / 378),
                     Text(
                       (hw['class'] as Map?)?['name'] as String? ??
                           hw['class_name'] as String? ??
                           '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: 12,
+                        fontSize: Get.height / 63,
                         color: AppColors.textSecondary,
                       ),
                     ),

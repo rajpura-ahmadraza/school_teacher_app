@@ -24,8 +24,11 @@ class NotificationModel {
     this.data,
   }) : isRead = isRead.obs;
 
-  factory NotificationModel.fromJson(Map<String, dynamic> json, String defaultId) {
-    final dataMap = json['data'] is Map ? Map<String, dynamic>.from(json['data'] as Map) : <String, dynamic>{};
+  factory NotificationModel.fromJson(
+      Map<String, dynamic> json, String defaultId) {
+    final dataMap = json['data'] is Map
+        ? Map<String, dynamic>.from(json['data'] as Map)
+        : <String, dynamic>{};
     final type = dataMap['type'] ?? json['type'] ?? 'announcement';
     return NotificationModel(
       id: json['id']?.toString() ?? defaultId,
@@ -55,7 +58,8 @@ class NotificationsController extends GetxController {
 
     // Listen to real-time incoming foreground notifications
     _service.newNotificationStream.listen((n) {
-      final newModel = NotificationModel.fromJson(n, DateTime.now().millisecondsSinceEpoch.toString());
+      final newModel = NotificationModel.fromJson(
+          n, DateTime.now().millisecondsSinceEpoch.toString());
       allNotifications.insert(0, newModel);
       notifications.insert(0, newModel);
     });
@@ -163,8 +167,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   void _onScroll() {
-    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200) {
-      if (!ctrl.isLoading.value && !ctrl.isLoadingMore.value && ctrl.hasMore.value) {
+    if (_scrollCtrl.position.pixels >=
+        _scrollCtrl.position.maxScrollExtent - 200) {
+      if (!ctrl.isLoading.value &&
+          !ctrl.isLoadingMore.value &&
+          ctrl.hasMore.value) {
         ctrl.loadMore();
       }
     }
@@ -241,16 +248,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             return Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white),
+                  icon: const Icon(Icons.delete_sweep_rounded,
+                      color: Colors.white),
                   tooltip: 'Clear all',
                   onPressed: () {
                     Get.dialog(
                       AlertDialog(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius:
+                              BorderRadius.circular(Get.height / 37.8),
                         ),
                         title: const Text('Clear All Notifications'),
-                        content: const Text('Are you sure you want to delete all notifications? This cannot be undone.'),
+                        content: const Text(
+                            'Are you sure you want to delete all notifications? This cannot be undone.'),
                         actions: [
                           TextButton(
                             onPressed: () => Get.back(),
@@ -261,10 +271,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ctrl.clearAll();
                               Get.back();
                             },
-                            child: const Text('Clear', style: TextStyle(color: AppColors.danger)),
+                            child: const Text('Clear',
+                                style: TextStyle(color: AppColors.danger)),
                           ),
                         ],
                       ),
+                      barrierDismissible: false,
                     );
                   },
                 ),
@@ -279,8 +291,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       backgroundColor: AppColors.primary,
                       colorText: Colors.white,
                       snackPosition: SnackPosition.TOP,
-                      margin: const EdgeInsets.all(16),
-                      borderRadius: 12,
+                      margin: EdgeInsets.all(Get.height / 47.25),
+                      borderRadius: Get.height / 63,
                     );
                   },
                 ),
@@ -310,15 +322,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: ListView.separated(
             controller: _scrollCtrl,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(Get.height / 47.25),
             itemCount: ctrl.notifications.length + (ctrl.hasMore.value ? 1 : 0),
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
             itemBuilder: (ctx, i) {
               if (i == ctrl.notifications.length) {
-                return const Center(
+                return Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: CircularProgressIndicator(color: AppColors.primary),
+                    padding: EdgeInsets.symmetric(vertical: Get.height / 63),
+                    child: const CircularProgressIndicator(
+                        color: AppColors.primary),
                   ),
                 );
               }
@@ -329,13 +342,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 key: Key(item.id),
                 direction: DismissDirection.endToStart,
                 background: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: Get.height / 37.8),
                   decoration: BoxDecoration(
                     color: AppColors.danger,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(Get.height / 47.25),
                   ),
                   alignment: Alignment.centerRight,
-                  child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+                  child: const Icon(Icons.delete_outline_rounded,
+                      color: Colors.white),
                 ),
                 onDismissed: (_) {
                   ctrl.deleteNotification(item.id);
@@ -353,12 +367,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Get.dialog(
                         AlertDialog(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius:
+                                BorderRadius.circular(Get.height / 37.8),
                           ),
                           title: Row(
                             children: [
                               Icon(Icons.campaign_rounded, color: iconColor),
-                              const SizedBox(width: 10),
+                              SizedBox(width: Get.height / 37.8),
                               const Text('Announcement'),
                             ],
                           ),
@@ -370,104 +385,109 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                           ],
                         ),
+                        barrierDismissible: false,
                       );
                     }
                   },
                   child: Obx(() => Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: item.isRead.value ? Colors.white : const Color(0xFFFAF5FF),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: item.isRead.value
-                            ? const Color(0xFFF1F5F9)
-                            : AppColors.primary.withOpacity(0.15),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: iconColor.withOpacity(0.1),
+                        padding: EdgeInsets.all(Get.height / 47.25),
+                        decoration: BoxDecoration(
+                          color: item.isRead.value
+                              ? Colors.white
+                              : const Color(0xFFFAF5FF),
+                          borderRadius:
+                              BorderRadius.circular(Get.height / 47.25),
+                          border: Border.all(
+                            color: item.isRead.value
+                                ? const Color(0xFFF1F5F9)
+                                : AppColors.primary.withOpacity(0.15),
                           ),
-                          child: Center(
-                            child: Icon(
-                              _getIcon(item.type),
-                              color: iconColor,
-                              size: 22,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: Get.height / 17.18,
+                              height: Get.height / 17.18,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: iconColor.withOpacity(0.1),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  _getIcon(item.type),
+                                  color: iconColor,
+                                  size: Get.height / 34.36,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: Get.height / 54),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      item.title,
-                                      style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        fontSize: 14,
-                                        fontWeight: item.isRead.value
-                                            ? FontWeight.w600
-                                            : FontWeight.w800,
-                                        color: AppColors.textPrimary,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          item.title,
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: Get.height / 54,
+                                            fontWeight: item.isRead.value
+                                                ? FontWeight.w600
+                                                : FontWeight.w800,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Text(
+                                        _timeAgo(item.timestamp),
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: Get.height / 68.72,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  SizedBox(height: Get.height / 126),
                                   Text(
-                                    _timeAgo(item.timestamp),
-                                    style: const TextStyle(
+                                    item.body,
+                                    style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: 11,
-                                      color: AppColors.textTertiary,
+                                      fontSize: Get.height / 58.15,
+                                      color: AppColors.textSecondary,
+                                      height: 1.4,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
-                              Text(
-                                item.body,
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 13,
-                                  color: AppColors.textSecondary,
-                                  height: 1.4,
+                            ),
+                            if (!item.isRead.value) ...[
+                              SizedBox(width: Get.height / 94.5),
+                              Container(
+                                width: Get.height / 94.5,
+                                height: Get.height / 94.5,
+                                margin: EdgeInsets.only(top: Get.height / 126),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.secondary,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
                             ],
-                          ),
+                          ],
                         ),
-                        if (!item.isRead.value) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 8,
-                            height: 8,
-                            margin: const EdgeInsets.only(top: 6),
-                            decoration: const BoxDecoration(
-                              color: AppColors.secondary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  )),
+                      )),
                 ),
               );
             },

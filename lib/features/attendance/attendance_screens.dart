@@ -67,11 +67,13 @@ class AttendanceController extends GetxController {
       } else if (raw is Map) {
         list = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
       }
-      
+
       final authCtrl = Get.find<AuthController>();
       final teacherIdStr = authCtrl.user.value?['id']?.toString();
       if (teacherIdStr != null) {
-        list = list.where((c) => c['teacher_id']?.toString() == teacherIdStr).toList();
+        list = list
+            .where((c) => c['teacher_id']?.toString() == teacherIdStr)
+            .toList();
       }
       classes.value = list;
       if (list.isNotEmpty) {
@@ -179,7 +181,8 @@ class AttendanceController extends GetxController {
   Future<bool> submitAttendance() async {
     final unmarkedCount = attendance.values.where((v) => v.isEmpty).length;
     if (unmarkedCount > 0) {
-      Get.snackbar('Validation Error', 'Please mark attendance for all students before submitting.',
+      Get.snackbar('Validation Error',
+          'Please mark attendance for all students before submitting.',
           backgroundColor: AppColors.danger, colorText: Colors.white);
       return false;
     }
@@ -308,7 +311,10 @@ class _ClassPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: Get.height / 47.25,
+        vertical: Get.height / 63,
+      ),
       child: Obx(() {
         final selectedId = ctrl.selectedClass.value?['id'];
         final currentSelection = ctrl.classes.firstWhereOrNull(
@@ -320,7 +326,9 @@ class _ClassPicker extends StatelessWidget {
           offset: const Offset(0, 54),
           elevation: 4,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(
+              Get.height / 63,
+            ),
           ),
           constraints: BoxConstraints(
             minWidth: MediaQuery.of(context).size.width - 32,
@@ -328,20 +336,26 @@ class _ClassPicker extends StatelessWidget {
           ),
           child: Container(
             height: 54,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: EdgeInsets.symmetric(
+              horizontal: Get.height / 63,
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(
+                Get.height / 63,
+              ),
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.school_rounded,
                   color: AppColors.primary,
-                  size: 20,
+                  size: Get.height / 37.8,
                 ),
-                const SizedBox(width: 12),
+                SizedBox(
+                  width: Get.height / 63,
+                ),
                 Expanded(
                   child: Text(
                     currentSelection != null
@@ -350,7 +364,7 @@ class _ClassPicker extends StatelessWidget {
                         : 'Select Class',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 14,
+                      fontSize: Get.height / 54,
                       fontWeight: currentSelection != null
                           ? FontWeight.w600
                           : FontWeight.w500,
@@ -374,9 +388,9 @@ class _ClassPicker extends StatelessWidget {
               value: cls,
               child: Text(
                 '$name$sec',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: Get.height / 54,
                   fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
                 ),
@@ -423,14 +437,19 @@ class _AttendanceBody extends StatelessWidget {
             // Date & bulk actions bar
             Container(
               color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                horizontal: Get.height / 47.25,
+                vertical: Get.height / 75.6,
+              ),
               child: Row(
                 children: [
                   GestureDetector(
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.tryParse(ctrl.selectedDate.value) ?? DateTime.now(),
+                        initialDate:
+                            DateTime.tryParse(ctrl.selectedDate.value) ??
+                                DateTime.now(),
                         firstDate: DateTime(2020),
                         lastDate: DateTime.now(),
                       );
@@ -443,38 +462,49 @@ class _AttendanceBody extends StatelessWidget {
                       children: [
                         const Icon(Icons.calendar_today_rounded,
                             size: 16, color: AppColors.primary),
-                        const SizedBox(width: 6),
-                         Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
-                             style: const TextStyle(
-                               fontFamily: 'Inter',
-                               fontWeight: FontWeight.w600,
-                               fontSize: 13,
-                               color: AppColors.primary,
-                             ))),
+                        SizedBox(width: Get.height / 126),
+                        Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                              fontSize: Get.height / 58.15,
+                              color: AppColors.primary,
+                            ))),
                       ],
                     ),
                   ),
                   const Spacer(),
                   if (!ctrl.isPastDate) ...[
                     _BulkBtn('All P', Colors.green, () => ctrl.markAll('P')),
-                    const SizedBox(width: 8),
+                    SizedBox(width: Get.height / 94.5),
                     _BulkBtn('All A', Colors.red, () => ctrl.markAll('A')),
                   ] else
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Get.height / 63,
+                        vertical: Get.height / 126,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(
+                          Get.height / 94.5,
+                        ),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.visibility_rounded, size: 14, color: Colors.blue),
-                          SizedBox(width: 4),
+                          Icon(
+                            Icons.visibility_rounded,
+                            size: Get.height / 58.15,
+                            color: Colors.blue,
+                          ),
+                          SizedBox(
+                            width: Get.height / 189,
+                          ),
                           Text(
                             'View Only',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 12,
+                              fontSize: Get.height / 63,
                               fontWeight: FontWeight.w600,
                               color: Colors.blue,
                             ),
@@ -488,9 +518,13 @@ class _AttendanceBody extends StatelessWidget {
             // Student list
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(
+                  Get.height / 47.25,
+                ),
                 itemCount: ctrl.students.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => SizedBox(
+                  height: Get.height / 94.5,
+                ),
                 itemBuilder: (ctx, i) {
                   final s = ctrl.students[i] as Map<String, dynamic>;
                   final sid = s['id'] is int
@@ -499,7 +533,9 @@ class _AttendanceBody extends StatelessWidget {
                   return Obx(() => _StudentAttendanceTile(
                         student: s,
                         status: ctrl.attendance[sid] ?? '',
-                        onChanged: ctrl.isPastDate ? null : (v) => ctrl.setStatus(sid, v),
+                        onChanged: ctrl.isPastDate
+                            ? null
+                            : (v) => ctrl.setStatus(sid, v),
                       ));
                 },
               ),
@@ -507,10 +543,15 @@ class _AttendanceBody extends StatelessWidget {
             // Submit button
             if (!ctrl.isPastDate)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                padding: EdgeInsets.fromLTRB(
+                  Get.height / 47.25,
+                  0,
+                  Get.height / 47.25,
+                  Get.height / 31.5,
+                ),
                 child: Obx(() => SizedBox(
                       width: double.infinity,
-                      height: 52,
+                      height: Get.height / 14.53,
                       child: ElevatedButton(
                         onPressed: ctrl.submitting.value
                             ? null
@@ -524,19 +565,20 @@ class _AttendanceBody extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                              borderRadius:
+                                  BorderRadius.circular(Get.height / 54)),
                         ),
                         child: ctrl.submitting.value
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
+                            ? SizedBox(
+                                width: Get.height / 34.36,
+                                height: Get.height / 34.36,
+                                child: const CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white))
-                            : const Text('Submit Attendance',
+                            : Text('Submit Attendance',
                                 style: TextStyle(
                                     fontFamily: 'Inter',
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 16)),
+                                    fontSize: Get.height / 47.25)),
                       ),
                     )),
               ),
@@ -555,17 +597,22 @@ class _BulkBtn extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: EdgeInsets.symmetric(
+            horizontal: Get.height / 63,
+            vertical: Get.height / 126,
+          ),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(
+              Get.height / 94.5,
+            ),
             border: Border.all(color: color.withOpacity(0.3)),
           ),
           child: Text(label,
               style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: Get.height / 63,
                   color: color)),
         ),
       );
@@ -593,15 +640,15 @@ class _StudentAttendanceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(Get.height / 63),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(Get.height / 54),
           border: Border.all(color: _statusColor.withOpacity(0.25)),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.03),
-                blurRadius: 6,
+                blurRadius: Get.height / 126,
                 offset: const Offset(0, 2))
           ],
         ),
@@ -609,25 +656,25 @@ class _StudentAttendanceTile extends StatelessWidget {
           children: [
             NetAvatar(
               url: student['profile_photo'] as String?,
-              radius: 20,
+              radius: Get.height / 37.8,
               fallbackLetter: (student['name'] as String? ?? '?')[0],
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: Get.height / 63),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(student['name'] as String? ?? 'Student',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontSize: Get.height / 54,
                           color: AppColors.textPrimary)),
                   Text(
                       'Roll: ${student['roll_number'] ?? student['admission_no'] ?? '-'}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 12,
+                          fontSize: Get.height / 63,
                           color: AppColors.textSecondary)),
                 ],
               ),
@@ -645,11 +692,11 @@ class _StudentAttendanceTile extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     margin: const EdgeInsets.only(left: 6),
-                    width: 36,
-                    height: 36,
+                    width: Get.height / 21,
+                    height: Get.height / 21,
                     decoration: BoxDecoration(
                       color: sel ? c : c.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(Get.height / 75.6),
                       border: Border.all(
                           color: sel ? c : c.withOpacity(0.3), width: 1.5),
                     ),
@@ -658,7 +705,7 @@ class _StudentAttendanceTile extends StatelessWidget {
                           style: TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w700,
-                              fontSize: 13,
+                              fontSize: Get.height / 54,
                               color: sel ? Colors.white : c)),
                     ),
                   ),
@@ -670,37 +717,54 @@ class _StudentAttendanceTile extends StatelessWidget {
       );
 }
 
-Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctrl) async {
+Future<void> _showMonthYearPicker(
+    BuildContext context, AttendanceController ctrl) async {
   final now = DateTime.now();
   final initialYm = ctrl.reportMonth.value.split('-');
-  int tempYear = initialYm.isNotEmpty ? (int.tryParse(initialYm[0]) ?? now.year) : now.year;
-  int tempMonth = initialYm.length > 1 ? (int.tryParse(initialYm[1]) ?? now.month) : now.month;
+  int tempYear = initialYm.isNotEmpty
+      ? (int.tryParse(initialYm[0]) ?? now.year)
+      : now.year;
+  int tempMonth = initialYm.length > 1
+      ? (int.tryParse(initialYm[1]) ?? now.month)
+      : now.month;
 
   final months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
   ];
 
   await showDialog<void>(
     context: context,
+    barrierDismissible: false,
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
             surfaceTintColor: Colors.white,
             backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Text(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text(
               'Select Month & Year',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: Get.height / 42,
               ),
             ),
             content: SizedBox(
-              width: 320,
+              width: Get.width / 2.36,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -712,13 +776,14 @@ Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctr
                         onPressed: tempYear > 2020
                             ? () => setState(() => tempYear--)
                             : null,
-                        icon: const Icon(Icons.chevron_left_rounded, color: AppColors.primary),
+                        icon: const Icon(Icons.chevron_left_rounded,
+                            color: AppColors.primary),
                       ),
                       Text(
                         '$tempYear',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 20,
+                          fontSize: Get.height / 37.8,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
@@ -727,18 +792,22 @@ Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctr
                         onPressed: tempYear < now.year
                             ? () => setState(() => tempYear++)
                             : null,
-                        icon: const Icon(Icons.chevron_right_rounded, color: AppColors.primary),
+                        icon: const Icon(Icons.chevron_right_rounded,
+                            color: AppColors.primary),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: Get.height / 47.25,
+                  ),
                   // Month Grid
                   SizedBox(
-                    height: 200,
+                    height: Get.height / 3.78,
                     child: GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
@@ -748,8 +817,9 @@ Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctr
                       itemBuilder: (ctx, index) {
                         final mNum = index + 1;
                         final isSelected = tempMonth == mNum;
-                        final isFutureMonth = tempYear == now.year && mNum > now.month;
-                        
+                        final isFutureMonth =
+                            tempYear == now.year && mNum > now.month;
+
                         return GestureDetector(
                           onTap: isFutureMonth
                               ? null
@@ -774,7 +844,7 @@ Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctr
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 13,
+                                  fontSize: Get.height / 58.15,
                                   color: isSelected
                                       ? Colors.white
                                       : isFutureMonth
@@ -808,7 +878,8 @@ Future<void> _showMonthYearPicker(BuildContext context, AttendanceController ctr
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text('OK', style: TextStyle(fontFamily: 'Inter')),
               ),
@@ -836,8 +907,10 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
     super.initState();
     ctrl = Get.find<AttendanceController>();
     final now = DateTime.now();
-    ctrl.reportMonth.value = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-    ctrl.reportData.value = null; // Clear previous report data when entering screen
+    ctrl.reportMonth.value =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    ctrl.reportData.value =
+        null; // Clear previous report data when entering screen
   }
 
   @override
@@ -877,7 +950,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                       final label = currentSelection != null
                           ? '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}'
                           : 'Select Class';
-                      
+
                       return Theme(
                         data: Theme.of(context).copyWith(
                           hoverColor: Colors.transparent,
@@ -911,44 +984,48 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                             decoration: InputDecoration(
                               labelText: 'Select Class',
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+                                  borderRadius:
+                                      BorderRadius.circular(Get.height / 63)),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: Get.height / 63,
+                                  vertical: Get.height / 75.6),
                               suffixIcon: const Icon(
                                   Icons.keyboard_arrow_down_rounded,
                                   color: AppColors.textSecondary),
                             ),
                             child: Text(
                               label,
-                              style: const TextStyle(
-                                  fontFamily: 'Inter', fontSize: 14),
+                              style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: Get.height / 54),
                             ),
                           ),
                         ),
                       );
                     })(),
-                    const SizedBox(height: 12),
+                    SizedBox(height: Get.height / 63),
                     // Month picker
                     GestureDetector(
                       onTap: () => _showMonthYearPicker(context, ctrl),
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: EdgeInsets.all(Get.height / 63),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(Get.height / 63),
                         ),
                         child: Row(children: [
-                          const Icon(Icons.calendar_month_rounded,
-                              size: 18, color: AppColors.primary),
-                          const SizedBox(width: 8),
-                           Text(formatYmToMy(ctrl.reportMonth.value),
-                               style: const TextStyle(
-                                   fontFamily: 'Inter', fontSize: 14)),
+                          Icon(Icons.calendar_month_rounded,
+                              size: Get.height / 54, color: AppColors.primary),
+                          SizedBox(width: Get.height / 94.5),
+                          Text(formatYmToMy(ctrl.reportMonth.value),
+                              style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontSize: Get.height / 54)),
                         ]),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: Get.height / 63),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -962,10 +1039,10 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                               borderRadius: BorderRadius.circular(12)),
                         ),
                         child: ctrl.reportLoading.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
+                            ? SizedBox(
+                                width: Get.height / 37.8,
+                                height: Get.height / 37.8,
+                                child: const CircularProgressIndicator(
                                     strokeWidth: 2, color: Colors.white))
                             : const Text('Generate Report',
                                 style: TextStyle(
@@ -1029,25 +1106,19 @@ class _ReportBody extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(Get.height / 47.25),
             child: Row(children: [
               Expanded(
                   child: _SummaryCard(
-                      'Working Days',
-                      totalDays.toString(),
-                      AppColors.primary)),
-              const SizedBox(width: 10),
+                      'School Days', totalDays.toString(), AppColors.primary)),
+              SizedBox(width: Get.height / 75.6),
               Expanded(
                   child: _SummaryCard(
-                      'Avg Present',
-                      '$avgPresent%',
-                      AppColors.secondary)),
-              const SizedBox(width: 10),
+                      'Avg Present', '$avgPresent%', AppColors.secondary)),
+              SizedBox(width: Get.height / 75.6),
               Expanded(
                   child: _SummaryCard(
-                      'Avg Absent',
-                      '$avgAbsent%',
-                      AppColors.danger)),
+                      'Avg Absent', '$avgAbsent%', AppColors.danger)),
             ]),
           ),
         ),
@@ -1064,23 +1135,31 @@ class _ReportBody extends StatelessWidget {
                   'Student';
 
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                padding: const EdgeInsets.all(14),
+                margin: EdgeInsets.symmetric(
+                  horizontal: Get.height / 47.25,
+                  vertical: Get.height / 189,
+                ),
+                padding: EdgeInsets.all(Get.height / 54),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(
+                    Get.height / 54,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black.withOpacity(0.03), blurRadius: 6)
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: Get.height / 126,
+                    )
                   ],
                 ),
                 child: Row(children: [
                   NetAvatar(
                     url: s['profile_photo'] as String?,
-                    radius: 20,
-                    fallbackLetter: studentName.isNotEmpty ? studentName[0] : '?',
+                    radius: Get.height / 37.8,
+                    fallbackLetter:
+                        studentName.isNotEmpty ? studentName[0] : '?',
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: Get.height / 63),
                   Expanded(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1089,7 +1168,7 @@ class _ReportBody extends StatelessWidget {
                               style: const TextStyle(
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 4),
+                          SizedBox(height: Get.height / 189),
                           LinearProgressIndicator(
                             value: pct / 100,
                             backgroundColor: Colors.grey.shade200,
@@ -1101,7 +1180,7 @@ class _ReportBody extends StatelessWidget {
                           ),
                         ]),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: Get.height / 63),
                   Text('$pct%',
                       style: TextStyle(
                           fontFamily: 'Inter',
@@ -1117,7 +1196,7 @@ class _ReportBody extends StatelessWidget {
             childCount: students.length,
           ),
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        SliverToBoxAdapter(child: SizedBox(height: Get.height / 31.5)),
       ],
     );
   }
@@ -1131,10 +1210,10 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(14),
+        padding: EdgeInsets.all(Get.height / 54),
         decoration: BoxDecoration(
           color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(Get.height / 54),
           border: Border.all(color: color.withOpacity(0.2)),
         ),
         child: Column(children: [
@@ -1142,14 +1221,14 @@ class _SummaryCard extends StatelessWidget {
               style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w800,
-                  fontSize: 20,
+                  fontSize: Get.height / 37.8,
                   color: color)),
-          const SizedBox(height: 2),
+          SizedBox(height: Get.height / 378),
           Text(label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 11,
+                  fontSize: Get.height / 68.72,
                   color: AppColors.textSecondary)),
         ]),
       );

@@ -36,11 +36,13 @@ class TimetableController extends GetxController {
       } else if (raw is Map) {
         list = List<dynamic>.from(raw['data'] ?? raw['classes'] ?? []);
       }
-      
+
       final authCtrl = Get.find<AuthController>();
       final teacherIdStr = authCtrl.user.value?['id']?.toString();
       if (teacherIdStr != null) {
-        list = list.where((c) => c['teacher_id']?.toString() == teacherIdStr).toList();
+        list = list
+            .where((c) => c['teacher_id']?.toString() == teacherIdStr)
+            .toList();
       }
       classes.value = list;
       if (list.isNotEmpty && selectedClass.value == null) {
@@ -141,34 +143,36 @@ class TimetableScreen extends StatelessWidget {
             if (ctrl.classes.isNotEmpty)
               Container(
                 color: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: EdgeInsets.symmetric(
+                    horizontal: Get.height / 47.25,
+                    vertical: Get.height / 75.6),
                 width: double.infinity,
                 child: DropdownMenu<dynamic>(
                   expandedInsets: EdgeInsets.zero,
                   initialSelection: ctrl.selectedClass.value?['id'],
                   hintText: 'Select Class',
-                  textStyle: const TextStyle(
+                  textStyle: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 14,
+                    fontSize: Get.height / 54,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                   inputDecorationTheme: InputDecorationTheme(
                     filled: true,
                     fillColor: const Color(0xFFFAFAFA),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: Get.height / 47.25,
+                        vertical: Get.height / 75.6),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Get.height / 63),
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Get.height / 63),
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(Get.height / 63),
                       borderSide: const BorderSide(
                           color: AppColors.primary, width: 1.5),
                     ),
@@ -202,9 +206,9 @@ class TimetableScreen extends StatelessWidget {
                       label: '$name$section',
                       style: ButtonStyle(
                         textStyle: WidgetStateProperty.all(
-                          const TextStyle(
+                          TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 14,
+                            fontSize: Get.height / 54,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
@@ -260,18 +264,19 @@ class TimetableScreen extends StatelessWidget {
                                       'No periods scheduled for this day');
                             }
                             return ListView.separated(
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(Get.height / 47.25),
                               itemCount: periods.length,
                               separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
+                                  SizedBox(height: Get.height / 75.6),
                               itemBuilder: (ctx, i) {
                                 final p = periods[i] as Map<String, dynamic>;
                                 final subj = p['subject'] as Map? ?? {};
                                 return Container(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: EdgeInsets.all(Get.height / 47.25),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius:
+                                        BorderRadius.circular(Get.height / 54),
                                     border: Border.all(
                                         color:
                                             AppColors.primary.withOpacity(0.1)),
@@ -283,22 +288,22 @@ class TimetableScreen extends StatelessWidget {
                                   ),
                                   child: Row(children: [
                                     Container(
-                                      width: 48,
-                                      height: 48,
+                                      width: Get.height / 15.75,
+                                      height: Get.height / 15.75,
                                       decoration: BoxDecoration(
                                           gradient: AppColors.gradientPrimary,
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
+                                          borderRadius: BorderRadius.circular(
+                                              Get.height / 63)),
                                       child: Center(
                                         child: Text('${i + 1}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 color: Colors.white,
                                                 fontFamily: 'Inter',
                                                 fontWeight: FontWeight.w800,
-                                                fontSize: 18)),
+                                                fontSize: Get.height / 42)),
                                       ),
                                     ),
-                                    const SizedBox(width: 14),
+                                    SizedBox(width: Get.height / 54),
                                     Expanded(
                                       child: Column(
                                           crossAxisAlignment:
@@ -309,15 +314,17 @@ class TimetableScreen extends StatelessWidget {
                                                     p['subject_name']
                                                         as String? ??
                                                     'Period',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                     fontFamily: 'Inter',
                                                     fontWeight: FontWeight.w700,
-                                                    fontSize: 15)),
+                                                    fontSize:
+                                                        Get.height / 50.4)),
                                             Text(
                                                 '${formatTimeToAmPm(p['start_time'] as String?)} – ${formatTimeToAmPm(p['end_time'] as String?)}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                     fontFamily: 'Inter',
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        Get.height / 58.15,
                                                     color: AppColors
                                                         .textSecondary)),
                                           ]),
@@ -381,7 +388,7 @@ class LeavesController extends GetxController {
         list = List<dynamic>.from(raw['data'] ?? raw['leaves'] ?? []);
         lastPage = raw['last_page'] ?? 1;
       }
-      
+
       leaves.addAll(list);
       hasMore.value = _page < lastPage && list.length == 15;
       _page++;
@@ -432,8 +439,11 @@ class _LeavesScreenState extends State<LeavesScreen> {
   }
 
   void _onScroll() {
-    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200) {
-      if (!ctrl.isLoading.value && !ctrl.isLoadingMore.value && ctrl.hasMore.value) {
+    if (_scrollCtrl.position.pixels >=
+        _scrollCtrl.position.maxScrollExtent - 200) {
+      if (!ctrl.isLoading.value &&
+          !ctrl.isLoadingMore.value &&
+          ctrl.hasMore.value) {
         ctrl.loadLeaves();
       }
     }
@@ -465,34 +475,36 @@ class _LeavesScreenState extends State<LeavesScreen> {
         // Status filter dropdown
         Container(
           color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          padding:
+              EdgeInsets.symmetric(horizontal: 16, vertical: Get.height / 75.6),
           width: double.infinity,
           child: Obx(() => DropdownMenu<String>(
                 expandedInsets: EdgeInsets.zero,
                 initialSelection: ctrl.filterStatus.value,
                 requestFocusOnTap: false,
                 enableSearch: false,
-                textStyle: const TextStyle(
+                textStyle: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: Get.height / 54,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: const Color(0xFFFAFAFA),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: Get.height / 47.25,
+                      vertical: Get.height / 75.6),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(Get.height / 63),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(Get.height / 63),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(Get.height / 63),
                     borderSide:
                         const BorderSide(color: AppColors.primary, width: 1.5),
                   ),
@@ -513,9 +525,9 @@ class _LeavesScreenState extends State<LeavesScreen> {
                     label: s[0].toUpperCase() + s.substring(1),
                     style: ButtonStyle(
                       textStyle: WidgetStateProperty.all(
-                        const TextStyle(
+                        TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 14,
+                          fontSize: Get.height / 54,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -544,15 +556,18 @@ class _LeavesScreenState extends State<LeavesScreen> {
               child: ListView.separated(
                 controller: _scrollCtrl,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(Get.height / 47.25),
                 itemCount: ctrl.leaves.length + (ctrl.hasMore.value ? 1 : 0),
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: Get.height / 75.6),
                 itemBuilder: (ctx, i) {
                   if (i == ctrl.leaves.length) {
-                    return const Center(
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        padding:
+                            EdgeInsets.symmetric(vertical: Get.height / 63),
+                        child:
+                            CircularProgressIndicator(color: AppColors.primary),
                       ),
                     );
                   }
@@ -601,15 +616,15 @@ class _LeaveCard extends StatelessWidget {
         leave['image'] as String?;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(Get.height / 47.25),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(Get.height / 63),
         border: Border.all(color: statusColor.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
+              blurRadius: Get.height / 94.5,
               offset: const Offset(0, 2))
         ],
       ),
@@ -617,89 +632,91 @@ class _LeaveCard extends StatelessWidget {
         Row(children: [
           NetAvatar(
             url: studentPhotoUrl,
-            radius: 22,
+            radius: Get.height / 34.36,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: Get.height / 63),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(student['name'] as String? ?? 'Student',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 15)),
+                      fontSize: Get.height / 50.4)),
               Text('${formatYmdToDmy(from)} → ${formatYmdToDmy(to)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 12,
+                      fontSize: Get.height / 63,
                       color: AppColors.textSecondary)),
             ]),
           ),
           StatusBadge(label: status, color: statusColor),
         ]),
         if (reason.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          SizedBox(height: Get.height / 75.6),
           Text(reason,
-              style: const TextStyle(
+              style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 13,
+                  fontSize: Get.height / 63,
                   color: AppColors.textSecondary)),
         ],
         if (status == 'pending') ...[
-          const SizedBox(height: 12),
+          SizedBox(height: Get.height / 63),
           Row(children: [
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onReview('rejected'),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(
+                    vertical: Get.height / 75.6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.danger.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(Get.height / 75.6),
                     border:
                         Border.all(color: AppColors.danger.withOpacity(0.25)),
                   ),
-                  child: const Row(
+                  child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.close_rounded,
+                        const Icon(Icons.close_rounded,
                             color: AppColors.danger, size: 16),
-                        SizedBox(width: 6),
+                        SizedBox(width: Get.height / 126),
                         Text('Reject',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 13,
+                                fontSize: Get.height / 58.15,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.danger)),
                       ]),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: Get.height / 75.6),
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onReview('approved'),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: Get.height / 75.6),
                   decoration: BoxDecoration(
                     color: AppColors.success.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: AppColors.success.withOpacity(0.25)),
+                    borderRadius: BorderRadius.circular(Get.height / 75.6),
+                    border:
+                        Border.all(color: AppColors.success.withOpacity(0.25)),
                   ),
-                  child: const Row(
+                  child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.check_rounded,
+                        const Icon(Icons.check_rounded,
                             color: AppColors.success, size: 16),
-                        SizedBox(width: 6),
+                        SizedBox(width: Get.height / 126),
                         Text('Approve',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 13,
+                                fontSize: Get.height / 58.15,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.success)),
                       ]),
@@ -938,16 +955,17 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                               child: CircularProgressIndicator(
                                   color: Colors.white),
                             ),
-                            errorWidget: (context, url, error) => const Column(
+                            errorWidget: (context, url, error) => Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.broken_image_rounded,
+                                const Icon(Icons.broken_image_rounded,
                                     color: Colors.grey, size: 64),
-                                SizedBox(height: 12),
+                                SizedBox(height: Get.height / 63),
                                 Text(
                                   'Failed to load image',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 14),
+                                      color: Colors.white,
+                                      fontSize: Get.height / 54),
                                 ),
                               ],
                             ),
@@ -962,7 +980,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
           if (widget.photos.length > 1) ...[
             if (_currentIndex > 0)
               Positioned(
-                left: 16,
+                left: Get.height / 47.25,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -974,7 +992,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
@@ -987,7 +1005,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
               ),
             if (_currentIndex < widget.photos.length - 1)
               Positioned(
-                right: 16,
+                right: Get.height / 47.25,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -999,7 +1017,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
@@ -1015,8 +1033,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
           // Top bar overlay with Close and Download buttons
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
-            left: 16,
-            right: 16,
+            left: Get.height / 47.25,
+            right: Get.height / 47.25,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1024,15 +1042,15 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: EdgeInsets.all(Get.height / 94.5),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.black.withOpacity(0.4),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.close_rounded,
                       color: Colors.white,
-                      size: 24,
+                      size: Get.height / 31.5,
                     ),
                   ),
                 ),
@@ -1040,19 +1058,20 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 // Page Indicator
                 if (widget.photos.length > 1)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Get.height / 63,
+                        vertical: Get.height / 126),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(Get.height / 47.25),
                     ),
                     child: Text(
                       '${_currentIndex + 1} / ${widget.photos.length}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: Get.height / 54,
                       ),
                     ),
                   )
@@ -1060,7 +1079,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   const SizedBox(),
 
                 // Empty space to balance the Close button and keep Page Indicator centered
-                const SizedBox(width: 40),
+                SizedBox(width: Get.height / 18.9),
               ],
             ),
           ),
@@ -1097,18 +1116,19 @@ class GalleryScreen extends StatelessWidget {
           ),
         ),
         leading: Padding(
-          padding: const EdgeInsets.only(
-            left: 16.0,
-            top: 8.0,
-            bottom: 8.0,
+          padding: EdgeInsets.only(
+            left: Get.height / 47.25,
+            top: Get.height / 30.24,
+            bottom: Get.height / 30.24,
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color.fromARGB(33, 255, 255, 255),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: const Color.fromARGB(255, 255, 255, 255)
+                      .withOpacity(0.08),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1118,20 +1138,20 @@ class GalleryScreen extends StatelessWidget {
               padding: EdgeInsets.zero,
               icon: const Icon(
                 Icons.chevron_left_rounded,
-                color: Colors.black,
+                color: Color.fromARGB(255, 255, 255, 255),
                 size: 28,
               ),
               onPressed: () => Get.offNamed(AppRoutes.dashboard),
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Gallery',
           style: TextStyle(
             color: Colors.white,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: Get.height / 37.8,
           ),
         ),
       ),
@@ -1161,23 +1181,24 @@ class GalleryScreen extends StatelessWidget {
                   children: [
                     // Albums Section Row
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: Get.height / 47.25,
+                          vertical: Get.height / 63),
                       child: Row(
                         children: [
                           Container(
-                            width: 4,
-                            height: 18,
+                            width: Get.height / 189,
+                            height: Get.height / 94.5,
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Text(
+                          SizedBox(width: Get.height / 94.5),
+                          Text(
                             'Albums',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: Get.height / 47.25,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               color: AppColors.textPrimary,
@@ -1190,28 +1211,31 @@ class GalleryScreen extends StatelessWidget {
                     // Horizontal categories
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: Get.height / 47.25),
                       child: Row(
                         children: ctrl.albumTitles.map((title) {
                           final isSelected = ctrl.selectedAlbum.value == title;
                           return Padding(
-                            padding: const EdgeInsets.only(right: 8),
+                            padding: EdgeInsets.only(right: Get.height / 94.5),
                             child: GestureDetector(
                               onTap: () => ctrl.selectedAlbum.value = title,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: Get.height / 37.8,
+                                    vertical: Get.height / 75.6),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppColors.primary
                                       : AppColors.primary.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius:
+                                      BorderRadius.circular(Get.height / 31.5),
                                 ),
                                 child: Text(
                                   title,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: Get.height / 54,
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.w500,
@@ -1227,24 +1251,26 @@ class GalleryScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    SizedBox(height: Get.height / 47.25),
 
                     // Grid of image cards
                     photos.isEmpty
                         ? Container(
-                            height: 200,
+                            height: Get.height / 3.78,
                             alignment: Alignment.center,
-                            child: const Text(
+                            child: Text(
                               'No photos in this album',
                               style: TextStyle(
-                                  color: AppColors.textSecondary, fontSize: 14),
+                                  color: AppColors.textSecondary,
+                                  fontSize: Get.height / 54),
                             ),
                           )
                         : GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Get.height / 47.25,
+                                vertical: Get.height / 94.5),
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
@@ -1263,7 +1289,8 @@ class GalleryScreen extends StatelessWidget {
                                 onTap: () => _openImage(context, photos, i),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(
+                                        Get.height / 37.8),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.06),
@@ -1273,17 +1300,18 @@ class GalleryScreen extends StatelessWidget {
                                     ],
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(
+                                        Get.height / 37.8),
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: [
                                         url.isEmpty
                                             ? Container(
                                                 color: AppColors.primaryLight,
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.broken_image_rounded,
                                                   color: AppColors.primary,
-                                                  size: 32,
+                                                  size: Get.height / 23.62,
                                                 ),
                                               )
                                             : CachedNetworkImage(
@@ -1303,10 +1331,10 @@ class GalleryScreen extends StatelessWidget {
                                                     (context, url, error) =>
                                                         Container(
                                                   color: AppColors.primaryLight,
-                                                  child: const Icon(
+                                                  child: Icon(
                                                     Icons.broken_image_rounded,
                                                     color: AppColors.primary,
-                                                    size: 32,
+                                                    size: Get.height / 23.62,
                                                   ),
                                                 ),
                                               ),
@@ -1317,7 +1345,7 @@ class GalleryScreen extends StatelessWidget {
                               );
                             },
                           ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: Get.height / 23.62),
                   ],
                 ),
               ),
@@ -1436,7 +1464,8 @@ class CalendarScreen extends StatelessWidget {
             // Month navigator
             Container(
               color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                  horizontal: Get.height / 47.25, vertical: Get.height / 63),
               child: Row(children: [
                 IconButton(
                   onPressed: ctrl.prevMonth,
@@ -1447,10 +1476,10 @@ class CalendarScreen extends StatelessWidget {
                   child: Text(
                     '${monthNames[ctrl.focusedMonth.value.month]} ${ctrl.focusedMonth.value.year}',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontSize: Get.height / 47.25,
                         color: AppColors.textPrimary),
                   ),
                 ),
@@ -1475,10 +1504,10 @@ class CalendarScreen extends StatelessWidget {
                       : RefreshIndicator(
                           onRefresh: ctrl.loadEvents,
                           child: ListView.separated(
-                            padding: const EdgeInsets.all(16),
+                            padding: EdgeInsets.all(Get.height / 47.25),
                             itemCount: ctrl.events.length,
                             separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10),
+                                SizedBox(height: Get.height / 75.6),
                             itemBuilder: (ctx, i) {
                               final ev = ctrl.events[i] as Map<String, dynamic>;
                               final date = ev['date'] as String? ?? '';
@@ -1489,10 +1518,11 @@ class CalendarScreen extends StatelessWidget {
                                       ? AppColors.warning
                                       : AppColors.primary;
                               return Container(
-                                padding: const EdgeInsets.all(16),
+                                padding: EdgeInsets.all(Get.height / 63),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius:
+                                      BorderRadius.circular(Get.height / 54),
                                   border:
                                       Border.all(color: color.withOpacity(0.2)),
                                   boxShadow: [
@@ -1503,11 +1533,12 @@ class CalendarScreen extends StatelessWidget {
                                 ),
                                 child: Row(children: [
                                   Container(
-                                    width: 48,
-                                    padding: const EdgeInsets.all(8),
+                                    width: 15.75,
+                                    padding: EdgeInsets.all(Get.height / 94.5),
                                     decoration: BoxDecoration(
                                       color: color.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(
+                                          Get.height / 63),
                                     ),
                                     child: Column(children: [
                                       Text(
@@ -1518,7 +1549,7 @@ class CalendarScreen extends StatelessWidget {
                                               color: color,
                                               fontFamily: 'Inter',
                                               fontWeight: FontWeight.w800,
-                                              fontSize: 18)),
+                                              fontSize: Get.height / 54)),
                                       Text(
                                           date.length >= 7
                                               ? monthNames[int.tryParse(date
@@ -1529,10 +1560,10 @@ class CalendarScreen extends StatelessWidget {
                                           style: TextStyle(
                                               color: color,
                                               fontFamily: 'Inter',
-                                              fontSize: 10)),
+                                              fontSize: Get.height / 75.6)),
                                     ]),
                                   ),
-                                  const SizedBox(width: 14),
+                                  SizedBox(width: Get.height / 54),
                                   Expanded(
                                     child: Column(
                                         crossAxisAlignment:
@@ -1540,17 +1571,18 @@ class CalendarScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                               ev['title'] as String? ?? 'Event',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                   fontFamily: 'Inter',
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize: 15)),
+                                                  fontSize:
+                                                      Get.height / 58.15)),
                                           if (ev['description'] != null)
                                             Text(ev['description'] as String,
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                     fontFamily: 'Inter',
-                                                    fontSize: 12,
+                                                    fontSize: Get.height / 63,
                                                     color: AppColors
                                                         .textSecondary)),
                                         ]),
@@ -1636,9 +1668,9 @@ class BusTrackingScreen extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: ctrl.load,
           child: ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(Get.height / 47.25),
             itemCount: ctrl.buses.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
             itemBuilder: (ctx, i) {
               final bus = ctrl.buses[i] as Map<String, dynamic>;
               final driver = bus['driver'] as Map? ?? {};
@@ -1649,10 +1681,10 @@ class BusTrackingScreen extends StatelessWidget {
                       ? AppColors.danger
                       : AppColors.textSecondary;
               return Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(Get.height / 47.25),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(Get.height / 47.25),
                   border: Border.all(color: statusColor.withOpacity(0.2)),
                   boxShadow: [
                     BoxShadow(
@@ -1664,15 +1696,16 @@ class BusTrackingScreen extends StatelessWidget {
                     children: [
                       Row(children: [
                         Container(
-                          width: 48,
-                          height: 48,
+                          width: Get.height / 15.75,
+                          height: Get.height / 15.75,
                           decoration: BoxDecoration(
                               gradient: AppColors.gradientPrimary,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: const Icon(Icons.directions_bus_rounded,
-                              color: Colors.white, size: 24),
+                              borderRadius:
+                                  BorderRadius.circular(Get.height / 63)),
+                          child: Icon(Icons.directions_bus_rounded,
+                              color: Colors.white, size: Get.height / 31.5),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: Get.height / 54),
                         Expanded(
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1680,56 +1713,59 @@ class BusTrackingScreen extends StatelessWidget {
                                 Text(
                                     bus['bus_number'] as String? ??
                                         'Bus ${i + 1}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontFamily: 'Inter',
                                         fontWeight: FontWeight.w700,
-                                        fontSize: 16)),
+                                        fontSize: Get.height / 47.25)),
                                 Text(
                                     bus['route'] as String? ??
                                         'Route not assigned',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontFamily: 'Inter',
-                                        fontSize: 12,
+                                        fontSize: Get.height / 63,
                                         color: AppColors.textSecondary)),
                               ]),
                         ),
                         StatusBadge(label: status, color: statusColor),
                       ]),
-                      const Divider(height: 20),
+                      Divider(height: Get.height / 37.8),
                       Row(children: [
-                        const Icon(Icons.person_rounded,
-                            size: 16, color: AppColors.textSecondary),
-                        const SizedBox(width: 6),
+                        Icon(Icons.person_rounded,
+                            size: Get.height / 47.25,
+                            color: AppColors.textSecondary),
+                        SizedBox(width: Get.height / 126),
                         Text('Driver: ${driver['name'] as String? ?? 'N/A'}',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: 13,
+                                fontSize: Get.height / 58.15,
                                 color: AppColors.textSecondary)),
                         const Spacer(),
                         if (driver['phone'] != null)
                           Row(children: [
-                            const Icon(Icons.phone_rounded,
-                                size: 16, color: AppColors.primary),
-                            const SizedBox(width: 4),
+                            Icon(Icons.phone_rounded,
+                                size: Get.height / 47.25,
+                                color: AppColors.primary),
+                            SizedBox(width: Get.height / 189),
                             Text(driver['phone'] as String,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 13,
+                                    fontSize: Get.height / 58.15,
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w600)),
                           ]),
                       ]),
                       if (bus['last_location'] != null) ...[
-                        const SizedBox(height: 8),
+                        SizedBox(height: Get.height / 94.5),
                         Row(children: [
-                          const Icon(Icons.location_on_rounded,
-                              size: 16, color: AppColors.danger),
-                          const SizedBox(width: 6),
+                          Icon(Icons.location_on_rounded,
+                              size: Get.height / 47.25,
+                              color: AppColors.danger),
+                          SizedBox(width: Get.height / 126),
                           Expanded(
                             child: Text(bus['last_location'] as String,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: 12,
+                                    fontSize: Get.height / 63,
                                     color: AppColors.textSecondary)),
                           ),
                         ]),
