@@ -30,7 +30,8 @@ class NotificationService {
   NotificationService._();
 
   FirebaseMessaging get _firebaseMessaging => FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
   static const String _notificationsKey = 'saved_notifications';
 
@@ -39,8 +40,10 @@ class NotificationService {
   Stream<int> get unreadCountStream => _unreadCountController.stream;
 
   // Real-time stream for new notifications
-  final _newNotificationController = StreamController<Map<String, dynamic>>.broadcast();
-  Stream<Map<String, dynamic>> get newNotificationStream => _newNotificationController.stream;
+  final _newNotificationController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get newNotificationStream =>
+      _newNotificationController.stream;
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
     'high_importance_channel',
@@ -66,8 +69,10 @@ class NotificationService {
     }
 
     // Initialize Local Notifications
-    const AndroidInitializationSettings androidInitSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings iosInitSettings = DarwinInitializationSettings(
+    const AndroidInitializationSettings androidInitSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosInitSettings =
+        DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -88,7 +93,8 @@ class NotificationService {
     );
 
     await _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(_channel);
 
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
@@ -119,7 +125,8 @@ class NotificationService {
     // Handle background message open
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       if (kDebugMode) {
-        print('📬 [FCM Opened] Message opened from background: ${message.data}');
+        print(
+            '📬 [FCM Opened] Message opened from background: ${message.data}');
       }
     });
 
@@ -127,7 +134,8 @@ class NotificationService {
     final initialMessage = await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
       if (kDebugMode) {
-        print('📬 [FCM Initial] App opened from terminated state: ${initialMessage.data}');
+        print(
+            '📬 [FCM Initial] App opened from terminated state: ${initialMessage.data}');
       }
     }
 
@@ -208,14 +216,17 @@ class NotificationService {
     _unreadCountController.add(newCount);
 
     if (kDebugMode) {
-      print('💾 [Notification Saved] Total: ${notifications.length}, Unread: $newCount');
+      print(
+          '💾 [Notification Saved] Total: ${notifications.length}, Unread: $newCount');
     }
   }
 
   Future<List<Map<String, dynamic>>> getSavedNotifications() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> notifications = prefs.getStringList(_notificationsKey) ?? [];
-    return notifications.map((e) => jsonDecode(e) as Map<String, dynamic>).toList();
+    return notifications
+        .map((e) => jsonDecode(e) as Map<String, dynamic>)
+        .toList();
   }
 
   Future<int> getUnreadCount() async {

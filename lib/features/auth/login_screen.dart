@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../../core/controllers/auth_controller.dart';
+import '../../core/routes/app_routes.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 
@@ -197,8 +198,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'TEACHER',
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: Get.height / 27,
-                                    fontWeight: FontWeight.w900,
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
                                     letterSpacing: -0.8,
                                   ),
@@ -211,8 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ' PORTAL',
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: Get.height / 27,
-                                      fontWeight: FontWeight.w900,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
                                       color: Colors.white,
                                       letterSpacing: -0.8,
                                     ),
@@ -225,9 +226,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               'Access your class management dashboard',
                               style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 58.15,
+                                fontSize: 12,
                                 color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w300,
                                 letterSpacing: 0.2,
                               ),
                             ),
@@ -297,19 +298,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                       keyboardType: TextInputType.emailAddress,
                                       textInputAction: TextInputAction.next,
                                       style: TextStyle(
+                                        fontWeight: FontWeight.normal,
                                         fontFamily: 'Inter',
-                                        fontSize: Get.height / 50.4,
+                                        fontSize: 12,
                                         color: AppColors.textPrimary,
                                       ),
                                       cursorColor: AppColors.secondary,
                                       decoration: InputDecoration(
                                         labelText: 'Email Address',
-                                        labelStyle: const TextStyle(
+                                        labelStyle: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: 12,
                                           color: AppColors.textSecondary,
                                         ),
                                         floatingLabelStyle: const TextStyle(
                                           color: AppColors.secondary,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                         prefixIcon: AnimatedContainer(
                                           duration:
@@ -370,6 +374,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ),
                                         errorStyle: const TextStyle(
+                                          fontWeight: FontWeight.normal,
                                           color: AppColors.danger,
                                         ),
                                       ),
@@ -410,19 +415,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                       textInputAction: TextInputAction.done,
                                       onFieldSubmitted: (_) => _login(),
                                       style: TextStyle(
+                                        fontWeight: FontWeight.normal,
                                         fontFamily: 'Inter',
-                                        fontSize: Get.height / 50.4,
+                                        fontSize: 12,
                                         color: AppColors.textPrimary,
                                       ),
                                       cursorColor: AppColors.secondary,
                                       decoration: InputDecoration(
                                         labelText: 'Password',
-                                        labelStyle: const TextStyle(
+                                        labelStyle: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 12,
                                           color: AppColors.textSecondary,
                                         ),
                                         floatingLabelStyle: const TextStyle(
                                           color: AppColors.secondary,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                         prefixIcon: AnimatedContainer(
                                           duration:
@@ -496,6 +504,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ),
                                         errorStyle: const TextStyle(
+                                          fontWeight: FontWeight.normal,
                                           color: AppColors.danger,
                                         ),
                                       ),
@@ -505,6 +514,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                         }
                                         return null;
                                       },
+                                    ),
+                                  ),
+
+                                  // Forgot Password link
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: TextButton(
+                                      onPressed: () => Get.toNamed(
+                                          AppRoutes.forgotPassword),
+                                      style: TextButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: Get.height / 94.5,
+                                          vertical: Get.height / 126,
+                                        ),
+                                        minimumSize: Size.zero,
+                                        tapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      child: Text(
+                                        'Forgot Password?',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
                                     ),
                                   ),
 
@@ -558,10 +594,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                                     'Sign In',
                                                     style: TextStyle(
                                                       fontFamily: 'Inter',
-                                                      fontSize:
-                                                          Get.height / 47.25,
+                                                      fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.w800,
+                                                          FontWeight.w600,
                                                       letterSpacing: 0.5,
                                                     ),
                                                   ),

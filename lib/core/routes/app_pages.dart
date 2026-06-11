@@ -14,6 +14,8 @@ import '../../features/gallery/gallery_screen.dart';
 import '../../features/calendar/calendar_screen.dart';
 import '../../features/bus_tracking/bus_tracking_screen.dart';
 import '../../features/notifications/notifications_screen.dart';
+import '../../features/auth/change_password_screen.dart';
+import '../../features/auth/forgot_password_screen.dart';
 import '../bindings/app_binding.dart';
 import 'app_routes.dart';
 
@@ -38,8 +40,7 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.studentDetail,
-      page: () => StudentDetailScreen(
-            studentId: Get.arguments as int? ?? 0),
+      page: () => StudentDetailScreen(studentId: Get.arguments as int? ?? 0),
     ),
     GetPage(
       name: AppRoutes.attendance,
@@ -55,13 +56,13 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.homeworkForm,
-      page: () => HomeworkFormScreen(
-            existing: Get.arguments as Map<String, dynamic>?),
+      page: () =>
+          HomeworkFormScreen(existing: Get.arguments as Map<String, dynamic>?),
     ),
     GetPage(
       name: AppRoutes.homeworkDetail,
-      page: () => HomeworkDetailScreen(
-            homework: Get.arguments as Map<String, dynamic>),
+      page: () =>
+          HomeworkDetailScreen(homework: Get.arguments as Map<String, dynamic>),
     ),
     GetPage(
       name: AppRoutes.timetable,
@@ -86,6 +87,14 @@ class AppPages {
     GetPage(
       name: AppRoutes.notifications,
       page: () => const NotificationsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.changePassword,
+      page: () => ChangePasswordScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.forgotPassword,
+      page: () => const ForgotPasswordScreen(),
     ),
   ];
 }

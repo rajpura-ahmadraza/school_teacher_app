@@ -59,7 +59,8 @@ class StudentsController extends GetxController {
         if (c is Map) {
           resolved.add({
             'id': c['id'],
-            'name': c['name'] as String? ?? c['class_name'] as String? ?? 'Class',
+            'name':
+                c['name'] as String? ?? c['class_name'] as String? ?? 'Class',
             'section': c['section'] as String? ?? '',
           });
         }
@@ -324,13 +325,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         Text('Students',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 31.5,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white)),
                         Text('Manage your class roster',
                             style: TextStyle(
+                                fontWeight: FontWeight.normal,
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 58.15,
+                                fontSize: 13,
                                 color: Colors.white70)),
                       ],
                     ),
@@ -346,7 +348,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         child: Text('${ctrl.total.value}',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 47.25,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white)),
                       )),
@@ -372,12 +374,15 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     onChanged: (v) => ctrl.loadStudents(
                         refresh: true, search: v, keepClass: true),
                     style: TextStyle(
-                        fontFamily: 'Inter', fontSize: Get.height / 54),
+                        fontWeight: FontWeight.normal,
+                        fontFamily: 'Inter',
+                        fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Search by name',
                       hintStyle: TextStyle(
+                          fontWeight: FontWeight.normal,
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 54,
+                          fontSize: 14,
                           color: AppColors.textTertiary),
                       prefixIcon: Icon(Icons.search_rounded,
                           color: AppColors.textTertiary,
@@ -451,7 +456,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         label,
                         style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: Get.height / 58.15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: _dropdownOpen
                                 ? Colors.white
@@ -620,7 +625,7 @@ class _DropdownItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: Get.height / 54,
+                fontSize: 14,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? const Color(0xFF9333EA)
@@ -682,13 +687,14 @@ class _StudentCard extends StatelessWidget {
                   style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: Get.height / 50.4,
+                      fontSize: 15,
                       color: AppColors.textPrimary)),
               SizedBox(height: Get.height / 378),
               Text('$clsName${section.isNotEmpty ? ' – $section' : ''}',
                   style: TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 63,
+                      fontSize: 12,
                       color: AppColors.textSecondary)),
             ]),
           ),
@@ -796,9 +802,10 @@ class _DetailBody extends StatelessWidget {
                       Text(
                           '${cls['name'] ?? ''} ${cls['section'] != null ? '– ${cls['section']}' : ''}',
                           style: TextStyle(
+                              fontWeight: FontWeight.normal,
                               color: Colors.white70,
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 54)),
+                              fontSize: 14)),
                     ]),
               ),
             ]),
@@ -893,7 +900,7 @@ class _InfoSection extends StatelessWidget {
               style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                  fontSize: Get.height / 47.25,
+                  fontSize: 16,
                   color: AppColors.textPrimary)),
           SizedBox(height: Get.height / 47.25),
           ...rows,

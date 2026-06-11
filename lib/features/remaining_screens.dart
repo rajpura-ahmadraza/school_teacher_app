@@ -153,7 +153,7 @@ class TimetableScreen extends StatelessWidget {
                   hintText: 'Select Class',
                   textStyle: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: Get.height / 54,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
@@ -208,7 +208,7 @@ class TimetableScreen extends StatelessWidget {
                         textStyle: WidgetStateProperty.all(
                           TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: Get.height / 54,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
@@ -300,7 +300,7 @@ class TimetableScreen extends StatelessWidget {
                                                 color: Colors.white,
                                                 fontFamily: 'Inter',
                                                 fontWeight: FontWeight.w800,
-                                                fontSize: Get.height / 42)),
+                                                fontSize: 18)),
                                       ),
                                     ),
                                     SizedBox(width: Get.height / 54),
@@ -317,14 +317,14 @@ class TimetableScreen extends StatelessWidget {
                                                 style: TextStyle(
                                                     fontFamily: 'Inter',
                                                     fontWeight: FontWeight.w700,
-                                                    fontSize:
-                                                        Get.height / 50.4)),
+                                                    fontSize: 15)),
                                             Text(
                                                 '${formatTimeToAmPm(p['start_time'] as String?)} – ${formatTimeToAmPm(p['end_time'] as String?)}',
                                                 style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.normal,
                                                     fontFamily: 'Inter',
-                                                    fontSize:
-                                                        Get.height / 58.15,
+                                                    fontSize: 13,
                                                     color: AppColors
                                                         .textSecondary)),
                                           ]),
@@ -406,10 +406,14 @@ class LeavesController extends GetxController {
       final idx = leaves.indexWhere((l) => (l as Map)['id'] == id);
       if (idx != -1) leaves.removeAt(idx);
       Get.snackbar('Done', 'Leave $status',
-          backgroundColor: AppColors.secondary, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.secondary,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     }
   }
 }
@@ -485,7 +489,7 @@ class _LeavesScreenState extends State<LeavesScreen> {
                 enableSearch: false,
                 textStyle: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 54,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
@@ -527,7 +531,7 @@ class _LeavesScreenState extends State<LeavesScreen> {
                       textStyle: WidgetStateProperty.all(
                         TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 54,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -647,16 +651,19 @@ class _LeaveCard extends StatelessWidget {
                   style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: Get.height / 50.4)),
+                      fontSize: 15)),
               Text('${formatYmdToDmy(from)} To ${formatYmdToDmy(to)}',
                   style: TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 63,
+                      fontSize: 12,
                       color: AppColors.textSecondary)),
             ]),
           ),
           StatusBadge(
-            label: status.isNotEmpty ? status[0].toUpperCase() + status.substring(1) : '',
+            label: status.isNotEmpty
+                ? status[0].toUpperCase() + status.substring(1)
+                : '',
             color: statusColor,
           ),
         ]),
@@ -664,8 +671,9 @@ class _LeaveCard extends StatelessWidget {
           SizedBox(height: Get.height / 75.6),
           Text(reason,
               style: TextStyle(
+                  fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 63,
+                  fontSize: 12,
                   color: AppColors.textSecondary)),
         ],
         if (status == 'pending') ...[
@@ -694,7 +702,7 @@ class _LeaveCard extends StatelessWidget {
                         Text('Reject',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 58.15,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.danger)),
                       ]),
@@ -723,7 +731,7 @@ class _LeaveCard extends StatelessWidget {
                         Text('Approve',
                             style: TextStyle(
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 58.15,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.success)),
                       ]),
@@ -783,7 +791,8 @@ class GalleryController extends GetxController {
           if (classesRaw is List) {
             classesList = classesRaw;
           } else if (classesRaw is Map) {
-            classesList = List<dynamic>.from(classesRaw['data'] ?? classesRaw['classes'] ?? []);
+            classesList = List<dynamic>.from(
+                classesRaw['data'] ?? classesRaw['classes'] ?? []);
           }
           if (teacherId != null) {
             final teacherIdStr = teacherId.toString();
@@ -806,15 +815,19 @@ class GalleryController extends GetxController {
         });
         final raw = r.data;
         List<dynamic> rawPhotosList = [];
-        
+
         if (raw is List) {
           for (var item in raw) {
             if (item is Map) {
-              final rawPhotos = List<dynamic>.from(item['photos'] ?? item['images'] ?? []);
+              final rawPhotos =
+                  List<dynamic>.from(item['photos'] ?? item['images'] ?? []);
               for (var p in rawPhotos) {
                 if (p is Map) {
                   final pMap = Map<String, dynamic>.from(p);
-                  pMap['album'] = pMap['album'] ?? item['title']?.toString() ?? item['name']?.toString() ?? 'Album';
+                  pMap['album'] = pMap['album'] ??
+                      item['title']?.toString() ??
+                      item['name']?.toString() ??
+                      'Album';
                   rawPhotosList.add(pMap);
                 }
               }
@@ -899,7 +912,8 @@ class GalleryController extends GetxController {
     for (final album in _allGroupedAlbums) {
       final title = album['title'] as String;
       final allPhotosInAlbum = album['photos'] as List;
-      final isSelected = selectedAlbum.value.toLowerCase() == title.toLowerCase();
+      final isSelected =
+          selectedAlbum.value.toLowerCase() == title.toLowerCase();
       final photosToShow = isSelected
           ? allPhotosInAlbum.take(_displayedCount).toList()
           : allPhotosInAlbum.take(10).toList();
@@ -1034,8 +1048,9 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                 Text(
                                   'Failed to load image',
                                   style: TextStyle(
+                                      fontWeight: FontWeight.normal,
                                       color: Colors.white,
-                                      fontSize: Get.height / 54),
+                                      fontSize: 14),
                                 ),
                               ],
                             ),
@@ -1141,7 +1156,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         color: Colors.white,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
-                        fontSize: Get.height / 54,
+                        fontSize: 14,
                       ),
                     ),
                   )
@@ -1180,7 +1195,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
   void _onScroll() {
     if (_scrollCtrl.position.pixels >=
         _scrollCtrl.position.maxScrollExtent - 200) {
-      if (!ctrl.isLoading.value && !ctrl.isLoadMoreLoading.value && ctrl.hasMore.value) {
+      if (!ctrl.isLoading.value &&
+          !ctrl.isLoadMoreLoading.value &&
+          ctrl.hasMore.value) {
         ctrl.load();
       }
     }
@@ -1250,7 +1267,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             color: Colors.white,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            fontSize: Get.height / 37.8,
+            fontSize: 20,
           ),
         ),
       ),
@@ -1298,7 +1315,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                           Text(
                             'Albums',
                             style: TextStyle(
-                              fontSize: Get.height / 47.25,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               color: AppColors.textPrimary,
@@ -1335,7 +1352,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                 child: Text(
                                   title,
                                   style: TextStyle(
-                                    fontSize: Get.height / 54,
+                                    fontSize: 14,
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.w500,
@@ -1361,8 +1378,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                             child: Text(
                               'No photos in this album',
                               style: TextStyle(
+                                  fontWeight: FontWeight.normal,
                                   color: AppColors.textSecondary,
-                                  fontSize: Get.height / 54),
+                                  fontSize: 14),
                             ),
                           )
                         : GridView.builder(
@@ -1449,8 +1467,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       if (ctrl.isLoadMoreLoading.value) {
                         return Center(
                           child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: Get.height / 63),
-                            child: const CircularProgressIndicator(color: AppColors.primary),
+                            padding:
+                                EdgeInsets.symmetric(vertical: Get.height / 63),
+                            child: const CircularProgressIndicator(
+                                color: AppColors.primary),
                           ),
                         );
                       }
@@ -1590,7 +1610,7 @@ class CalendarScreen extends StatelessWidget {
                     style: TextStyle(
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w700,
-                        fontSize: Get.height / 47.25,
+                        fontSize: 16,
                         color: AppColors.textPrimary),
                   ),
                 ),
@@ -1660,7 +1680,7 @@ class CalendarScreen extends StatelessWidget {
                                               color: color,
                                               fontFamily: 'Inter',
                                               fontWeight: FontWeight.w800,
-                                              fontSize: Get.height / 54)),
+                                              fontSize: 14)),
                                       Text(
                                           date.length >= 7
                                               ? monthNames[int.tryParse(date
@@ -1669,9 +1689,10 @@ class CalendarScreen extends StatelessWidget {
                                                   .substring(0, 3)
                                               : '--',
                                           style: TextStyle(
+                                              fontWeight: FontWeight.normal,
                                               color: color,
                                               fontFamily: 'Inter',
-                                              fontSize: Get.height / 75.6)),
+                                              fontSize: 10)),
                                     ]),
                                   ),
                                   SizedBox(width: Get.height / 54),
@@ -1685,15 +1706,16 @@ class CalendarScreen extends StatelessWidget {
                                               style: TextStyle(
                                                   fontFamily: 'Inter',
                                                   fontWeight: FontWeight.w700,
-                                                  fontSize:
-                                                      Get.height / 58.15)),
+                                                  fontSize: 13)),
                                           if (ev['description'] != null)
                                             Text(ev['description'] as String,
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.normal,
                                                     fontFamily: 'Inter',
-                                                    fontSize: Get.height / 63,
+                                                    fontSize: 12,
                                                     color: AppColors
                                                         .textSecondary)),
                                         ]),
@@ -1827,13 +1849,14 @@ class BusTrackingScreen extends StatelessWidget {
                                     style: TextStyle(
                                         fontFamily: 'Inter',
                                         fontWeight: FontWeight.w700,
-                                        fontSize: Get.height / 47.25)),
+                                        fontSize: 16)),
                                 Text(
                                     bus['route'] as String? ??
                                         'Route not assigned',
                                     style: TextStyle(
+                                        fontWeight: FontWeight.normal,
                                         fontFamily: 'Inter',
-                                        fontSize: Get.height / 63,
+                                        fontSize: 12,
                                         color: AppColors.textSecondary)),
                               ]),
                         ),
@@ -1847,8 +1870,9 @@ class BusTrackingScreen extends StatelessWidget {
                         SizedBox(width: Get.height / 126),
                         Text('Driver: ${driver['name'] as String? ?? 'N/A'}',
                             style: TextStyle(
+                                fontWeight: FontWeight.normal,
                                 fontFamily: 'Inter',
-                                fontSize: Get.height / 58.15,
+                                fontSize: 13,
                                 color: AppColors.textSecondary)),
                         const Spacer(),
                         if (driver['phone'] != null)
@@ -1860,7 +1884,7 @@ class BusTrackingScreen extends StatelessWidget {
                             Text(driver['phone'] as String,
                                 style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: Get.height / 58.15,
+                                    fontSize: 13,
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w600)),
                           ]),
@@ -1875,8 +1899,9 @@ class BusTrackingScreen extends StatelessWidget {
                           Expanded(
                             child: Text(bus['last_location'] as String,
                                 style: TextStyle(
+                                    fontWeight: FontWeight.normal,
                                     fontFamily: 'Inter',
-                                    fontSize: Get.height / 63,
+                                    fontSize: 12,
                                     color: AppColors.textSecondary)),
                           ),
                         ]),

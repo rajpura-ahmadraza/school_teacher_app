@@ -108,9 +108,13 @@ class AppTheme {
             borderSide: const BorderSide(color: AppColors.danger),
           ),
           labelStyle: const TextStyle(
-              color: AppColors.textSecondary, fontFamily: 'Inter'),
+              fontWeight: FontWeight.normal,
+              color: AppColors.textSecondary,
+              fontFamily: 'Inter'),
           hintStyle: const TextStyle(
-              color: AppColors.textTertiary, fontFamily: 'Inter'),
+              fontWeight: FontWeight.normal,
+              color: AppColors.textTertiary,
+              fontFamily: 'Inter'),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -119,8 +123,8 @@ class AppTheme {
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
             textStyle: const TextStyle(
               fontFamily: 'Inter',
@@ -142,7 +146,8 @@ class AppTheme {
           labelStyle: const TextStyle(
               fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Colors.white,
@@ -152,7 +157,8 @@ class AppTheme {
           elevation: 0,
           selectedLabelStyle: TextStyle(
               fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w600),
-          unselectedLabelStyle: TextStyle(fontFamily: 'Inter', fontSize: 11),
+          unselectedLabelStyle: TextStyle(
+              fontWeight: FontWeight.normal, fontFamily: 'Inter', fontSize: 11),
         ),
         dividerTheme:
             const DividerThemeData(color: Color(0xFFF1F5F9), thickness: 1),

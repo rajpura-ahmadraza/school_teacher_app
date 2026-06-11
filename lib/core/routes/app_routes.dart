@@ -15,4 +15,6 @@ abstract class AppRoutes {
   static const calendar = '/calendar';
   static const busTracking = '/bus';
   static const notifications = '/notifications';
+  static const changePassword = '/change-password';
+  static const forgotPassword = '/forgot-password';
 }

@@ -52,6 +52,7 @@ class HomeworkController extends GetxController {
   int _page = 1;
   final Rx<Map<String, dynamic>?> selectedClass = Rx(null);
   final RxBool classesLoading = true.obs;
+  final RxBool subjectsLoading = false.obs;
   final RxBool listLoading = false.obs;
   final RxBool formSubmitting = false.obs;
 
@@ -94,6 +95,8 @@ class HomeworkController extends GetxController {
   }
 
   Future<void> loadSubjects(int classId) async {
+    subjectsLoading.value = true;
+    subjects.value = [];
     try {
       final resp =
           await _api.get('/subjects', params: {'class_id': classId.toString()});
@@ -110,6 +113,7 @@ class HomeworkController extends GetxController {
       debugPrint("loadSubjects error: $e\n$s");
       subjects.value = [];
     }
+    subjectsLoading.value = false;
   }
 
   Future<Dio> _getAdminDio() async {
@@ -130,6 +134,30 @@ class HomeworkController extends GetxController {
     final token = resp.data['access_token'];
     dio.options.headers['Authorization'] = 'Bearer $token';
     return dio;
+  }
+
+  Future<Map<String, dynamic>?> getHomeworkDetail(int id) async {
+    try {
+      final adminDio = await _getAdminDio();
+      final resp = await adminDio
+          .get('/homework', queryParameters: {'per_page': '1000'});
+      final raw = resp.data;
+      List<dynamic> list = [];
+      if (raw is List) {
+        list = raw;
+      } else if (raw is Map) {
+        list = List<dynamic>.from(
+            raw['data'] ?? raw['homeworks'] ?? raw['homework'] ?? []);
+      }
+      final match =
+          list.firstWhereOrNull((hw) => hw['id']?.toString() == id.toString());
+      if (match != null) {
+        return Map<String, dynamic>.from(match as Map);
+      }
+    } catch (e) {
+      debugPrint("getHomeworkDetail error: $e");
+    }
+    return null;
   }
 
   Future<void> loadHomework(int? classId, {bool silent = false}) async {
@@ -342,7 +370,9 @@ class HomeworkController extends GetxController {
       return homeworkData ?? dataMap;
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
       formSubmitting.value = false;
       return null;
     }
@@ -370,10 +400,14 @@ class HomeworkController extends GetxController {
         Get.find<DashboardController>().loadAll(silent: true);
       }
       Get.snackbar('Done', 'Homework deleted',
-          backgroundColor: AppColors.secondary, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.secondary,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     }
   }
 }
@@ -432,17 +466,45 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
+                fontWeight: FontWeight.w600)),
         actions: [
-          IconButton(
-            icon: Icon(Icons.add_rounded,
-                color: Colors.white, size: Get.height / 27),
-            onPressed: () async {
-              await Get.toNamed(AppRoutes.homeworkForm);
-              ctrl.loadHomework(num.tryParse(
-                      ctrl.selectedClass.value?['id']?.toString() ?? '')
-                  ?.toInt());
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+            child: OutlinedButton(
+              onPressed: () async {
+                await Get.toNamed(AppRoutes.homeworkForm);
+                ctrl.loadHomework(num.tryParse(
+                        ctrl.selectedClass.value?['id']?.toString() ?? '')
+                    ?.toInt());
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white, width: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Add ',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Icon(
+                    Icons.add_rounded,
+                    size: 16.0,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -615,7 +677,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     'Delete Homework?',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 37.8,
+                      fontSize: 20,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
                     ),
@@ -626,8 +688,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     'Are you sure you want to delete this homework ?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 54,
+                      fontSize: 14,
                       color: AppColors.textSecondary,
                       height: 1.4,
                     ),
@@ -653,7 +716,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             'Cancel',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 50.4,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -678,7 +741,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             'Delete',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 50.4,
+                              fontSize: 15,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -836,10 +899,10 @@ class _ClassDropdown extends StatelessWidget {
                         SizedBox(width: Get.height / 75.6),
                         Text(
                           selectedLabel,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w600,
-                            fontSize: Get.height / 50.4,
+                            fontSize: 13.0,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -908,12 +971,13 @@ class _HomeworkCard extends StatelessWidget {
                         style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
-                            fontSize: Get.height / 50.4,
+                            fontSize: 15,
                             color: AppColors.textPrimary)),
                     Text('${subject['name'] ?? 'Subject'} • $clsName',
                         style: TextStyle(
+                            fontWeight: FontWeight.normal,
                             fontFamily: 'Inter',
-                            fontSize: Get.height / 63,
+                            fontSize: 12,
                             color: AppColors.textSecondary)),
                   ]),
             ),
@@ -929,7 +993,7 @@ class _HomeworkCard extends StatelessWidget {
                 child: Text(formatYmdToDmy(dueDate),
                     style: TextStyle(
                         fontFamily: 'Inter',
-                        fontSize: Get.height / 68.72,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AppColors.warning)),
               ),
@@ -941,8 +1005,9 @@ class _HomeworkCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
+                    fontWeight: FontWeight.normal,
                     fontFamily: 'Inter',
-                    fontSize: Get.height / 58.15,
+                    fontSize: 13,
                     color: AppColors.textSecondary)),
           ],
           SizedBox(height: Get.height / 189),
@@ -952,8 +1017,9 @@ class _HomeworkCard extends StatelessWidget {
             SizedBox(width: Get.height / 189),
             Text('Swipe to edit or delete',
                 style: TextStyle(
+                    fontWeight: FontWeight.normal,
                     fontFamily: 'Inter',
-                    fontSize: Get.height / 68.72,
+                    fontSize: 11,
                     color: AppColors.textTertiary)),
           ]),
         ]),
@@ -1192,7 +1258,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                           'FILE',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: Get.height / 75.6,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: AppColors.textSecondary,
                           ),
@@ -1273,6 +1339,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             // Class dropdown
             // Class dropdown
             Obx(() {
+              final isLoadingClasses = ctrl.classesLoading.value;
               final selectedId = _selectedClass?['id']?.toString();
               final currentSelection = ctrl.classes.firstWhereOrNull(
                 (c) => c['id']?.toString() == selectedId,
@@ -1280,7 +1347,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
               return FormField<dynamic>(
                 key: ValueKey('class_$selectedId'),
                 initialValue: currentSelection,
-                validator: (v) => v == null ? 'Select a class' : null,
+                validator: (v) =>
+                    isLoadingClasses ? null : (v == null ? 'Select a class' : null),
                 builder: (FormFieldState<dynamic> state) {
                   return Theme(
                     data: Theme.of(context).copyWith(
@@ -1291,6 +1359,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                     child: PopupMenuButton<dynamic>(
                       surfaceTintColor: Colors.white,
                       color: Colors.white,
+                      enabled: !isLoadingClasses,
                       offset: const Offset(0, 52),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -1319,25 +1388,49 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                           value: c,
                           child: Text(
                               '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                              style: const TextStyle(fontFamily: 'Inter')),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Inter')),
                         );
                       }).toList(),
                       child: InputDecorator(
                         decoration: _inputDecoration('Class').copyWith(
                           errorText: state.errorText,
-                          suffixIcon: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: AppColors.textSecondary),
+                          suffixIcon: isLoadingClasses
+                              ? Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: AppColors.textSecondary),
                         ),
                         isEmpty: currentSelection == null,
-                        child: currentSelection == null
-                            ? null
-                            : Text(
-                                '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
-                                style: TextStyle(
+                        child: isLoadingClasses
+                            ? Text(
+                                'Loading classes...',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
                                     fontFamily: 'Inter',
-                                    fontSize: Get.height / 54),
-                              ),
+                                    fontSize: 13.0,
+                                    color: AppColors.textSecondary),
+                              )
+                            : currentSelection == null
+                                ? null
+                                : Text(
+                                    '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Inter',
+                                        fontSize: 13.0),
+                                  ),
                       ),
                     ),
                   );
@@ -1347,6 +1440,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             SizedBox(height: Get.height / 47.25),
             // Subject dropdown
             Obx(() {
+              final isLoadingSubjects = ctrl.subjectsLoading.value;
               final selectedId = _selectedSubject?['id']?.toString();
               final currentSelection = ctrl.subjects.firstWhereOrNull(
                 (s) => s['id']?.toString() == selectedId,
@@ -1355,7 +1449,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                 key: ValueKey(
                     'subject_${selectedId}_class_${_selectedClass?['id']}'),
                 initialValue: currentSelection,
-                validator: (v) => v == null ? 'Select a subject' : null,
+                validator: (v) =>
+                    isLoadingSubjects ? null : (v == null ? 'Select a subject' : null),
                 builder: (FormFieldState<dynamic> state) {
                   return Theme(
                     data: Theme.of(context).copyWith(
@@ -1366,6 +1461,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                     child: PopupMenuButton<dynamic>(
                       surfaceTintColor: Colors.white,
                       color: Colors.white,
+                      enabled: !isLoadingSubjects,
                       offset: const Offset(0, 52),
                       elevation: 4,
                       shape: RoundedRectangleBorder(
@@ -1385,26 +1481,50 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                           value: s,
                           child: Text(
                             s['name'] as String? ?? '',
-                            style: const TextStyle(fontFamily: 'Inter'),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontFamily: 'Inter'),
                           ),
                         );
                       }).toList(),
                       child: InputDecorator(
                         decoration: _inputDecoration('Subject').copyWith(
                           errorText: state.errorText,
-                          suffixIcon: const Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: AppColors.textSecondary),
+                          suffixIcon: isLoadingSubjects
+                              ? Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  color: AppColors.textSecondary),
                         ),
                         isEmpty: currentSelection == null,
-                        child: currentSelection == null
-                            ? null
-                            : Text(
-                                currentSelection['name'] as String? ?? '',
-                                style: TextStyle(
+                        child: isLoadingSubjects
+                            ? Text(
+                                'Loading subjects...',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
                                     fontFamily: 'Inter',
-                                    fontSize: Get.height / 54),
-                              ),
+                                    fontSize: 13.0,
+                                    color: AppColors.textSecondary),
+                              )
+                            : currentSelection == null
+                                ? null
+                                : Text(
+                                    currentSelection['name'] as String? ?? '',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Inter',
+                                        fontSize: 13.0),
+                                  ),
                       ),
                     ),
                   );
@@ -1416,7 +1536,10 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             TextFormField(
               controller: _titleCtrl,
               decoration: _inputDecoration('Homework Title'),
-              style: const TextStyle(fontFamily: 'Inter'),
+              style: const TextStyle(
+                fontWeight: FontWeight.normal,
+                fontFamily: 'Inter',
+              ),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
             ),
@@ -1427,7 +1550,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
               decoration: _inputDecoration('Description (optional)').copyWith(
                 alignLabelWithHint: true,
               ),
-              style: const TextStyle(fontFamily: 'Inter'),
+              style: const TextStyle(
+                  fontWeight: FontWeight.normal, fontFamily: 'Inter'),
               maxLines: 4,
             ),
             SizedBox(height: Get.height / 63),
@@ -1448,7 +1572,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                             },
                           ),
                   ),
-                  style: const TextStyle(fontFamily: 'Inter'),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal, fontFamily: 'Inter'),
                   onTap: () async {
                     final now = DateTime.now();
                     final today = DateTime(now.year, now.month, now.day);
@@ -1508,7 +1633,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
-                        fontSize: Get.height / 54,
+                        fontSize: 14,
                         color: AppColors.primary,
                       ),
                     ),
@@ -1539,7 +1664,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                             style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontWeight: FontWeight.w700,
-                                fontSize: Get.height / 47.25)),
+                                fontSize: 16)),
                   ),
                 )),
           ]),
@@ -1551,7 +1676,10 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
   InputDecoration _inputDecoration(String label) => InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
-            fontFamily: 'Inter', color: AppColors.textSecondary),
+            fontWeight: FontWeight.normal,
+            fontSize: 14,
+            fontFamily: 'Inter',
+            color: AppColors.textSecondary),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Get.height / 63)),
         enabledBorder: OutlineInputBorder(
@@ -1628,7 +1756,9 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             ctrl.formSubmitting.value = false;
           });
           Get.snackbar('Error', 'Failed to process attachments: $e',
-              backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+              backgroundColor: AppColors.danger,
+              colorText: Colors.white,
+              snackPosition: SnackPosition.TOP);
           return;
         }
       }
@@ -1666,6 +1796,7 @@ class HomeworkDetailScreen extends StatefulWidget {
 
 class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
   late Map<String, dynamic> _currentHomework;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -1722,7 +1853,9 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
       }
     }
 
-    return Scaffold(
+    return Stack(
+      children: [
+      Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
         flexibleSpace: Container(
@@ -1734,28 +1867,62 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
           onPressed: () => Get.back(),
         ),
-        title: const Text('Homework Details',
-            style: TextStyle(
+        title: Text(
+            _currentHomework['title'] as String? ?? 'Homework Details',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_rounded, color: Colors.white),
-            onPressed: () async {
-              final updated = await Get.toNamed(
-                AppRoutes.homeworkForm,
-                arguments: _currentHomework,
-              );
-              if (updated != null && updated is Map<String, dynamic>) {
-                setState(() {
-                  _currentHomework = {
-                    ..._currentHomework,
-                    ...updated,
-                  };
-                });
-              }
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+            child: OutlinedButton(
+              onPressed: _isNavigating ? null : () async {
+                setState(() => _isNavigating = true);
+                final updated = await Get.toNamed(
+                  AppRoutes.homeworkForm,
+                  arguments: _currentHomework,
+                );
+                if (mounted) setState(() => _isNavigating = false);
+                if (updated != null && updated is Map<String, dynamic>) {
+                  setState(() {
+                    _currentHomework = {
+                      ..._currentHomework,
+                      ...updated,
+                    };
+                  });
+                }
+              },
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white, width: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Edit ',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.0,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Icon(
+                    Icons.edit_rounded,
+                    size: 16.0,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -1786,7 +1953,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
-                            fontSize: Get.height / 63,
+                            fontSize: 12,
                             color: AppColors.primary,
                           ),
                         ),
@@ -1806,7 +1973,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w700,
-                            fontSize: Get.height / 63,
+                            fontSize: 12,
                             color: AppColors.secondary,
                           ),
                         ),
@@ -1819,7 +1986,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w800,
-                      fontSize: Get.height / 37.8,
+                      fontSize: 20,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -1831,7 +1998,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: Get.height / 54,
+                      fontSize: 14,
                       color: AppColors.textPrimary,
                     ),
                   ),
@@ -1845,8 +2012,9 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                         ? _currentHomework['description'] as String
                         : 'No description provided.',
                     style: TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 54,
+                      fontSize: 14,
                       color: AppColors.textSecondary,
                       height: 1.5,
                     ),
@@ -1904,7 +2072,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                  fontSize: Get.height / 50.4,
+                  fontSize: 15,
                   color: Color.fromRGBO(26, 16, 37, 1),
                 ),
               ),
@@ -1962,7 +2130,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                  fontSize: Get.height / 50.4,
+                  fontSize: 15,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -2002,15 +2170,16 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w700,
-                                  fontSize: Get.height / 54,
+                                  fontSize: 14,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               Text(
                                 'Document File',
                                 style: TextStyle(
+                                  fontWeight: FontWeight.normal,
                                   fontFamily: 'Inter',
-                                  fontSize: Get.height / 68.72,
+                                  fontSize: 11,
                                   color: AppColors.textSecondary,
                                 ),
                               ),
@@ -2027,7 +2196,7 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                                 vertical: Get.height / 94.5),
                             textStyle: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 63,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -2039,10 +2208,20 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                 },
               ),
             ],
-          ],
+        ],
         ),
       ),
-    );
+    ), // end Scaffold
+      // Loading overlay when navigating to edit screen
+      if (_isNavigating)
+        Container(
+          color: Colors.black.withOpacity(0.35),
+          child: const Center(
+            child: CircularProgressIndicator(color: Colors.white),
+          ),
+        ),
+      ], // end Stack children
+    ); // end Stack
   }
 }
 
@@ -2090,8 +2269,9 @@ class _DetailRow extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
+                  fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 63,
+                  fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -2101,7 +2281,7 @@ class _DetailRow extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w700,
-                  fontSize: Get.height / 54,
+                  fontSize: 14,
                   color: valueColor ?? AppColors.textPrimary,
                 ),
               ),
@@ -2110,8 +2290,9 @@ class _DetailRow extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: TextStyle(
+                    fontWeight: FontWeight.normal,
                     fontFamily: 'Inter',
-                    fontSize: Get.height / 68.72,
+                    fontSize: 11,
                     color: AppColors.textTertiary,
                   ),
                 ),
@@ -2169,7 +2350,7 @@ class _FullScreenImageState extends State<FullScreenImage> {
             color: Colors.white,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w600,
-            fontSize: Get.height / 47.25,
+            fontSize: 16,
           ),
         ),
         centerTitle: true,

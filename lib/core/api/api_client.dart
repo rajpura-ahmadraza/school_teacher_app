@@ -100,8 +100,7 @@ class _AuthInterceptor extends Interceptor {
         final token = await _storage.read(key: _tokenKey);
         if (token != null) {
           final resp = await _dio.post('/auth/refresh',
-              options:
-                  Options(headers: {'Authorization': 'Bearer $token'}));
+              options: Options(headers: {'Authorization': 'Bearer $token'}));
           final newToken = resp.data['access_token'] as String;
           await _storage.write(key: _tokenKey, value: newToken);
           err.requestOptions.headers['Authorization'] = 'Bearer $newToken';

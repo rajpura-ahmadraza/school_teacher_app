@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/api/api_client.dart';
 import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
@@ -181,7 +182,7 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 125,
+                  expandedHeight: 130,
                   pinned: true,
                   stretch: true,
                   backgroundColor: AppColors.primary,
@@ -192,7 +193,7 @@ class DashboardScreen extends StatelessWidget {
                     final double statusBarHeight =
                         MediaQuery.of(context).padding.top;
                     final double minHeight = statusBarHeight + kToolbarHeight;
-                    const double maxHeight = 150.0;
+                    final double maxHeight = 130.0 + statusBarHeight;
 
                     final double delta = maxHeight - minHeight;
                     final double collapsePercent =
@@ -240,7 +241,6 @@ class DashboardScreen extends StatelessWidget {
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          height: Get.height / 6.57,
                           child: IgnorePointer(
                             ignoring: collapsePercent > 0.5,
                             child: Opacity(
@@ -255,6 +255,7 @@ class DashboardScreen extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Row(
                                       children: [
@@ -268,8 +269,8 @@ class DashboardScreen extends StatelessWidget {
                                                     color: Colors.white
                                                         .withOpacity(0.85),
                                                     fontFamily: 'Inter',
-                                                    fontSize: Get.height / 54,
-                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w400,
                                                   )),
                                               SizedBox(
                                                   height: Get.height / 189),
@@ -277,8 +278,8 @@ class DashboardScreen extends StatelessWidget {
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontFamily: 'Inter',
-                                                    fontSize: Get.height / 29.7,
-                                                    fontWeight: FontWeight.w800,
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.w600,
                                                   )),
                                             ],
                                           ),
@@ -357,7 +358,7 @@ class DashboardScreen extends StatelessWidget {
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Inter',
-                                              fontSize: Get.height / 63,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -385,16 +386,35 @@ class DashboardScreen extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: Text(
-                                        name,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Inter',
-                                          fontSize: Get.height / 37.8,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            '${_greeting()}, 👋',
+                                            style: TextStyle(
+                                              color: Colors.white
+                                                  .withOpacity(0.85),
+                                              fontFamily: 'Inter',
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            name,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Inter',
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
                                       ),
                                     ),
                                     GestureDetector(
@@ -515,7 +535,9 @@ class DashboardScreen extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
                           0, Get.height / 31.5, 0, Get.height / 63),
-                      child: SectionHeader(title: 'Quick Actions'),
+                      child: const SectionHeader(
+                        title: 'Quick Actions',
+                      ),
                     ),
                   ),
                   SliverPadding(
@@ -570,6 +592,12 @@ class DashboardScreen extends StatelessWidget {
                           color: AppColors.purple,
                           onTap: () => Get.toNamed(AppRoutes.gallery),
                         ),
+                        _QuickAction(
+                          icon: Icons.lock_reset_rounded,
+                          label: 'Change Password',
+                          color: AppColors.primary,
+                          onTap: () => Get.toNamed(AppRoutes.changePassword),
+                        ),
                       ],
                     ),
                   ),
@@ -612,6 +640,48 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ],
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: Get.height / 31.5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Powered by',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: Get.height / 63,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          SizedBox(
+                            width: Get.height / 151.2,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              final Uri url = Uri.parse(
+                                  'https://www.emaadinfotech.com/get-in-touch');
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                            child: Text(
+                              'Emaad Infotech®',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: Get.height / 63,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -695,7 +765,7 @@ class DashboardScreen extends StatelessWidget {
                 'Exit App?',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 37.8,
+                  fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
@@ -706,8 +776,9 @@ class DashboardScreen extends StatelessWidget {
                 'Are you sure you want to close the app?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 54,
+                  fontSize: 14,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -735,7 +806,7 @@ class DashboardScreen extends StatelessWidget {
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 50.4,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -762,7 +833,7 @@ class DashboardScreen extends StatelessWidget {
                         'Exit',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 50.4,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -834,7 +905,7 @@ class DashboardScreen extends StatelessWidget {
                 'Logout',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 37.8,
+                  fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
@@ -847,8 +918,9 @@ class DashboardScreen extends StatelessWidget {
                 'Are you sure you want to sign out?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 54,
+                  fontSize: 14,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
@@ -878,7 +950,7 @@ class DashboardScreen extends StatelessWidget {
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 50.4,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -910,7 +982,7 @@ class DashboardScreen extends StatelessWidget {
                         'Logout',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 50.4,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -943,6 +1015,7 @@ class _QuickAction extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(
@@ -980,11 +1053,14 @@ class _QuickAction extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 63,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
                   color: AppColors.textPrimary,
+                  height: 1.2,
                 ),
               ),
             ],
@@ -993,81 +1069,109 @@ class _QuickAction extends StatelessWidget {
       );
 }
 
-class _HomeworkTile extends StatelessWidget {
+class _HomeworkTile extends StatefulWidget {
   final Map<String, dynamic> hw;
   const _HomeworkTile({required this.hw});
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () => Get.toNamed(AppRoutes.homeworkDetail, arguments: hw),
-        child: Container(
-          margin: EdgeInsets.only(bottom: Get.height / 75.6),
-          padding: EdgeInsets.all(Get.height / 54),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(
-              Get.height / 54,
-            ),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+  State<_HomeworkTile> createState() => _HomeworkTileState();
+}
+
+class _HomeworkTileState extends State<_HomeworkTile> {
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _isLoading
+          ? null
+          : () async {
+              setState(() => _isLoading = true);
+              await Get.toNamed(AppRoutes.homeworkDetail, arguments: widget.hw);
+              if (mounted) setState(() => _isLoading = false);
+            },
+      child: Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.only(bottom: Get.height / 75.6),
+            padding: EdgeInsets.all(Get.height / 54),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(
+                Get.height / 54,
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: Get.height / 18.9,
-                height: Get.height / 18.9,
-                decoration: BoxDecoration(
-                  gradient: AppColors.gradientOrange,
-                  borderRadius: BorderRadius.circular(
-                    Get.height / 75.6,
+              border: Border.all(color: const Color(0xFFF1F5F9)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: Get.height / 18.9,
+                  height: Get.height / 18.9,
+                  decoration: BoxDecoration(
+                    gradient: AppColors.gradientOrange,
+                    borderRadius: BorderRadius.circular(
+                      Get.height / 75.6,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.assignment_rounded,
+                    color: Colors.white,
+                    size: Get.height / 37.8,
                   ),
                 ),
-                child: Icon(
-                  Icons.assignment_rounded,
-                  color: Colors.white,
-                  size: Get.height / 37.8,
+                SizedBox(
+                  width: Get.height / 63,
                 ),
-              ),
-              SizedBox(
-                width: Get.height / 63,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(hw['title'] as String? ?? 'Homework',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(widget.hw['title'] as String? ?? 'Homework',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          )),
+                      SizedBox(height: Get.height / 378),
+                      Text(
+                        (widget.hw['class'] as Map?)?['name'] as String? ??
+                            widget.hw['class_name'] as String? ??
+                            '',
                         style: TextStyle(
+                          fontWeight: FontWeight.normal,
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 54,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        )),
-                    SizedBox(height: Get.height / 378),
-                    Text(
-                      (hw['class'] as Map?)?['name'] as String? ??
-                          hw['class_name'] as String? ??
-                          '',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: Get.height / 63,
-                        color: AppColors.textSecondary,
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: AppColors.textTertiary),
-            ],
+                if (_isLoading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: AppColors.primary),
+                  )
+                else
+                  const Icon(Icons.chevron_right_rounded,
+                      color: AppColors.textTertiary),
+              ],
+            ),
           ),
-        ),
-      );
+        ],
+      ),
+    );
+  }
 }

@@ -31,7 +31,8 @@ class StatCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: (gradient as LinearGradient).colors.first.withOpacity(0.3),
+                color:
+                    (gradient as LinearGradient).colors.first.withOpacity(0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -54,8 +55,8 @@ class StatCard extends StatelessWidget {
               Text(value,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
                     fontFamily: 'Inter',
                   )),
               const SizedBox(height: 2),
@@ -104,8 +105,8 @@ class SectionHeader extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(title,
                     style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                       fontFamily: 'Inter',
                       fontStyle: FontStyle.italic,
                       color: AppColors.textPrimary,
@@ -123,9 +124,9 @@ class SectionHeader extends StatelessWidget {
                 ),
                 child: Text(actionLabel!,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       fontFamily: 'Inter',
                     )),
               ),
@@ -168,6 +169,7 @@ class InfoRow extends StatelessWidget {
               children: [
                 Text(label,
                     style: const TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontSize: 11,
                       color: AppColors.textSecondary,
                       fontFamily: 'Inter',
@@ -320,7 +322,7 @@ class EmptyState extends StatelessWidget {
               Text(title,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                     fontFamily: 'Inter',
                     color: AppColors.textPrimary,
                   )),
@@ -328,7 +330,8 @@ class EmptyState extends StatelessWidget {
               Text(subtitle,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 13,
                     color: AppColors.textSecondary,
                     fontFamily: 'Inter',
                   )),
@@ -369,6 +372,7 @@ class ErrorState extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
+                    fontWeight: FontWeight.normal,
                     fontSize: 13,
                     color: AppColors.textSecondary,
                     fontFamily: 'Inter',
@@ -402,9 +406,10 @@ class NetAvatar extends StatelessWidget {
     if (path.startsWith('http://') || path.startsWith('https://')) {
       return path;
     }
-    const base = 'https://laravel-api.emaad-infotech.com/school-management-system/';
+    const base =
+        'https://laravel-api.emaad-infotech.com/school-management-system/';
     var cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    
+
     // Prefix 'storage/' if no standard folder prefix is present
     if (!cleanPath.startsWith('storage/') &&
         !cleanPath.startsWith('public/') &&
@@ -412,13 +417,14 @@ class NetAvatar extends StatelessWidget {
         !cleanPath.startsWith('images/')) {
       cleanPath = 'storage/' + cleanPath;
     }
-    
+
     return '$base$cleanPath';
   }
 
   @override
   Widget build(BuildContext context) {
-    final avatarText = fallbackLetter.isNotEmpty ? fallbackLetter[0].toUpperCase() : '?';
+    final avatarText =
+        fallbackLetter.isNotEmpty ? fallbackLetter[0].toUpperCase() : '?';
     final fallbackWidget = CircleAvatar(
       radius: radius,
       backgroundColor: AppColors.primaryLight,
@@ -452,8 +458,7 @@ class NetAvatar extends StatelessWidget {
 }
 
 // ── Toast helper ──────────────────────────────────────────────
-void showToast(BuildContext context, String message,
-    {bool isError = false}) {
+void showToast(BuildContext context, String message, {bool isError = false}) {
   Get.snackbar(
     isError ? 'Error' : 'Success',
     message,
@@ -512,8 +517,18 @@ String formatYmToMy(String? ymStr) {
       final monthInt = int.tryParse(parts[1]);
       if (monthInt != null && monthInt >= 1 && monthInt <= 12) {
         const shortMonths = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
         ];
         final monthName = shortMonths[monthInt - 1];
         return '$monthName-$year';
@@ -538,14 +553,14 @@ String formatTimeToAmPm(String? timeStr) {
     if (parts.isNotEmpty) {
       int hour = int.tryParse(parts[0]) ?? 0;
       int minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
-      
+
       final period = hour >= 12 ? 'PM' : 'AM';
-      
+
       int displayHour = hour % 12;
       if (displayHour == 0) {
         displayHour = 12;
       }
-      
+
       final minuteStr = minute.toString().padLeft(2, '0');
       final hourStr = displayHour.toString().padLeft(2, '0');
       return '$hourStr:$minuteStr $period';
@@ -553,4 +568,3 @@ String formatTimeToAmPm(String? timeStr) {
   } catch (_) {}
   return timeStr;
 }
-

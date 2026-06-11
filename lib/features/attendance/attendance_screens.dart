@@ -87,7 +87,9 @@ class AttendanceController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     } finally {
       classesLoading.value = false;
     }
@@ -112,7 +114,9 @@ class AttendanceController extends GetxController {
       await fetchAttendanceForSelectedDate();
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     } finally {
       studentsLoading.value = false;
     }
@@ -183,7 +187,9 @@ class AttendanceController extends GetxController {
     if (unmarkedCount > 0) {
       Get.snackbar('Validation Error',
           'Please mark attendance for all students before submitting.',
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
       return false;
     }
     submitting.value = true;
@@ -213,7 +219,9 @@ class AttendanceController extends GetxController {
     } catch (e) {
       final msg = (e is ApiException) ? e.displayMessage : e.toString();
       Get.snackbar('Error', msg,
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
       return false;
     } finally {
       submitting.value = false;
@@ -241,7 +249,9 @@ class AttendanceController extends GetxController {
       reportData.value = Map<String, dynamic>.from(raw['data'] ?? raw);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
+          backgroundColor: AppColors.danger,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP);
     } finally {
       reportLoading.value = false;
     }
@@ -264,19 +274,27 @@ class AttendanceScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
           onPressed: () => Get.offNamed(AppRoutes.dashboard),
         ),
-        title: const Text('Attendance',
+        title: Text('Attendance',
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
+                fontSize: 14,
+                fontWeight: FontWeight.w600)),
         actions: [
           TextButton(
             onPressed: () => Get.toNamed(AppRoutes.attendanceReport),
             child: const Text('Report',
-                style: TextStyle(color: Colors.white, fontFamily: 'Inter')),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontFamily: 'Inter')),
           )
         ],
       ),
@@ -364,10 +382,10 @@ class _ClassPicker extends StatelessWidget {
                         : 'Select Class',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 54,
+                      fontSize: 15.0,
                       fontWeight: currentSelection != null
                           ? FontWeight.w600
-                          : FontWeight.w500,
+                          : FontWeight.w600,
                       color: currentSelection != null
                           ? AppColors.textPrimary
                           : AppColors.textSecondary,
@@ -390,8 +408,8 @@ class _ClassPicker extends StatelessWidget {
                 '$name$sec',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 54,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -464,10 +482,10 @@ class _AttendanceBody extends StatelessWidget {
                             size: 16, color: AppColors.primary),
                         SizedBox(width: Get.height / 126),
                         Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w600,
-                              fontSize: Get.height / 58.15,
+                              fontSize: 12.0,
                               color: AppColors.primary,
                             ))),
                       ],
@@ -504,7 +522,7 @@ class _AttendanceBody extends StatelessWidget {
                             'View Only',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 63,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: Colors.blue,
                             ),
@@ -542,8 +560,8 @@ class _AttendanceBody extends StatelessWidget {
                             'P',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: Get.height / 75.6,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
                               color: Colors.white,
                             ),
                           ),
@@ -555,7 +573,7 @@ class _AttendanceBody extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: Get.height / 75.6,
+                          fontSize: 10,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -577,8 +595,8 @@ class _AttendanceBody extends StatelessWidget {
                             'A',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: Get.height / 75.6,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
                               color: Colors.white,
                             ),
                           ),
@@ -590,7 +608,7 @@ class _AttendanceBody extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: Get.height / 75.6,
+                          fontSize: 10,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -612,8 +630,8 @@ class _AttendanceBody extends StatelessWidget {
                             'L',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: Get.height / 75.6,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 10,
                               color: Colors.white,
                             ),
                           ),
@@ -625,7 +643,7 @@ class _AttendanceBody extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: Get.height / 75.6,
+                          fontSize: 10,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -696,8 +714,8 @@ class _AttendanceBody extends StatelessWidget {
                             : Text('Submit Attendance',
                                 style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: Get.height / 47.25)),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14)),
                       ),
                     )),
               ),
@@ -731,7 +749,7 @@ class _BulkBtn extends StatelessWidget {
               style: TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w600,
-                  fontSize: Get.height / 63,
+                  fontSize: 12,
                   color: color)),
         ),
       );
@@ -786,14 +804,15 @@ class _StudentAttendanceTile extends StatelessWidget {
                   Text(student['name'] as String? ?? 'Student',
                       style: TextStyle(
                           fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: Get.height / 54,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
                           color: AppColors.textPrimary)),
                   Text(
                       'Roll: ${student['roll_number'] ?? student['admission_no'] ?? '-'}',
                       style: TextStyle(
+                          fontWeight: FontWeight.w400,
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 63,
+                          fontSize: 10,
                           color: AppColors.textSecondary)),
                 ],
               ),
@@ -823,8 +842,8 @@ class _StudentAttendanceTile extends StatelessWidget {
                       child: Text(s,
                           style: TextStyle(
                               fontFamily: 'Inter',
-                              fontWeight: FontWeight.w700,
-                              fontSize: Get.height / 54,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
                               color: sel ? Colors.white : c)),
                     ),
                   ),
@@ -878,8 +897,8 @@ Future<void> _showMonthYearPicker(
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontWeight: FontWeight.bold,
-                fontSize: Get.height / 42,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
               ),
             ),
             content: SizedBox(
@@ -902,8 +921,8 @@ Future<void> _showMonthYearPicker(
                         '$tempYear',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 37.8,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
                       ),
@@ -963,7 +982,7 @@ Future<void> _showMonthYearPicker(
                                 style: TextStyle(
                                   fontFamily: 'Inter',
                                   fontWeight: FontWeight.w600,
-                                  fontSize: Get.height / 58.15,
+                                  fontSize: 13,
                                   color: isSelected
                                       ? Colors.white
                                       : isFutureMonth
@@ -985,7 +1004,10 @@ Future<void> _showMonthYearPicker(
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
                   'Cancel',
-                  style: TextStyle(fontFamily: 'Inter', color: Colors.grey),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Inter',
+                      color: Colors.grey),
                 ),
               ),
               ElevatedButton(
@@ -1000,7 +1022,9 @@ Future<void> _showMonthYearPicker(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text('OK', style: TextStyle(fontFamily: 'Inter')),
+                child: const Text('OK',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600, fontFamily: 'Inter')),
               ),
             ],
           );
@@ -1050,7 +1074,8 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
+                fontSize: 16,
+                fontWeight: FontWeight.w500)),
       ),
       body: Obx(() => Column(
             children: [
@@ -1095,7 +1120,10 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                               value: c,
                               child: Text(
                                 '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                                style: const TextStyle(fontFamily: 'Inter'),
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Inter'),
                               ),
                             );
                           }).toList(),
@@ -1115,8 +1143,9 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                             child: Text(
                               label,
                               style: TextStyle(
+                                  fontWeight: FontWeight.w500,
                                   fontFamily: 'Inter',
-                                  fontSize: Get.height / 54),
+                                  fontSize: 13),
                             ),
                           ),
                         ),
@@ -1139,8 +1168,9 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                           SizedBox(width: Get.height / 94.5),
                           Text(formatYmToMy(ctrl.reportMonth.value),
                               style: TextStyle(
+                                  fontWeight: FontWeight.w500,
                                   fontFamily: 'Inter',
-                                  fontSize: Get.height / 54)),
+                                  fontSize: 13)),
                         ]),
                       ),
                     ),
@@ -1166,7 +1196,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                             : const Text('Generate Report',
                                 style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w700)),
+                                    fontWeight: FontWeight.w500)),
                       ),
                     ),
                   ],
@@ -1303,7 +1333,7 @@ class _ReportBody extends StatelessWidget {
                   Text('$pct%',
                       style: TextStyle(
                           fontFamily: 'Inter',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: pct >= 75
                               ? AppColors.secondary
                               : pct >= 50
@@ -1339,15 +1369,16 @@ class _SummaryCard extends StatelessWidget {
           Text(value,
               style: TextStyle(
                   fontFamily: 'Inter',
-                  fontWeight: FontWeight.w800,
-                  fontSize: Get.height / 37.8,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16,
                   color: color)),
           SizedBox(height: Get.height / 378),
           Text(label,
               textAlign: TextAlign.center,
               style: TextStyle(
+                  fontWeight: FontWeight.w400,
                   fontFamily: 'Inter',
-                  fontSize: Get.height / 68.72,
+                  fontSize: 11,
                   color: AppColors.textSecondary)),
         ]),
       );

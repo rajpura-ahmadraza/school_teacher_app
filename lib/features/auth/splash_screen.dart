@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/controllers/auth_controller.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -128,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                         child: Text('School Teacher',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: Get.height / 23.62,
+                              fontSize: 32,
                               fontWeight: FontWeight.w800,
                               color: Colors.white,
                             )),
@@ -137,7 +138,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Text('Manage · Teach · Inspire',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: Get.height / 50.4,
+                            fontSize: 15,
                             fontWeight: FontWeight.w500,
                             color: AppColors.textSecondary.withOpacity(0.9),
                             letterSpacing: 1.2,
@@ -183,8 +184,9 @@ class _SplashScreenState extends State<SplashScreen>
                     SizedBox(height: Get.height / 63),
                     Text('Loading...',
                         style: TextStyle(
+                          fontWeight: FontWeight.normal,
                           fontFamily: 'Inter',
-                          fontSize: Get.height / 63,
+                          fontSize: 12,
                           color: AppColors.textTertiary,
                         )),
                   ]),
@@ -192,10 +194,48 @@ class _SplashScreenState extends State<SplashScreen>
                 SizedBox(height: Get.height / 31.5),
                 Text('v1.0.0  ·  SchoolMS',
                     style: TextStyle(
+                      fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: Get.height / 68.72,
+                      fontSize: 11,
                       color: AppColors.textTertiary.withOpacity(0.7),
                     )),
+                SizedBox(height: Get.height / 151.2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Powered by',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: Get.height / 63,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    SizedBox(
+                      width: Get.height / 151.2,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        final Uri url = Uri.parse(
+                            'https://www.emaadinfotech.com/get-in-touch');
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      },
+                      child: Text(
+                        'Emaad Infotech®',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: Get.height / 63,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: Get.height / 47.25),
               ],
             ),
@@ -226,7 +266,7 @@ class _Pill extends StatelessWidget {
         child: Text(label,
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: Get.height / 63,
+              fontSize: 12,
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
             )),

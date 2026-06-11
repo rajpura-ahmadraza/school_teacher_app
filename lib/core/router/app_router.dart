@@ -185,12 +185,14 @@ void _showExitConfirm(BuildContext context) {
       ),
       content: const Text(
         'Do you want to close the app?',
-        style: TextStyle(fontFamily: 'Inter'),
+        style: TextStyle(fontWeight: FontWeight.normal, fontFamily: 'Inter'),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(fontFamily: 'Inter')),
+          child: const Text('Cancel',
+              style: TextStyle(
+                  fontWeight: FontWeight.normal, fontFamily: 'Inter')),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(

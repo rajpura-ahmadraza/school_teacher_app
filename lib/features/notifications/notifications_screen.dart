@@ -272,7 +272,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Get.back();
                             },
                             child: const Text('Clear',
-                                style: TextStyle(color: AppColors.danger)),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.danger)),
                           ),
                         ],
                       ),
@@ -442,7 +444,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           item.title,
                                           style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: Get.height / 54,
+                                            fontSize: 14,
                                             fontWeight: item.isRead.value
                                                 ? FontWeight.w600
                                                 : FontWeight.w800,
@@ -453,8 +455,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       Text(
                                         _timeAgo(item.timestamp),
                                         style: TextStyle(
+                                          fontWeight: FontWeight.normal,
                                           fontFamily: 'Inter',
-                                          fontSize: Get.height / 68.72,
+                                          fontSize: 11,
                                           color: AppColors.textTertiary,
                                         ),
                                       ),
@@ -464,8 +467,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   Text(
                                     item.body,
                                     style: TextStyle(
+                                      fontWeight: FontWeight.normal,
                                       fontFamily: 'Inter',
-                                      fontSize: Get.height / 58.15,
+                                      fontSize: 13,
                                       color: AppColors.textSecondary,
                                       height: 1.4,
                                     ),
