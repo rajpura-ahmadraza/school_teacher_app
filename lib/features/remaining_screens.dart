@@ -406,10 +406,10 @@ class LeavesController extends GetxController {
       final idx = leaves.indexWhere((l) => (l as Map)['id'] == id);
       if (idx != -1) leaves.removeAt(idx);
       Get.snackbar('Done', 'Leave $status',
-          backgroundColor: AppColors.secondary, colorText: Colors.white);
+          backgroundColor: AppColors.secondary, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     }
   }
 }

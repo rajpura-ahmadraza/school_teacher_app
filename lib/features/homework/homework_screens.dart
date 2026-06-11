@@ -342,7 +342,7 @@ class HomeworkController extends GetxController {
       return homeworkData ?? dataMap;
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       formSubmitting.value = false;
       return null;
     }
@@ -370,10 +370,10 @@ class HomeworkController extends GetxController {
         Get.find<DashboardController>().loadAll(silent: true);
       }
       Get.snackbar('Done', 'Homework deleted',
-          backgroundColor: AppColors.secondary, colorText: Colors.white);
+          backgroundColor: AppColors.secondary, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     }
   }
 }
@@ -1628,7 +1628,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             ctrl.formSubmitting.value = false;
           });
           Get.snackbar('Error', 'Failed to process attachments: $e',
-              backgroundColor: AppColors.danger, colorText: Colors.white);
+              backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
           return;
         }
       }

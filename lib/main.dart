@@ -95,6 +95,11 @@ class SchoolTeacherApp extends StatelessWidget {
       initialBinding: AppBinding(),
       getPages: AppPages.pages,
       defaultTransition: Transition.cupertino,
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child,
+      ),
     );
   }
 }

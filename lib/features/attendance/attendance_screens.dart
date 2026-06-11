@@ -87,7 +87,7 @@ class AttendanceController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     } finally {
       classesLoading.value = false;
     }
@@ -112,7 +112,7 @@ class AttendanceController extends GetxController {
       await fetchAttendanceForSelectedDate();
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     } finally {
       studentsLoading.value = false;
     }
@@ -183,7 +183,7 @@ class AttendanceController extends GetxController {
     if (unmarkedCount > 0) {
       Get.snackbar('Validation Error',
           'Please mark attendance for all students before submitting.',
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       return false;
     }
     submitting.value = true;
@@ -213,7 +213,7 @@ class AttendanceController extends GetxController {
     } catch (e) {
       final msg = (e is ApiException) ? e.displayMessage : e.toString();
       Get.snackbar('Error', msg,
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
       return false;
     } finally {
       submitting.value = false;
@@ -241,7 +241,7 @@ class AttendanceController extends GetxController {
       reportData.value = Map<String, dynamic>.from(raw['data'] ?? raw);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: AppColors.danger, colorText: Colors.white);
+          backgroundColor: AppColors.danger, colorText: Colors.white, snackPosition: SnackPosition.TOP);
     } finally {
       reportLoading.value = false;
     }

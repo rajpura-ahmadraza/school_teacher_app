@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../api/api_client.dart';
 import '../routes/app_routes.dart';
+import '../theme/app_theme.dart';
 
 class AuthController extends GetxController {
   final _api = ApiClient.instance;
@@ -38,7 +40,7 @@ class AuthController extends GetxController {
           token.value = savedToken;
           user.value = u;
           isInitializing.value = false;
-          
+
           final elapsed = DateTime.now().difference(startTime);
           if (elapsed.inMilliseconds < 2000) {
             await Future.delayed(
@@ -54,7 +56,7 @@ class AuthController extends GetxController {
     token.value = '';
     user.value = null;
     isInitializing.value = false;
-    
+
     final elapsed = DateTime.now().difference(startTime);
     if (elapsed.inMilliseconds < 2000) {
       await Future.delayed(
@@ -104,7 +106,8 @@ class AuthController extends GetxController {
           deviceData['device_uuid'] = iosInfo.identifierForVendor ?? 'Unknown';
           deviceData['device_version'] = iosInfo.systemVersion;
           deviceData['device_manufacturer'] = 'Apple';
-          deviceData['device_IsVirtual'] = (!iosInfo.isPhysicalDevice).toString();
+          deviceData['device_IsVirtual'] =
+              (!iosInfo.isPhysicalDevice).toString();
         }
       }
     } catch (_) {}
@@ -162,6 +165,15 @@ class AuthController extends GetxController {
       token.value = t;
       user.value = u;
       isLoading.value = false;
+      Get.snackbar(
+        'Success',
+        'Login successful!',
+        backgroundColor: AppColors.success,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
       Get.offAllNamed(AppRoutes.dashboard);
       return null;
     } on ApiException catch (e) {
