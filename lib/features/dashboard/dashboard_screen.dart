@@ -464,13 +464,83 @@ class DashboardScreen extends StatelessWidget {
                 ),
 
                 // ── Content ──────────────────────────────────────
-                if (ctrl.isLoading.value)
-                  const SliverFillRemaining(
-                    child: Center(
-                        child: CircularProgressIndicator(
-                            color: AppColors.primary)),
-                  )
-                else ...[
+                if (ctrl.isLoading.value) ...[
+                  // Shimmer Stats grid
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(Get.height / 47.25,
+                        Get.height / 37.8, Get.height / 47.25, 0),
+                    sliver: SliverGrid.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.1,
+                      children: const [
+                        ShimmerCard(radius: 16),
+                        ShimmerCard(radius: 16),
+                      ],
+                    ),
+                  ),
+
+                  // Shimmer Quick Actions Header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          0, Get.height / 31.5, 0, Get.height / 63),
+                      child: const SectionHeader(
+                        title: 'Quick Actions',
+                      ),
+                    ),
+                  ),
+
+                  // Shimmer Quick Actions Grid
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Get.height / 47.25,
+                    ),
+                    sliver: SliverGrid.count(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.0,
+                      children: List.generate(
+                        6,
+                        (index) => const ShimmerCard(radius: 12),
+                      ),
+                    ),
+                  ),
+
+                  // Shimmer Recent Homework Header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          0, Get.height / 31.5, 0, Get.height / 31.5),
+                      child: const SectionHeader(
+                        title: 'Recent Homework',
+                      ),
+                    ),
+                  ),
+
+                  // Shimmer Recent Homework List
+                  SliverPadding(
+                    padding: EdgeInsets.fromLTRB(
+                      Get.height / 47.25,
+                      0,
+                      Get.height / 47.25,
+                      Get.height / 50.4,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (ctx, i) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: Get.height / 75.6),
+                            child: const ShimmerCard(height: 70, radius: 12),
+                          );
+                        },
+                        childCount: 3,
+                      ),
+                    ),
+                  ),
+                ] else ...[
                   // Stats grid
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(Get.height / 47.25,

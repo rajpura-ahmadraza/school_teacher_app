@@ -469,7 +469,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 fontWeight: FontWeight.w600)),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+            padding:
+                const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
             child: OutlinedButton(
               onPressed: () async {
                 await Get.toNamed(AppRoutes.homeworkForm);
@@ -510,8 +511,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       ),
       body: Obx(() {
         if (ctrl.classesLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+          return const _HomeworkClassesLoadingShimmer();
         }
         return Column(children: [
           // Class filter
@@ -519,8 +519,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
           // Homework list
           Expanded(
             child: ctrl.listLoading.value
-                ? const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary))
+                ? const _HomeworkListLoadingShimmer()
                 : ctrl.homeworkList.isEmpty
                     ? EmptyState(
                         icon: Icons.assignment_outlined,
@@ -561,13 +560,11 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                 SizedBox(height: Get.height / 75.6),
                             itemBuilder: (ctx, i) {
                               if (i == ctrl.homeworkList.length) {
-                                return Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: Get.height / 63),
-                                    child: const CircularProgressIndicator(
-                                        color: AppColors.primary),
-                                  ),
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: Get.height / 75.6),
+                                  child:
+                                      const ShimmerCard(height: 80, radius: 14),
                                 );
                               }
                               final hw = Map<String, dynamic>.from(
@@ -673,7 +670,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                   ),
                   SizedBox(height: Get.height / 37.8),
                   // Title
-                  Text(
+                  const Text(
                     'Delete Homework?',
                     style: TextStyle(
                       fontFamily: 'Inter',
@@ -684,7 +681,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                   ),
                   SizedBox(height: Get.height / 75.6),
                   // Subtitle/Content
-                  Text(
+                  const Text(
                     'Are you sure you want to delete this homework ?',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -712,7 +709,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             foregroundColor: AppColors.textSecondary,
                           ),
                           onPressed: () => Navigator.pop(ctx, false),
-                          child: Text(
+                          child: const Text(
                             'Cancel',
                             style: TextStyle(
                               fontFamily: 'Inter',
@@ -737,7 +734,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                             ),
                           ),
                           onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(
+                          child: const Text(
                             'Delete',
                             style: TextStyle(
                               fontFamily: 'Inter',
@@ -1256,7 +1253,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                         SizedBox(height: Get.height / 189),
                         Text(
                           'FILE',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1330,346 +1327,321 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w700)),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(Get.height / 37.8),
-        child: Form(
-          key: _formKey,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            // Class dropdown
-            // Class dropdown
-            Obx(() {
-              final isLoadingClasses = ctrl.classesLoading.value;
-              final selectedId = _selectedClass?['id']?.toString();
-              final currentSelection = ctrl.classes.firstWhereOrNull(
-                (c) => c['id']?.toString() == selectedId,
-              );
-              return FormField<dynamic>(
-                key: ValueKey('class_$selectedId'),
-                initialValue: currentSelection,
-                validator: (v) =>
-                    isLoadingClasses ? null : (v == null ? 'Select a class' : null),
-                builder: (FormFieldState<dynamic> state) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                    ),
-                    child: PopupMenuButton<dynamic>(
-                      surfaceTintColor: Colors.white,
-                      color: Colors.white,
-                      enabled: !isLoadingClasses,
-                      offset: const Offset(0, 52),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Get.height / 63),
-                        side: const BorderSide(color: Color(0xFFE2E8F0)),
+      body: Obx(() {
+        if (ctrl.classesLoading.value) {
+          return const _HomeworkFormShimmer();
+        }
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(Get.height / 37.8),
+          child: Form(
+            key: _formKey,
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // Class dropdown
+              // Class dropdown
+              Obx(() {
+                final isLoadingClasses = ctrl.classesLoading.value;
+                final selectedId = _selectedClass?['id']?.toString();
+                final currentSelection = ctrl.classes.firstWhereOrNull(
+                  (c) => c['id']?.toString() == selectedId,
+                );
+                return FormField<dynamic>(
+                  key: ValueKey('class_$selectedId'),
+                  initialValue: currentSelection,
+                  validator: (v) => isLoadingClasses
+                      ? null
+                      : (v == null ? 'Select a class' : null),
+                  builder: (FormFieldState<dynamic> state) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                       ),
-                      constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context).size.width - 40,
-                        maxWidth: MediaQuery.of(context).size.width - 40,
-                      ),
-                      onSelected: (v) {
-                        state.didChange(v);
-                        setState(() {
-                          _selectedClass = v;
-                          _selectedSubject = null;
-                        });
-                        if (v != null) {
-                          final id = num.tryParse(v['id']?.toString() ?? '')
-                                  ?.toInt() ??
-                              0;
-                          if (id != 0) ctrl.loadSubjects(id);
-                        }
-                      },
-                      itemBuilder: (ctx) => ctrl.classes.map((c) {
-                        return PopupMenuItem<dynamic>(
-                          value: c,
-                          child: Text(
-                              '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontFamily: 'Inter')),
-                        );
-                      }).toList(),
-                      child: InputDecorator(
-                        decoration: _inputDecoration('Class').copyWith(
-                          errorText: state.errorText,
-                          suffixIcon: isLoadingClasses
-                              ? Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: AppColors.textSecondary),
+                      child: PopupMenuButton<dynamic>(
+                        surfaceTintColor: Colors.white,
+                        color: Colors.white,
+                        enabled: !isLoadingClasses,
+                        offset: const Offset(0, 52),
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Get.height / 63),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
                         ),
-                        isEmpty: currentSelection == null,
-                        child: isLoadingClasses
-                            ? Text(
-                                'Loading classes...',
+                        constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width - 40,
+                          maxWidth: MediaQuery.of(context).size.width - 40,
+                        ),
+                        onSelected: (v) {
+                          state.didChange(v);
+                          setState(() {
+                            _selectedClass = v;
+                            _selectedSubject = null;
+                          });
+                          if (v != null) {
+                            final id = num.tryParse(v['id']?.toString() ?? '')
+                                    ?.toInt() ??
+                                0;
+                            if (id != 0) ctrl.loadSubjects(id);
+                          }
+                        },
+                        itemBuilder: (ctx) => ctrl.classes.map((c) {
+                          return PopupMenuItem<dynamic>(
+                            value: c,
+                            child: Text(
+                                '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.normal,
-                                    fontFamily: 'Inter',
-                                    fontSize: 13.0,
-                                    color: AppColors.textSecondary),
-                              )
-                            : currentSelection == null
-                                ? null
-                                : Text(
-                                    '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'Inter',
-                                        fontSize: 13.0),
-                                  ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }),
-            SizedBox(height: Get.height / 47.25),
-            // Subject dropdown
-            Obx(() {
-              final isLoadingSubjects = ctrl.subjectsLoading.value;
-              final selectedId = _selectedSubject?['id']?.toString();
-              final currentSelection = ctrl.subjects.firstWhereOrNull(
-                (s) => s['id']?.toString() == selectedId,
-              );
-              return FormField<dynamic>(
-                key: ValueKey(
-                    'subject_${selectedId}_class_${_selectedClass?['id']}'),
-                initialValue: currentSelection,
-                validator: (v) =>
-                    isLoadingSubjects ? null : (v == null ? 'Select a subject' : null),
-                builder: (FormFieldState<dynamic> state) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      hoverColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                    ),
-                    child: PopupMenuButton<dynamic>(
-                      surfaceTintColor: Colors.white,
-                      color: Colors.white,
-                      enabled: !isLoadingSubjects,
-                      offset: const Offset(0, 52),
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Get.height / 63),
-                        side: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      constraints: BoxConstraints(
-                        minWidth: MediaQuery.of(context).size.width - 40,
-                        maxWidth: MediaQuery.of(context).size.width - 40,
-                      ),
-                      onSelected: (v) {
-                        state.didChange(v);
-                        setState(() => _selectedSubject = v);
-                      },
-                      itemBuilder: (ctx) => ctrl.subjects.map((s) {
-                        return PopupMenuItem<dynamic>(
-                          value: s,
-                          child: Text(
-                            s['name'] as String? ?? '',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontFamily: 'Inter'),
+                                    fontFamily: 'Inter')),
+                          );
+                        }).toList(),
+                        child: InputDecorator(
+                          decoration: _inputDecoration('Class').copyWith(
+                            errorText: state.errorText,
+                            suffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.textSecondary),
                           ),
-                        );
-                      }).toList(),
-                      child: InputDecorator(
-                        decoration: _inputDecoration('Subject').copyWith(
-                          errorText: state.errorText,
-                          suffixIcon: isLoadingSubjects
-                              ? Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
+                          isEmpty: currentSelection == null,
+                          child: isLoadingClasses
+                              ? const Text(
+                                  'Loading classes...',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontFamily: 'Inter',
+                                      fontSize: 13.0,
+                                      color: AppColors.textSecondary),
                                 )
-                              : const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: AppColors.textSecondary),
+                              : currentSelection == null
+                                  ? null
+                                  : Text(
+                                      '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Inter',
+                                          fontSize: 13.0),
+                                    ),
                         ),
-                        isEmpty: currentSelection == null,
-                        child: isLoadingSubjects
-                            ? Text(
-                                'Loading subjects...',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontFamily: 'Inter',
-                                    fontSize: 13.0,
-                                    color: AppColors.textSecondary),
-                              )
-                            : currentSelection == null
-                                ? null
-                                : Text(
-                                    currentSelection['name'] as String? ?? '',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontFamily: 'Inter',
-                                        fontSize: 13.0),
-                                  ),
                       ),
-                    ),
-                  );
-                },
-              );
-            }),
-            SizedBox(height: Get.height / 63),
-            // Title
-            TextFormField(
-              controller: _titleCtrl,
-              decoration: _inputDecoration('Homework Title'),
-              style: const TextStyle(
-                fontWeight: FontWeight.normal,
-                fontFamily: 'Inter',
-              ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
-            ),
-            SizedBox(height: Get.height / 63),
-            // Description
-            TextFormField(
-              controller: _descCtrl,
-              decoration: _inputDecoration('Description (optional)').copyWith(
-                alignLabelWithHint: true,
-              ),
-              style: const TextStyle(
-                  fontWeight: FontWeight.normal, fontFamily: 'Inter'),
-              maxLines: 4,
-            ),
-            SizedBox(height: Get.height / 63),
-            // Due date
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: _dueDateCtrl,
-              builder: (context, value, _) {
-                return TextFormField(
-                  controller: _dueDateCtrl,
-                  readOnly: true,
-                  decoration: _inputDecoration('Due Date (Optional)').copyWith(
-                    suffixIcon: value.text.isEmpty
-                        ? const Icon(Icons.calendar_today_rounded)
-                        : IconButton(
-                            icon: const Icon(Icons.clear_rounded),
-                            onPressed: () {
-                              _dueDateCtrl.clear();
-                            },
-                          ),
-                  ),
-                  style: const TextStyle(
-                      fontWeight: FontWeight.normal, fontFamily: 'Inter'),
-                  onTap: () async {
-                    final now = DateTime.now();
-                    final today = DateTime(now.year, now.month, now.day);
-                    DateTime initial = now;
-                    final currentText = _dueDateCtrl.text;
-                    if (currentText.isNotEmpty) {
-                      final parts = currentText.split('/');
-                      if (parts.length == 3) {
-                        final d = int.tryParse(parts[0]) ?? 1;
-                        final m = int.tryParse(parts[1]) ?? 1;
-                        final y = int.tryParse(parts[2]) ?? now.year;
-                        final dt = DateTime(y, m, d);
-                        if (!dt.isBefore(today)) {
-                          initial = dt;
-                        }
-                      }
-                    }
-
-                    final p = await showDatePicker(
-                      context: context,
-                      initialDate: initial,
-                      firstDate: today,
-                      lastDate: DateTime(2030),
                     );
-                    if (p != null) {
-                      _dueDateCtrl.text = formatDateTimeToDmy(p);
-                    }
                   },
                 );
-              },
-            ),
-            SizedBox(height: Get.height / 63),
-            InkWell(
-              onTap: _pickImage,
-              borderRadius: BorderRadius.circular(
-                Get.height / 63,
-              ),
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(
-                  vertical: Get.height / 54,
-                  horizontal: Get.height / 47.25,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(Get.height / 63),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.add_photo_alternate_rounded,
-                        color: AppColors.primary, size: Get.height / 34.36),
-                    SizedBox(width: Get.height / 75.6),
-                    Text(
-                      'Add Images / Attachments',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: AppColors.primary,
+              }),
+              SizedBox(height: Get.height / 47.25),
+              // Subject dropdown
+              Obx(() {
+                final isLoadingSubjects = ctrl.subjectsLoading.value;
+                final selectedId = _selectedSubject?['id']?.toString();
+                final currentSelection = ctrl.subjects.firstWhereOrNull(
+                  (s) => s['id']?.toString() == selectedId,
+                );
+                return FormField<dynamic>(
+                  key: ValueKey(
+                      'subject_${selectedId}_class_${_selectedClass?['id']}'),
+                  initialValue: currentSelection,
+                  validator: (v) => isLoadingSubjects
+                      ? null
+                      : (v == null ? 'Select a subject' : null),
+                  builder: (FormFieldState<dynamic> state) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        hoverColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                       ),
+                      child: PopupMenuButton<dynamic>(
+                        surfaceTintColor: Colors.white,
+                        color: Colors.white,
+                        enabled: !isLoadingSubjects,
+                        offset: const Offset(0, 52),
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Get.height / 63),
+                          side: const BorderSide(color: Color(0xFFE2E8F0)),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: MediaQuery.of(context).size.width - 40,
+                          maxWidth: MediaQuery.of(context).size.width - 40,
+                        ),
+                        onSelected: (v) {
+                          state.didChange(v);
+                          setState(() => _selectedSubject = v);
+                        },
+                        itemBuilder: (ctx) => ctrl.subjects.map((s) {
+                          return PopupMenuItem<dynamic>(
+                            value: s,
+                            child: Text(
+                              s['name'] as String? ?? '',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Inter'),
+                            ),
+                          );
+                        }).toList(),
+                        child: InputDecorator(
+                          decoration: _inputDecoration('Subject').copyWith(
+                            errorText: state.errorText,
+                            suffixIcon: const Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.textSecondary),
+                          ),
+                          isEmpty: currentSelection == null,
+                          child: currentSelection == null
+                              ? null
+                              : Text(
+                                  currentSelection['name'] as String? ?? '',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Inter',
+                                      fontSize: 13.0),
+                                ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+              SizedBox(height: Get.height / 63),
+              // Title
+              TextFormField(
+                controller: _titleCtrl,
+                decoration: _inputDecoration('Homework Title'),
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontFamily: 'Inter',
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
+              ),
+              SizedBox(height: Get.height / 63),
+              // Description
+              TextFormField(
+                controller: _descCtrl,
+                decoration: _inputDecoration('Description (optional)').copyWith(
+                  alignLabelWithHint: true,
+                ),
+                style: const TextStyle(
+                    fontWeight: FontWeight.normal, fontFamily: 'Inter'),
+                maxLines: 4,
+              ),
+              SizedBox(height: Get.height / 63),
+              // Due date
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: _dueDateCtrl,
+                builder: (context, value, _) {
+                  return TextFormField(
+                    controller: _dueDateCtrl,
+                    readOnly: true,
+                    decoration:
+                        _inputDecoration('Due Date (Optional)').copyWith(
+                      suffixIcon: value.text.isEmpty
+                          ? const Icon(Icons.calendar_today_rounded)
+                          : IconButton(
+                              icon: const Icon(Icons.clear_rounded),
+                              onPressed: () {
+                                _dueDateCtrl.clear();
+                              },
+                            ),
                     ),
-                  ],
+                    style: const TextStyle(
+                        fontWeight: FontWeight.normal, fontFamily: 'Inter'),
+                    onTap: () async {
+                      final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
+                      DateTime initial = now;
+                      final currentText = _dueDateCtrl.text;
+                      if (currentText.isNotEmpty) {
+                        final parts = currentText.split('/');
+                        if (parts.length == 3) {
+                          final d = int.tryParse(parts[0]) ?? 1;
+                          final m = int.tryParse(parts[1]) ?? 1;
+                          final y = int.tryParse(parts[2]) ?? now.year;
+                          final dt = DateTime(y, m, d);
+                          if (!dt.isBefore(today)) {
+                            initial = dt;
+                          }
+                        }
+                      }
+
+                      final p = await showDatePicker(
+                        context: context,
+                        initialDate: initial,
+                        firstDate: today,
+                        lastDate: DateTime(2030),
+                      );
+                      if (p != null) {
+                        _dueDateCtrl.text = formatDateTimeToDmy(p);
+                      }
+                    },
+                  );
+                },
+              ),
+              SizedBox(height: Get.height / 63),
+              InkWell(
+                onTap: _pickImage,
+                borderRadius: BorderRadius.circular(
+                  Get.height / 63,
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    vertical: Get.height / 54,
+                    horizontal: Get.height / 47.25,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(Get.height / 63),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_photo_alternate_rounded,
+                          color: AppColors.primary, size: Get.height / 34.36),
+                      SizedBox(width: Get.height / 75.6),
+                      Text(
+                        'Add Images / Attachments',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildAttachmentList(),
-            SizedBox(height: Get.height / 27),
-            Obx(() => SizedBox(
-                  width: double.infinity,
-                  height: Get.height / 14.53,
-                  child: ElevatedButton(
-                    onPressed: ctrl.formSubmitting.value ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+              _buildAttachmentList(),
+              SizedBox(height: Get.height / 27),
+              Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: Get.height / 14.53,
+                    child: ElevatedButton(
+                      onPressed: ctrl.formSubmitting.value ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: ctrl.formSubmitting.value
+                          ? SizedBox(
+                              width: Get.height / 34.36,
+                              height: Get.height / 34.36,
+                              child: const CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : Text(isEdit ? 'Update Homework' : 'Add Homework',
+                              style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16)),
                     ),
-                    child: ctrl.formSubmitting.value
-                        ? SizedBox(
-                            width: Get.height / 34.36,
-                            height: Get.height / 34.36,
-                            child: const CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : Text(isEdit ? 'Update Homework' : 'Add Homework',
-                            style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16)),
-                  ),
-                )),
-          ]),
-        ),
-      ),
+                  )),
+            ]),
+          ),
+        );
+      }),
     );
   }
 
@@ -1855,371 +1827,380 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
 
     return Stack(
       children: [
-      Scaffold(
-      backgroundColor: const Color(0xFFF7F8FC),
-      appBar: AppBar(
-        flexibleSpace: Container(
-            decoration:
-                const BoxDecoration(gradient: AppColors.gradientPrimary)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-            _currentHomework['title'] as String? ?? 'Homework Details',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
-            child: OutlinedButton(
-              onPressed: _isNavigating ? null : () async {
-                setState(() => _isNavigating = true);
-                final updated = await Get.toNamed(
-                  AppRoutes.homeworkForm,
-                  arguments: _currentHomework,
-                );
-                if (mounted) setState(() => _isNavigating = false);
-                if (updated != null && updated is Map<String, dynamic>) {
-                  setState(() {
-                    _currentHomework = {
-                      ..._currentHomework,
-                      ...updated,
-                    };
-                  });
-                }
-              },
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.white,
-                side: const BorderSide(color: Colors.white, width: 1.5),
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Edit ',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.0,
-                      color: Colors.white,
+        Scaffold(
+          backgroundColor: const Color(0xFFF7F8FC),
+          appBar: AppBar(
+            flexibleSpace: Container(
+                decoration:
+                    const BoxDecoration(gradient: AppColors.gradientPrimary)),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon:
+                  const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+              onPressed: () => Get.back(),
+            ),
+            title: Text(
+                _currentHomework['title'] as String? ?? 'Homework Details',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700)),
+            actions: [
+              Padding(
+                padding:
+                    const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+                child: OutlinedButton(
+                  onPressed: _isNavigating
+                      ? null
+                      : () async {
+                          setState(() => _isNavigating = true);
+                          final updated = await Get.toNamed(
+                            AppRoutes.homeworkForm,
+                            arguments: _currentHomework,
+                          );
+                          if (mounted) setState(() => _isNavigating = false);
+                          if (updated != null &&
+                              updated is Map<String, dynamic>) {
+                            setState(() {
+                              _currentHomework = {
+                                ..._currentHomework,
+                                ...updated,
+                              };
+                            });
+                          }
+                        },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white, width: 1.5),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  Icon(
-                    Icons.edit_rounded,
-                    size: 16.0,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(Get.height / 47.25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Subject and Class Info Card
-            PremiumCard(
-              padding: EdgeInsets.all(Get.height / 37.8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: Get.height / 75.6,
-                            vertical: Get.height / 126),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(Get.height / 37.8),
-                        ),
-                        child: Text(
-                          subject['name'] as String? ?? 'Subject',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                            color: AppColors.primary,
-                          ),
+                      Text(
+                        'Edit ',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12.0,
+                          color: Colors.white,
                         ),
                       ),
-                      SizedBox(width: Get.height / 94.5),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: Get.height / 75.6,
-                            vertical: Get.height / 126),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(Get.height / 37.8),
-                        ),
-                        child: Text(
-                          clsName,
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                            color: AppColors.secondary,
+                      Icon(
+                        Icons.edit_rounded,
+                        size: 16.0,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(Get.height / 47.25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Subject and Class Info Card
+                PremiumCard(
+                  padding: EdgeInsets.all(Get.height / 37.8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Get.height / 75.6,
+                                vertical: Get.height / 126),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius:
+                                  BorderRadius.circular(Get.height / 37.8),
+                            ),
+                            child: Text(
+                              subject['name'] as String? ?? 'Subject',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                                color: AppColors.primary,
+                              ),
+                            ),
                           ),
+                          SizedBox(width: Get.height / 94.5),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Get.height / 75.6,
+                                vertical: Get.height / 126),
+                            decoration: BoxDecoration(
+                              color: AppColors.secondary.withOpacity(0.1),
+                              borderRadius:
+                                  BorderRadius.circular(Get.height / 37.8),
+                            ),
+                            child: Text(
+                              clsName,
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: Get.height / 47.25),
+                      Text(
+                        _currentHomework['title'] as String? ??
+                            'Homework Title',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w800,
+                          fontSize: 20,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: Get.height / 63),
+                      const Divider(color: Color(0xFFF1F5F9)),
+                      SizedBox(height: Get.height / 94.5),
+                      Text(
+                        'Description',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(
+                        height: Get.height / 126,
+                      ),
+                      Text(
+                        _currentHomework['description'] != null &&
+                                (_currentHomework['description'] as String)
+                                    .isNotEmpty
+                            ? _currentHomework['description'] as String
+                            : 'No description provided.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          height: 1.5,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: Get.height / 47.25),
-                  Text(
-                    _currentHomework['title'] as String? ?? 'Homework Title',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                      color: AppColors.textPrimary,
-                    ),
+                ),
+                SizedBox(height: Get.height / 47.25),
+
+                // Date & Teacher Summary Card
+                PremiumCard(
+                  padding: EdgeInsets.all(
+                    Get.height / 42,
                   ),
-                  SizedBox(height: Get.height / 63),
-                  const Divider(color: Color(0xFFF1F5F9)),
-                  SizedBox(height: Get.height / 94.5),
+                  child: Column(
+                    children: [
+                      _DetailRow(
+                        icon: Icons.calendar_today_rounded,
+                        iconColor: Colors.blue,
+                        title: 'Assigned Date',
+                        value: _formatDate(
+                            _currentHomework['created_at'] as String?),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: Get.height / 63),
+                        child: Divider(color: Color(0xFFF1F5F9)),
+                      ),
+                      _DetailRow(
+                        icon: Icons.event_available_rounded,
+                        iconColor: Colors.orange,
+                        title: 'Due Date',
+                        value: _formatDate(
+                            _currentHomework['due_date'] as String?),
+                        valueColor: AppColors.warning,
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: Get.height / 63),
+                        child: Divider(color: Color(0xFFF1F5F9)),
+                      ),
+                      _DetailRow(
+                        icon: Icons.person_outline_rounded,
+                        iconColor: Colors.purple,
+                        title: 'Assigned By',
+                        value: teacherName,
+                        subtitle: teacherEmail,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: Get.height / 37.8),
+
+                // Attachment Section
+                if (imageUrls.isNotEmpty) ...[
                   Text(
-                    'Description',
+                    'Images',
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 15,
+                      color: Color.fromRGBO(26, 16, 37, 1),
+                    ),
+                  ),
+                  SizedBox(height: Get.height / 75.6),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: imageUrls.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.0,
+                    ),
+                    itemBuilder: (ctx, idx) {
+                      final url = imageUrls[idx];
+                      return GestureDetector(
+                        onTap: () => Get.to(
+                          () => FullScreenImage(
+                            imageUrls: imageUrls,
+                            initialIndex: idx,
+                          ),
+                          transition: Transition.fade,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            color: Colors.white,
+                            child: CachedNetworkImage(
+                              imageUrl: url,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  const ShimmerCard(radius: 12),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.broken_image_rounded,
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: Get.height / 47.25),
+                ],
+                if (docUrls.isNotEmpty) ...[
+                  Text(
+                    'Documents',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  SizedBox(
-                    height: Get.height / 126,
-                  ),
-                  Text(
-                    _currentHomework['description'] != null &&
-                            (_currentHomework['description'] as String)
-                                .isNotEmpty
-                        ? _currentHomework['description'] as String
-                        : 'No description provided.',
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: Get.height / 47.25),
-
-            // Date & Teacher Summary Card
-            PremiumCard(
-              padding: EdgeInsets.all(
-                Get.height / 42,
-              ),
-              child: Column(
-                children: [
-                  _DetailRow(
-                    icon: Icons.calendar_today_rounded,
-                    iconColor: Colors.blue,
-                    title: 'Assigned Date',
-                    value:
-                        _formatDate(_currentHomework['created_at'] as String?),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: Get.height / 63),
-                    child: Divider(color: Color(0xFFF1F5F9)),
-                  ),
-                  _DetailRow(
-                    icon: Icons.event_available_rounded,
-                    iconColor: Colors.orange,
-                    title: 'Due Date',
-                    value: _formatDate(_currentHomework['due_date'] as String?),
-                    valueColor: AppColors.warning,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: Get.height / 63),
-                    child: Divider(color: Color(0xFFF1F5F9)),
-                  ),
-                  _DetailRow(
-                    icon: Icons.person_outline_rounded,
-                    iconColor: Colors.purple,
-                    title: 'Assigned By',
-                    value: teacherName,
-                    subtitle: teacherEmail,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: Get.height / 37.8),
-
-            // Attachment Section
-            if (imageUrls.isNotEmpty) ...[
-              Text(
-                'Images',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: Color.fromRGBO(26, 16, 37, 1),
-                ),
-              ),
-              SizedBox(height: Get.height / 75.6),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: imageUrls.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.0,
-                ),
-                itemBuilder: (ctx, idx) {
-                  final url = imageUrls[idx];
-                  return GestureDetector(
-                    onTap: () => Get.to(
-                      () => FullScreenImage(
-                        imageUrls: imageUrls,
-                        initialIndex: idx,
-                      ),
-                      transition: Transition.fade,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        color: Colors.white,
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
-                            child: SizedBox(
-                              width: Get.height / 37.8,
-                              height: Get.height / 37.8,
-                              child: const CircularProgressIndicator(
-                                  strokeWidth: 2),
+                  SizedBox(height: Get.height / 75.6),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: docUrls.length,
+                    separatorBuilder: (_, __) =>
+                        SizedBox(height: Get.height / 63),
+                    itemBuilder: (ctx, idx) {
+                      final url = docUrls[idx];
+                      return PremiumCard(
+                        padding: EdgeInsets.all(Get.height / 54),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(Get.height / 75.6),
+                              decoration: BoxDecoration(
+                                color: AppColors.danger.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.picture_as_pdf_rounded,
+                                color: AppColors.danger,
+                                size: Get.height / 31.5,
+                              ),
                             ),
-                          ),
-                          errorWidget: (context, url, error) => const Icon(
-                            Icons.broken_image_rounded,
-                            color: AppColors.textTertiary,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: Get.height / 47.25),
-            ],
-            if (docUrls.isNotEmpty) ...[
-              Text(
-                'Documents',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              SizedBox(height: Get.height / 75.6),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: docUrls.length,
-                separatorBuilder: (_, __) => SizedBox(height: Get.height / 63),
-                itemBuilder: (ctx, idx) {
-                  final url = docUrls[idx];
-                  return PremiumCard(
-                    padding: EdgeInsets.all(Get.height / 54),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(Get.height / 75.6),
-                          decoration: BoxDecoration(
-                            color: AppColors.danger.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.picture_as_pdf_rounded,
-                            color: AppColors.danger,
-                            size: Get.height / 31.5,
-                          ),
-                        ),
-                        SizedBox(width: Get.height / 54),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                url.split('/').last,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                            SizedBox(width: Get.height / 54),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    url.split('/').last,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Document File',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontFamily: 'Inter',
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => _launchUrl(url),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: Get.height / 54,
+                                    vertical: Get.height / 94.5),
+                                textStyle: TextStyle(
                                   fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  color: AppColors.textPrimary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Text(
-                                'Document File',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontFamily: 'Inter',
-                                  fontSize: 11,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () => _launchUrl(url),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: Get.height / 54,
-                                vertical: Get.height / 94.5),
-                            textStyle: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              child: const Text('View'),
                             ),
-                          ),
-                          child: const Text('View'),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
-        ],
-        ),
-      ),
-    ), // end Scaffold
-      // Loading overlay when navigating to edit screen
-      if (_isNavigating)
-        Container(
-          color: Colors.black.withOpacity(0.35),
-          child: const Center(
-            child: CircularProgressIndicator(color: Colors.white),
+                      );
+                    },
+                  ),
+                ],
+              ],
+            ),
           ),
-        ),
+        ), // end Scaffold
+        // Loading overlay when navigating to edit screen
+        if (_isNavigating)
+          Container(
+            color: Colors.black.withOpacity(0.15),
+            child: const Center(
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: ShimmerCard(radius: 20),
+              ),
+            ),
+          ),
       ], // end Stack children
     ); // end Stack
   }
@@ -2369,14 +2350,91 @@ class _FullScreenImageState extends State<FullScreenImage> {
               maxScale: 4.0,
               child: CachedNetworkImage(
                 imageUrl: widget.imageUrls[index],
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(color: Colors.white),
+                placeholder: (context, url) => const Center(
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: ShimmerCard(radius: 20),
+                  ),
+                ),
                 errorWidget: (context, url, error) =>
                     const Icon(Icons.error, color: Colors.white),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+// ── Shimmer Homework Classes Loading ────────────────────────────
+class _HomeworkClassesLoadingShimmer extends StatelessWidget {
+  const _HomeworkClassesLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(Get.height / 47.25),
+      child: Column(
+        children: [
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          Expanded(
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 6,
+              separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+              itemBuilder: (_, __) => const ShimmerCard(height: 80, radius: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Shimmer Homework List Loading ──────────────────────────────
+class _HomeworkListLoadingShimmer extends StatelessWidget {
+  const _HomeworkListLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.all(Get.height / 47.25),
+      itemCount: 6,
+      separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+      itemBuilder: (_, __) => const ShimmerCard(height: 80, radius: 14),
+    );
+  }
+}
+
+// ── Shimmer Homework Form Loading ──────────────────────────────
+class _HomeworkFormShimmer extends StatelessWidget {
+  const _HomeworkFormShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(Get.height / 37.8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          const ShimmerCard(height: 100, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 47.25),
+          const ShimmerCard(height: 100, radius: 12),
+          SizedBox(height: Get.height / 27),
+          const ShimmerCard(height: 56, radius: 14),
+        ],
       ),
     );
   }

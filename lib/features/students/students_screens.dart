@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:shimmer/shimmer.dart';
 import '../../core/api/api_client.dart';
 import '../../core/controllers/auth_controller.dart';
 import '../../core/routes/app_routes.dart';
@@ -318,7 +319,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     ),
                   ),
                   SizedBox(width: Get.height / 54),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -346,7 +347,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           borderRadius: BorderRadius.circular(Get.height / 63),
                         ),
                         child: Text('${ctrl.total.value}',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
@@ -373,13 +374,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     controller: _searchCtrl,
                     onChanged: (v) => ctrl.loadStudents(
                         refresh: true, search: v, keepClass: true),
-                    style: TextStyle(
+                    style: const TextStyle(
                         fontWeight: FontWeight.normal,
                         fontFamily: 'Inter',
                         fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Search by name',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                           fontWeight: FontWeight.normal,
                           fontFamily: 'Inter',
                           fontSize: 14,
@@ -425,7 +426,8 @@ class _StudentsScreenState extends State<StudentsScreen> {
                   onTap: _openDropdown,
                   child: Container(
                     height: Get.height / 15.75,
-                    padding: EdgeInsets.symmetric(horizontal: Get.height / 63),
+                    width: Get.height / 6.8,
+                    padding: EdgeInsets.symmetric(horizontal: Get.height / 84),
                     decoration: BoxDecoration(
                       color: _dropdownOpen
                           ? const Color(0xFF9333EA)
@@ -445,22 +447,26 @@ class _StudentsScreenState extends State<StudentsScreen> {
                         ),
                       ],
                     ),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    child: Row(children: [
                       Icon(Icons.class_outlined,
                           size: Get.height / 47.25,
                           color: _dropdownOpen
                               ? Colors.white
                               : const Color(0xFF9333EA)),
                       SizedBox(width: Get.height / 126),
-                      Text(
-                        label,
-                        style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: _dropdownOpen
-                                ? Colors.white
-                                : AppColors.textPrimary),
+                      Expanded(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: _dropdownOpen
+                                  ? Colors.white
+                                  : AppColors.textPrimary),
+                        ),
                       ),
                       SizedBox(width: Get.height / 189),
                       AnimatedRotation(
@@ -519,11 +525,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       SizedBox(height: Get.height / 75.6),
                   itemBuilder: (ctx, i) {
                     if (i == ctrl.students.length) {
-                      return Center(
-                          child: Padding(
-                              padding: EdgeInsets.all(Get.height / 47.25),
-                              child: const CircularProgressIndicator(
-                                  color: AppColors.primary)));
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: Get.height / 75.6),
+                        child: ShimmerCard(height: Get.height / 9.69),
+                      );
                     }
                     final s = ctrl.students[i] as Map<String, dynamic>;
                     return FadeInUp(
@@ -728,9 +733,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) => Obx(() {
         if (ctrl.isDetailLoading.value) {
-          return const Scaffold(
-              body: Center(
-                  child: CircularProgressIndicator(color: AppColors.primary)));
+          return const _DetailShimmer();
         }
         if (ctrl.error.value.isNotEmpty && ctrl.studentDetail.value == null) {
           return Scaffold(
@@ -906,4 +909,184 @@ class _InfoSection extends StatelessWidget {
           ...rows,
         ]),
       );
+}
+
+// ── Shimmer Detail Loading Screen ──────────────────────────────
+class _DetailShimmer extends StatelessWidget {
+  const _DetailShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      body: CustomScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 240,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF9333EA), Color(0xFFDB2777)],
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: Get.height / 18.9),
+                        Shimmer.fromColors(
+                          baseColor: Colors.white.withOpacity(0.25),
+                          highlightColor: Colors.white.withOpacity(0.15),
+                          child: Container(
+                            width: (Get.height / 17.18) * 2,
+                            height: (Get.height / 17.18) * 2,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: Get.height / 63),
+                        Shimmer.fromColors(
+                          baseColor: Colors.white.withOpacity(0.25),
+                          highlightColor: Colors.white.withOpacity(0.15),
+                          child: Container(
+                            width: 140,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Shimmer.fromColors(
+                          baseColor: Colors.white.withOpacity(0.2),
+                          highlightColor: Colors.white.withOpacity(0.1),
+                          child: Container(
+                            width: 80,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+              onPressed: () => Get.back(),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(Get.height / 47.25),
+              child: Column(
+                children: [
+                  _ShimmerSection(
+                    title: 'Student Info',
+                    itemCount: 3,
+                  ),
+                  SizedBox(height: Get.height / 47.25),
+                  _ShimmerSection(
+                    title: 'Parent / Guardian',
+                    itemCount: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShimmerSection extends StatelessWidget {
+  final String title;
+  final int itemCount;
+  const _ShimmerSection({required this.title, required this.itemCount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(Get.height / 42),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Get.height / 47.25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: Get.height / 47.25),
+          ...List.generate(itemCount, (index) {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    const ShimmerCard(
+                      width: 32,
+                      height: 32,
+                      radius: 8,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const ShimmerCard(
+                            width: 60,
+                            height: 10,
+                            radius: 4,
+                          ),
+                          const SizedBox(height: 6),
+                          ShimmerCard(
+                            width: index == 2 ? 180.0 : 120.0,
+                            height: 14,
+                            radius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (index < itemCount - 1)
+                  SizedBox(height: Get.height / 63),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
 }

@@ -293,6 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           : [],
                                     ),
                                     child: TextFormField(
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
                                       controller: _emailCtrl,
                                       focusNode: _emailFocus,
                                       keyboardType: TextInputType.emailAddress,
@@ -409,6 +410,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                           : [],
                                     ),
                                     child: TextFormField(
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
                                       controller: _passCtrl,
                                       focusNode: _passFocus,
                                       obscureText: _obscure,
@@ -512,8 +514,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         if (v == null || v.isEmpty) {
                                           return 'Password is required';
                                         }
-                                        if (v.length < 6) {
-                                          return 'Password must be at least 6 characters';
+                                        if (v.length < 8) {
+                                          return 'Password must be at least 8 characters';
                                         }
                                         return null;
                                       },

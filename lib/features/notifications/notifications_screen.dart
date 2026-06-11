@@ -142,6 +142,88 @@ class NotificationsController extends GetxController {
   }
 }
 
+class _NotificationCardShimmer extends StatelessWidget {
+  const _NotificationCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(Get.height / 47.25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Get.height / 47.25),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShimmerCard(
+            width: Get.height / 17.18,
+            height: Get.height / 17.18,
+            radius: Get.height / 17.18,
+          ),
+          SizedBox(width: Get.height / 54),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ShimmerCard(
+                      width: Get.width * 0.4,
+                      height: 14,
+                      radius: 4,
+                    ),
+                    const ShimmerCard(
+                      width: 45,
+                      height: 11,
+                      radius: 4,
+                    ),
+                  ],
+                ),
+                SizedBox(height: Get.height / 126),
+                const ShimmerCard(
+                  height: 13,
+                  radius: 4,
+                ),
+                SizedBox(height: 6),
+                ShimmerCard(
+                  width: Get.width * 0.6,
+                  height: 13,
+                  radius: 4,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NotificationsLoadingShimmer extends StatelessWidget {
+  const _NotificationsLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.all(Get.height / 47.25),
+      itemCount: 6,
+      separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+      itemBuilder: (_, __) => const _NotificationCardShimmer(),
+    );
+  }
+}
+
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -305,9 +387,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
       body: Obx(() {
         if (ctrl.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
+          return const _NotificationsLoadingShimmer();
         }
 
         if (ctrl.notifications.isEmpty) {
@@ -329,12 +409,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
             itemBuilder: (ctx, i) {
               if (i == ctrl.notifications.length) {
-                return Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: Get.height / 63),
-                    child: const CircularProgressIndicator(
-                        color: AppColors.primary),
-                  ),
+                return const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: _NotificationCardShimmer(),
                 );
               }
               final item = ctrl.notifications[i];

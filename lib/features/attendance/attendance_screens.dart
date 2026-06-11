@@ -300,8 +300,7 @@ class AttendanceScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (ctrl.classesLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+          return const _ClassesLoadingShimmer();
         }
         if (ctrl.classes.isEmpty) {
           return const EmptyState(
@@ -440,8 +439,7 @@ class _AttendanceBody extends StatelessWidget {
           );
         }
         if (ctrl.studentsLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primary));
+          return const _StudentsLoadingShimmer();
         }
         if (ctrl.students.isEmpty) {
           return const EmptyState(
@@ -1205,9 +1203,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
               // Report results
               Expanded(
                 child: ctrl.reportLoading.value
-                    ? const Center(
-                        child:
-                            CircularProgressIndicator(color: AppColors.primary))
+                    ? const _ReportLoadingShimmer()
                     : ctrl.reportData.value == null
                         ? const EmptyState(
                             icon: Icons.bar_chart_rounded,
@@ -1382,4 +1378,112 @@ class _SummaryCard extends StatelessWidget {
                   color: AppColors.textSecondary)),
         ]),
       );
+}
+
+// ── Shimmer Classes Loading Screen ──────────────────────────────
+class _ClassesLoadingShimmer extends StatelessWidget {
+  const _ClassesLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(Get.height / 47.25),
+      child: Column(
+        children: [
+          const ShimmerCard(height: 54, radius: 12),
+          SizedBox(height: Get.height / 63),
+          Row(
+            children: [
+              const ShimmerCard(width: 100, height: 20, radius: 6),
+              const Spacer(),
+              const ShimmerCard(width: 60, height: 26, radius: 8),
+              SizedBox(width: Get.height / 94.5),
+              const ShimmerCard(width: 60, height: 26, radius: 8),
+            ],
+          ),
+          SizedBox(height: Get.height / 47.25),
+          Expanded(
+            child: ListView.separated(
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 6,
+              separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
+              itemBuilder: (_, __) => const ShimmerCard(height: 70, radius: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Shimmer Students Loading Screen ──────────────────────────────
+class _StudentsLoadingShimmer extends StatelessWidget {
+  const _StudentsLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(
+            horizontal: Get.height / 47.25,
+            vertical: Get.height / 75.6,
+          ),
+          child: Row(
+            children: [
+              const ShimmerCard(width: 100, height: 20, radius: 6),
+              const Spacer(),
+              const ShimmerCard(width: 60, height: 26, radius: 8),
+              SizedBox(width: Get.height / 94.5),
+              const ShimmerCard(width: 60, height: 26, radius: 8),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(Get.height / 47.25),
+            itemCount: 6,
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
+            itemBuilder: (_, __) => const ShimmerCard(height: 70, radius: 12),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Shimmer Report Loading Screen ──────────────────────────────
+class _ReportLoadingShimmer extends StatelessWidget {
+  const _ReportLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.all(Get.height / 47.25),
+          child: Row(
+            children: [
+              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
+              SizedBox(width: Get.height / 75.6),
+              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
+              SizedBox(width: Get.height / 75.6),
+              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: Get.height / 47.25),
+            itemCount: 5,
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
+            itemBuilder: (_, __) => const ShimmerCard(height: 64, radius: 12),
+          ),
+        ),
+      ],
+    );
+  }
 }

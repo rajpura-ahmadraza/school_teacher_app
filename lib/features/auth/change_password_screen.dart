@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';
 import 'change_password_controller.dart';
+import '../../core/widgets/common_widgets.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
   ChangePasswordScreen({super.key});
@@ -183,13 +184,10 @@ class ChangePasswordScreen extends StatelessWidget {
                                     ),
                                   ),
                                   child: controller.isLoading.value
-                                      ? const SizedBox(
-                                          width: 22,
-                                          height: 22,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2.5,
-                                            color: Colors.white,
-                                          ),
+                                      ? const ShimmerCard(
+                                          width: 80,
+                                          height: 18,
+                                          radius: 4,
                                         )
                                       : const Text(
                                           "Update Password",

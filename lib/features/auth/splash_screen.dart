@@ -16,7 +16,6 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _ctrl;
   late Animation<double> _fade;
   late Animation<double> _scale;
-  late Animation<double> _slide;
 
   @override
   void initState() {
@@ -30,8 +29,6 @@ class _SplashScreenState extends State<SplashScreen>
     _scale = Tween<double>(begin: 0.65, end: 1.0).animate(CurvedAnimation(
         parent: _ctrl,
         curve: const Interval(0.0, 0.7, curve: Curves.elasticOut)));
-    _slide = Tween<double>(begin: 24, end: 0).animate(CurvedAnimation(
-        parent: _ctrl, curve: const Interval(0.3, 1.0, curve: Curves.easeOut)));
 
     // AuthController will handle navigation automatically via onInit
     Get.put<AuthController>(AuthController(), permanent: true);
@@ -122,11 +119,11 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                       ]),
-                      SizedBox(height: Get.height / 13.5),
+                      SizedBox(height: Get.height / 37.8),
                       ShaderMask(
                         shaderCallback: (bounds) =>
                             AppColors.gradientPrimary.createShader(bounds),
-                        child: Text('School Teacher',
+                        child: const Text('School Teacher',
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 32,
@@ -134,72 +131,11 @@ class _SplashScreenState extends State<SplashScreen>
                               color: Colors.white,
                             )),
                       ),
-                      SizedBox(height: Get.height / 94.5),
-                      Text('Manage · Teach · Inspire',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary.withOpacity(0.9),
-                            letterSpacing: 1.2,
-                          )),
                     ],
                   ),
                 ),
                 const Spacer(flex: 2),
-                AnimatedBuilder(
-                  animation: _ctrl,
-                  builder: (_, child) => FadeTransition(
-                    opacity: _fade,
-                    child: Transform.translate(
-                        offset: Offset(0, _slide.value), child: child),
-                  ),
-                  child: const Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _Pill('Attendance'),
-                      _Pill('Homework'),
-                      _Pill('Students'),
-                      _Pill('Timetable'),
-                      _Pill('Leaves'),
-                    ],
-                  ),
-                ),
-                const Spacer(flex: 1),
-                AnimatedBuilder(
-                  animation: _ctrl,
-                  builder: (_, child) =>
-                      FadeTransition(opacity: _fade, child: child),
-                  child: Column(children: [
-                    SizedBox(
-                      width: Get.height / 27,
-                      height: Get.height / 27,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: AppColors.primary.withOpacity(0.8),
-                      ),
-                    ),
-                    SizedBox(height: Get.height / 63),
-                    Text('Loading...',
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontFamily: 'Inter',
-                          fontSize: 12,
-                          color: AppColors.textTertiary,
-                        )),
-                  ]),
-                ),
-                SizedBox(height: Get.height / 31.5),
-                Text('v1.0.0  ·  SchoolMS',
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      color: AppColors.textTertiary.withOpacity(0.7),
-                    )),
-                SizedBox(height: Get.height / 151.2),
+                SizedBox(height: Get.height / 7.56),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -246,6 +182,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
+// ignore: unused_element
 class _Pill extends StatelessWidget {
   final String label;
   const _Pill(this.label);
@@ -264,7 +201,7 @@ class _Pill extends StatelessWidget {
           border: Border.all(color: AppColors.primary.withOpacity(0.12)),
         ),
         child: Text(label,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 12,
               color: AppColors.primary,

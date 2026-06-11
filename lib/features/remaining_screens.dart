@@ -135,8 +135,7 @@ class TimetableScreen extends StatelessWidget {
         ),
         body: Obx(() {
           if (ctrl.classesLoading.value) {
-            return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary));
+            return const _TimetableClassesLoadingShimmer();
           }
           return Column(children: [
             // Class picker
@@ -225,9 +224,7 @@ class TimetableScreen extends StatelessWidget {
                       title: 'Select a Class',
                       subtitle: 'Choose a class to view the timetable')
                   : ctrl.ttLoading.value
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary))
+                      ? const _TimetableLoadingShimmer()
                       : TabBarView(
                           children: _days.map((day) {
                             final targetDay = day.toLowerCase();
@@ -339,6 +336,107 @@ class TimetableScreen extends StatelessWidget {
           ]);
         }),
       ),
+    );
+  }
+}
+
+// ── Shimmer Timetable Loading Screens ──────────────────────────────
+class _TimetableCardShimmer extends StatelessWidget {
+  const _TimetableCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(Get.height / 47.25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Get.height / 54),
+        border: Border.all(color: AppColors.primary.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.01),
+              blurRadius: 4)
+        ],
+      ),
+      child: Row(
+        children: [
+          // Simulated period index
+          ShimmerCard(
+            width: Get.height / 15.75,
+            height: Get.height / 15.75,
+            radius: Get.height / 63,
+          ),
+          SizedBox(width: Get.height / 54),
+          // Simulated subject & time
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerCard(
+                  width: Get.width * 0.4,
+                  height: 16,
+                  radius: 4,
+                ),
+                SizedBox(height: 8),
+                ShimmerCard(
+                  width: Get.width * 0.3,
+                  height: 12,
+                  radius: 4,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimetableClassesLoadingShimmer extends StatelessWidget {
+  const _TimetableClassesLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Simulated class picker
+        Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(
+              horizontal: Get.height / 47.25,
+              vertical: Get.height / 75.6),
+          width: double.infinity,
+          child: ShimmerCard(
+            height: Get.height / 15.75, // Matching dropdown button height
+            radius: Get.height / 63,
+          ),
+        ),
+        // Simulated list of timetable cards
+        Expanded(
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(Get.height / 47.25),
+            itemCount: 5,
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+            itemBuilder: (_, __) => const _TimetableCardShimmer(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimetableLoadingShimmer extends StatelessWidget {
+  const _TimetableLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.all(Get.height / 47.25),
+      itemCount: 5,
+      separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+      itemBuilder: (_, __) => const _TimetableCardShimmer(),
     );
   }
 }
@@ -545,8 +643,7 @@ class _LeavesScreenState extends State<LeavesScreen> {
         Expanded(
           child: Obx(() {
             if (ctrl.isLoading.value) {
-              return const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary));
+              return const _LeavesLoadingShimmer();
             }
             if (ctrl.leaves.isEmpty) {
               final statusText = ctrl.filterStatus.value;
@@ -570,13 +667,9 @@ class _LeavesScreenState extends State<LeavesScreen> {
                     SizedBox(height: Get.height / 75.6),
                 itemBuilder: (ctx, i) {
                   if (i == ctrl.leaves.length) {
-                    return Center(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: Get.height / 63),
-                        child:
-                            CircularProgressIndicator(color: AppColors.primary),
-                      ),
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: Get.height / 63),
+                      child: const ShimmerCard(height: 88, radius: 14),
                     );
                   }
                   final leave =
@@ -741,6 +834,97 @@ class _LeaveCard extends StatelessWidget {
           ]),
         ],
       ]),
+    );
+  }
+}
+
+// ── Shimmer Leaves Loading Screen ──────────────────────────────
+class _LeavesLoadingShimmer extends StatelessWidget {
+  const _LeavesLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Simulated status filter dropdown
+        Container(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(
+              horizontal: 16, vertical: Get.height / 75.6),
+          width: double.infinity,
+          child: ShimmerCard(
+            height: Get.height / 15.75,
+            radius: Get.height / 63,
+          ),
+        ),
+        // Simulated leave cards list
+        Expanded(
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(Get.height / 47.25),
+            itemCount: 5,
+            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+            itemBuilder: (_, __) => _LeaveCardShimmer(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LeaveCardShimmer extends StatelessWidget {
+  const _LeaveCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(Get.height / 47.25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Get.height / 63),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: Get.height / 94.5,
+              offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top row: avatar + name/date + status badge
+          Row(
+            children: [
+              // Avatar
+              ShimmerCard(
+                width: Get.height / 17.18,
+                height: Get.height / 17.18,
+                radius: Get.height / 17.18,
+              ),
+              SizedBox(width: Get.height / 63),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerCard(width: Get.width * 0.38, height: 14, radius: 4),
+                    SizedBox(height: 6),
+                    ShimmerCard(width: Get.width * 0.28, height: 11, radius: 4),
+                  ],
+                ),
+              ),
+              SizedBox(width: Get.height / 75.6),
+              // Status badge
+              const ShimmerCard(width: 64, height: 22, radius: 20),
+            ],
+          ),
+          SizedBox(height: Get.height / 75.6),
+          // Reason text
+          ShimmerCard(width: Get.width * 0.6, height: 11, radius: 4),
+          SizedBox(height: 6),
+          const ShimmerCard(height: 11, radius: 4),
+        ],
+      ),
     );
   }
 }
@@ -1035,9 +1219,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         : CachedNetworkImage(
                             imageUrl: url,
                             fit: BoxFit.contain,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                                  color: Colors.white),
+                            placeholder: (context, url) => const ShimmerCard(
+                              height: double.infinity,
+                              width: double.infinity,
+                              radius: 0,
                             ),
                             errorWidget: (context, url, error) => Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1174,6 +1359,88 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
   }
 }
 
+class _GalleryLoadingShimmer extends StatelessWidget {
+  const _GalleryLoadingShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Albums Section Row
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: Get.height / 47.25,
+                vertical: Get.height / 63),
+            child: Row(
+              children: [
+                ShimmerCard(
+                  width: Get.height / 189,
+                  height: Get.height / 94.5,
+                  radius: 2,
+                ),
+                SizedBox(width: Get.height / 94.5),
+                ShimmerCard(
+                  width: 80,
+                  height: 18,
+                  radius: 4,
+                ),
+              ],
+            ),
+          ),
+
+          // Horizontal categories
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: Get.height / 47.25),
+            child: Row(
+              children: List.generate(4, (index) {
+                return Padding(
+                  padding: EdgeInsets.only(right: Get.height / 94.5),
+                  child: ShimmerCard(
+                    width: 90 + (index % 2 * 20).toDouble(),
+                    height: 38,
+                    radius: Get.height / 31.5,
+                  ),
+                );
+              }),
+            ),
+          ),
+
+          SizedBox(height: Get.height / 47.25),
+
+          // Grid of image cards shimmer
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(
+                horizontal: Get.height / 47.25,
+                vertical: Get.height / 94.5),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.0,
+            ),
+            itemCount: 6,
+            itemBuilder: (ctx, i) {
+              return ShimmerCard(
+                height: double.infinity,
+                width: double.infinity,
+                radius: Get.height / 37.8,
+              );
+            },
+          ),
+          SizedBox(height: Get.height / 23.62),
+        ],
+      ),
+    );
+  }
+}
+
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
@@ -1275,9 +1542,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         children: [
           Obx(() {
             if (ctrl.isLoading.value) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              );
+              return const _GalleryLoadingShimmer();
             }
             if (ctrl.albums.isEmpty) {
               return const EmptyState(
@@ -1436,14 +1701,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                                 imageUrl: url,
                                                 fit: BoxFit.cover,
                                                 placeholder: (context, url) =>
-                                                    Container(
-                                                  color: Colors.grey.shade100,
-                                                  child: const Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                            color: AppColors
-                                                                .primary),
-                                                  ),
+                                                    ShimmerCard(
+                                                  height: double.infinity,
+                                                  width: double.infinity,
+                                                  radius: Get.height / 37.8,
                                                 ),
                                                 errorWidget:
                                                     (context, url, error) =>
@@ -1465,12 +1726,28 @@ class _GalleryScreenState extends State<GalleryScreen> {
                           ),
                     Obx(() {
                       if (ctrl.isLoadMoreLoading.value) {
-                        return Center(
-                          child: Padding(
-                            padding:
-                                EdgeInsets.symmetric(vertical: Get.height / 63),
-                            child: const CircularProgressIndicator(
-                                color: AppColors.primary),
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: Get.height / 47.25,
+                              vertical: Get.height / 94.5),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 1.0,
+                            ),
+                            itemCount: 2,
+                            itemBuilder: (ctx, i) {
+                              return ShimmerCard(
+                                height: double.infinity,
+                                width: double.infinity,
+                                radius: Get.height / 37.8,
+                              );
+                            },
                           ),
                         );
                       }
