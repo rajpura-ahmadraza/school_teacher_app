@@ -114,9 +114,23 @@ class TimetableScreen extends StatelessWidget {
                   const BoxDecoration(gradient: AppColors.gradientPrimary)),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-            onPressed: () => Get.offNamed(AppRoutes.dashboard),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  Icons.chevron_left_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                onPressed: () => Get.offNamed(AppRoutes.dashboard),
+              ),
+            ),
           ),
           title: const Text('Timetable',
               style: TextStyle(
@@ -353,9 +367,7 @@ class _TimetableCardShimmer extends StatelessWidget {
         borderRadius: BorderRadius.circular(Get.height / 54),
         border: Border.all(color: AppColors.primary.withOpacity(0.05)),
         boxShadow: [
-          BoxShadow(
-              color: Colors.black.withOpacity(0.01),
-              blurRadius: 4)
+          BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4)
         ],
       ),
       child: Row(
@@ -403,8 +415,7 @@ class _TimetableClassesLoadingShimmer extends StatelessWidget {
         Container(
           color: Colors.white,
           padding: EdgeInsets.symmetric(
-              horizontal: Get.height / 47.25,
-              vertical: Get.height / 75.6),
+              horizontal: Get.height / 47.25, vertical: Get.height / 75.6),
           width: double.infinity,
           child: ShimmerCard(
             height: Get.height / 15.75, // Matching dropdown button height
@@ -563,9 +574,23 @@ class _LeavesScreenState extends State<LeavesScreen> {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.offNamed(AppRoutes.dashboard),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+            ),
+          ),
         ),
         title: const Text('Leave Requests',
             style: TextStyle(
@@ -585,7 +610,17 @@ class _LeavesScreenState extends State<LeavesScreen> {
                 initialSelection: ctrl.filterStatus.value,
                 requestFocusOnTap: false,
                 enableSearch: false,
-                textStyle: TextStyle(
+                trailingIcon: const Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: AppColors.textSecondary,
+                  size: 24,
+                ),
+                selectedTrailingIcon: const Icon(
+                  Icons.keyboard_arrow_up_rounded,
+                  color: AppColors.textSecondary,
+                  size: 24,
+                ),
+                textStyle: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -627,7 +662,7 @@ class _LeavesScreenState extends State<LeavesScreen> {
                     label: s[0].toUpperCase() + s.substring(1),
                     style: ButtonStyle(
                       textStyle: WidgetStateProperty.all(
-                        TextStyle(
+                        const TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -741,12 +776,12 @@ class _LeaveCard extends StatelessWidget {
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(student['name'] as String? ?? 'Student',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                       fontSize: 15)),
               Text('${formatYmdToDmy(from)} To ${formatYmdToDmy(to)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
                       fontSize: 12,
@@ -763,7 +798,7 @@ class _LeaveCard extends StatelessWidget {
         if (reason.isNotEmpty) ...[
           SizedBox(height: Get.height / 75.6),
           Text(reason,
-              style: TextStyle(
+              style: const TextStyle(
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
                   fontSize: 12,
@@ -792,7 +827,7 @@ class _LeaveCard extends StatelessWidget {
                         const Icon(Icons.close_rounded,
                             color: AppColors.danger, size: 16),
                         SizedBox(width: Get.height / 126),
-                        Text('Reject',
+                        const Text('Reject',
                             style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 13,
@@ -821,7 +856,7 @@ class _LeaveCard extends StatelessWidget {
                         const Icon(Icons.check_rounded,
                             color: AppColors.success, size: 16),
                         SizedBox(width: Get.height / 126),
-                        Text('Approve',
+                        const Text('Approve',
                             style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: 13,
@@ -849,8 +884,8 @@ class _LeavesLoadingShimmer extends StatelessWidget {
         // Simulated status filter dropdown
         Container(
           color: Colors.white,
-          padding: EdgeInsets.symmetric(
-              horizontal: 16, vertical: Get.height / 75.6),
+          padding:
+              EdgeInsets.symmetric(horizontal: 16, vertical: Get.height / 75.6),
           width: double.infinity,
           child: ShimmerCard(
             height: Get.height / 15.75,
@@ -1372,8 +1407,7 @@ class _GalleryLoadingShimmer extends StatelessWidget {
           // Albums Section Row
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: Get.height / 47.25,
-                vertical: Get.height / 63),
+                horizontal: Get.height / 47.25, vertical: Get.height / 63),
             child: Row(
               children: [
                 ShimmerCard(
@@ -1417,8 +1451,7 @@ class _GalleryLoadingShimmer extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(
-                horizontal: Get.height / 47.25,
-                vertical: Get.height / 94.5),
+                horizontal: Get.height / 47.25, vertical: Get.height / 94.5),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,
@@ -1507,7 +1540,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: const Color.fromARGB(33, 255, 255, 255),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: const Color.fromARGB(255, 255, 255, 255)
@@ -1858,15 +1891,34 @@ class CalendarScreen extends StatelessWidget {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.offNamed(AppRoutes.dashboard),
-        ),
-        title: const Text('School Calendar',
-            style: TextStyle(
+        leadingWidth: 70,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
                 color: Colors.white,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w700)),
+                size: 24,
+              ),
+              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+            ),
+          ),
+        ),
+        title: const Text(
+          'School Calendar',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Inter',
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ),
       body: Obx(() => Column(children: [
             // Month navigator
@@ -2003,7 +2055,7 @@ class CalendarScreen extends StatelessWidget {
                             },
                           ),
                         ),
-            ),
+            )
           ])),
     );
   }
@@ -2048,9 +2100,23 @@ class BusTrackingScreen extends StatelessWidget {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.offNamed(AppRoutes.dashboard),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+            ),
+          ),
         ),
         title: const Text('Bus Tracking',
             style: TextStyle(

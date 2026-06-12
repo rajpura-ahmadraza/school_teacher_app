@@ -273,13 +273,23 @@ class AttendanceScreen extends StatelessWidget {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_rounded,
-            color: Colors.white,
-            size: 20,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+            ),
           ),
-          onPressed: () => Get.offNamed(AppRoutes.dashboard),
         ),
         title: Text('Attendance',
             style: TextStyle(
@@ -1064,9 +1074,23 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-          onPressed: () => Get.back(),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.chevron_left_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: () => Get.back(),
+            ),
+          ),
         ),
         title: const Text('Attendance Report',
             style: TextStyle(

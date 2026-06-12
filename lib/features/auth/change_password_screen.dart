@@ -15,200 +15,207 @@ class ChangePasswordScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20.0,
-                  vertical: 14.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Container(
-                        padding: const EdgeInsets.all(10.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 18.0,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      "Change Password",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Inter',
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(width: 40.0),
-                  ],
-                ),
-              ).animate().fade(duration: 300.ms).slideY(begin: -0.2),
-
-              // Main Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      /// Current Password
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _sectionLabel("Current Password"),
-                          Obx(
-                            () => TextFormField(
-                              controller: controller.currentCtrl,
-                              obscureText: controller.obscureCurrent.value,
-                              onChanged: controller.validateCurrent,
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: _inputDecoration(
-                                hint: "Enter current password",
-                                icon: Icons.lock_outline_rounded,
-                                isObscure: controller.obscureCurrent.value,
-                                onToggle: controller.toggleCurrent,
-                              ),
-                            ),
-                          ),
-                          Obx(
-                            () => controller.currentError.value.isEmpty
-                                ? const SizedBox()
-                                : _errorText(controller.currentError.value),
-                          ),
-                        ],
-                      ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
-
-                      const SizedBox(height: 20.0),
-
-                      /// New Password
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _sectionLabel("New Password"),
-                          Obx(
-                            () => TextFormField(
-                              controller: controller.newCtrl,
-                              obscureText: controller.obscureNew.value,
-                              onChanged: controller.validateNew,
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: _inputDecoration(
-                                hint: "Enter new password",
-                                icon: Icons.lock_outline_rounded,
-                                isObscure: controller.obscureNew.value,
-                                onToggle: controller.toggleNew,
-                              ),
-                            ),
-                          ),
-                          Obx(
-                            () => controller.newError.value.isEmpty
-                                ? const SizedBox()
-                                : _errorText(controller.newError.value),
-                          ),
-                        ],
-                      ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
-
-                      const SizedBox(height: 20.0),
-
-                      /// Confirm Password
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _sectionLabel("Confirm Password"),
-                          Obx(
-                            () => TextFormField(
-                              controller: controller.confirmCtrl,
-                              obscureText: controller.obscureConfirm.value,
-                              onChanged: controller.validateConfirm,
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: _inputDecoration(
-                                hint: "Enter confirm password",
-                                icon: Icons.lock_outline_rounded,
-                                isObscure: controller.obscureConfirm.value,
-                                onToggle: controller.toggleConfirm,
-                              ),
-                            ),
-                          ),
-                          Obx(
-                            () => controller.confirmError.value.isEmpty
-                                ? const SizedBox()
-                                : _errorText(controller.confirmError.value),
-                          ),
-                        ],
-                      ).animate(delay: 300.ms).fade().slideY(begin: 0.2),
-
-                      const SizedBox(height: 30.0),
-
-                      // Update Password Button
-                      Obx(() => SizedBox(
-                                height: 50.0,
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: controller.isLoading.value
-                                      ? null
-                                      : controller.submit,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.primary,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                    ),
-                                  ),
-                                  child: controller.isLoading.value
-                                      ? const ShimmerCard(
-                                          width: 80,
-                                          height: 18,
-                                          radius: 4,
-                                        )
-                                      : const Text(
-                                          "Update Password",
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14.0,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                ),
-                              ))
-                          .animate(delay: 400.ms)
-                          .fade()
-                          .slideY(begin: 0.2)
-                          .scale(begin: const Offset(0.95, 0.95)),
-                    ],
-                  ),
-                ),
+        backgroundColor: const Color(0xFFF7F8FC),
+        appBar: AppBar(
+          flexibleSpace: Container(
+              decoration:
+                  const BoxDecoration(gradient: AppColors.gradientPrimary)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leadingWidth: 70,
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  Icons.chevron_left_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                onPressed: () => Get.back(),
+              ),
+            ),
+          ),
+          title: const Text(
+            'Change Password',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Inter',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                /// Current Password
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel("Current Password"),
+                    Obx(
+                      () => TextFormField(
+                        controller: controller.currentCtrl,
+                        obscureText: controller.obscureCurrent.value,
+                        onChanged: controller.validateCurrent,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: _inputDecoration(
+                          hint: "Enter current password",
+                          icon: Icons.lock_outline_rounded,
+                          isObscure: controller.obscureCurrent.value,
+                          onToggle: controller.toggleCurrent,
+                        ),
+                      ),
+                    ),
+                    Obx(
+                      () => controller.currentError.value.isEmpty
+                          ? const SizedBox()
+                          : _errorText(controller.currentError.value),
+                    ),
+                  ],
+                ).animate(delay: 100.ms).fade().slideY(begin: 0.2),
+
+                const SizedBox(height: 20.0),
+
+                /// New Password
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel("New Password"),
+                    Obx(
+                      () => TextFormField(
+                        controller: controller.newCtrl,
+                        obscureText: controller.obscureNew.value,
+                        onChanged: controller.validateNew,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: _inputDecoration(
+                          hint: "Enter new password",
+                          icon: Icons.lock_outline_rounded,
+                          isObscure: controller.obscureNew.value,
+                          onToggle: controller.toggleNew,
+                        ),
+                      ),
+                    ),
+                    Obx(
+                      () => controller.newError.value.isEmpty
+                          ? const SizedBox()
+                          : _errorText(controller.newError.value),
+                    ),
+                  ],
+                ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
+
+                const SizedBox(height: 20.0),
+
+                /// Confirm Password
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel("Confirm New Password"),
+                    Obx(
+                      () => TextFormField(
+                        controller: controller.confirmCtrl,
+                        obscureText: controller.obscureConfirm.value,
+                        onChanged: controller.validateConfirm,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: _inputDecoration(
+                          hint: "Re-enter new password",
+                          icon: Icons.lock_outline_rounded,
+                          isObscure: controller.obscureConfirm.value,
+                          onToggle: controller.toggleConfirm,
+                        ),
+                      ),
+                    ),
+                    Obx(
+                      () => controller.confirmError.value.isEmpty
+                          ? const SizedBox()
+                          : _errorText(controller.confirmError.value),
+                    ),
+                  ],
+                ).animate(delay: 300.ms).fade().slideY(begin: 0.2),
+
+                const SizedBox(height: 30.0),
+
+                // Update Password Button
+                Obx(() => SizedBox(
+                          height: 50.0,
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: controller.isLoading.value
+                                ? null
+                                : controller.submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: EdgeInsets.zero,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                            ),
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                gradient: controller.isLoading.value
+                                    ? null
+                                    : const LinearGradient(
+                                        colors: [
+                                          Color(0xFF9333EA),
+                                          Color(0xFFDB2777),
+                                        ],
+                                      ),
+                                color: controller.isLoading.value
+                                    ? Colors.grey.shade300
+                                    : null,
+                                borderRadius: BorderRadius.circular(18.0),
+                              ),
+                              child: Container(
+                                height: 50.0,
+                                alignment: Alignment.center,
+                                child: controller.isLoading.value
+                                    ? const ShimmerCard(
+                                        width: 80,
+                                        height: 18,
+                                        radius: 4,
+                                      )
+                                    : const Text(
+                                        "Update Password",
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14.0,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ))
+                    .animate(delay: 400.ms)
+                    .fade()
+                    .slideY(begin: 0.2)
+                    .scale(begin: const Offset(0.95, 0.95)),
+
+                const SizedBox(height: 20.0),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,6 +280,8 @@ class ChangePasswordScreen extends StatelessWidget {
     required VoidCallback onToggle,
   }) {
     return InputDecoration(
+      filled: true,
+      fillColor: Colors.white,
       hintText: hint,
       hintStyle: const TextStyle(
         fontFamily: 'Inter',
