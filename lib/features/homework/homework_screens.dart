@@ -450,6 +450,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -476,15 +478,17 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             ),
           ),
         ),
-        title: const Text('Homework',
+        title: Text('Homework',
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
+                fontSize: isTablet ? 18.0 : 16.0,
                 fontWeight: FontWeight.w600)),
         actions: [
           Padding(
-            padding:
-                const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+            padding: isTablet
+                ? const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0)
+                : const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
             child: OutlinedButton(
               onPressed: () async {
                 await Get.toNamed(AppRoutes.homeworkForm);
@@ -495,12 +499,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.white,
                 side: const BorderSide(color: Colors.white, width: 1.5),
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                padding:
+                    EdgeInsets.symmetric(horizontal: isTablet ? 18.0 : 12.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -508,13 +513,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
-                      fontSize: 12.0,
+                      fontSize: isTablet ? 14.0 : 12.0,
                       color: Colors.white,
                     ),
                   ),
                   Icon(
                     Icons.add_rounded,
-                    size: 16.0,
+                    size: isTablet ? 18.0 : 16.0,
                     color: Colors.white,
                   ),
                 ],
@@ -554,8 +559,8 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                               backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(Get.height / 63))),
+                                  borderRadius: BorderRadius.circular(
+                                      isTablet ? 16.0 : 12.0))),
                         ),
                       )
                     : RefreshIndicator(
@@ -567,18 +572,20 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                           child: ListView.separated(
                             controller: _scrollCtrl,
                             physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.all(Get.height / 47.25),
+                            padding: EdgeInsets.all(
+                                isTablet ? 24.0 : Get.height / 47.25),
                             itemCount: ctrl.homeworkList.length +
                                 (ctrl.hasMore.value ? 1 : 0),
-                            separatorBuilder: (_, __) =>
-                                SizedBox(height: Get.height / 75.6),
+                            separatorBuilder: (_, __) => SizedBox(
+                                height: isTablet ? 16.0 : Get.height / 75.6),
                             itemBuilder: (ctx, i) {
                               if (i == ctrl.homeworkList.length) {
                                 return Padding(
                                   padding: EdgeInsets.only(
-                                      bottom: Get.height / 75.6),
-                                  child:
-                                      const ShimmerCard(height: 80, radius: 14),
+                                      bottom:
+                                          isTablet ? 16.0 : Get.height / 75.6),
+                                  child: ShimmerCard(
+                                      height: isTablet ? 100 : 80, radius: 14),
                                 );
                               }
                               final hw = Map<String, dynamic>.from(
@@ -609,7 +616,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                     ),
                                     SlidableAction(
                                       onPressed: (_) async {
-                                        final ok = await _confirm(ctx);
+                                        final ok = await _confirmDelete(ctx);
                                         if (ok) {
                                           ctrl.deleteHomework(num.tryParse(
                                                       hw['id']?.toString() ??
@@ -623,8 +630,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                                       icon: Icons.delete_rounded,
                                       label: 'Delete',
                                       borderRadius: BorderRadius.horizontal(
-                                          right:
-                                              Radius.circular(Get.height / 54)),
+                                          right: Radius.circular(isTablet
+                                              ? 16.0
+                                              : Get.height / 54)),
                                     ),
                                   ],
                                 ),
@@ -639,134 +647,139 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
       }),
     );
   }
+}
 
-  Future<bool> _confirm(BuildContext ctx) async {
-    return await showDialog<bool>(
-          context: ctx,
-          barrierDismissible: false,
-          builder: (_) => Dialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            elevation: 0,
-            backgroundColor: Colors.transparent,
-            child: Container(
-              padding: EdgeInsets.all(Get.height / 31.5),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(Get.height / 31.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: Get.height / 37.8,
-                    offset: const Offset(0, 8),
+Future<bool> _confirmDelete(BuildContext context) async {
+  final isTablet = MediaQuery.of(context).size.width >= 600;
+
+  return await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => Dialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(isTablet ? 28 : 24)),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: isTablet ? 400.0 : 320.0,
+            ),
+            padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(isTablet ? 28 : 24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: isTablet ? 20.0 : 16.0,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon with custom circular background
+                Container(
+                  width: isTablet ? 72.0 : 60.0,
+                  height: isTablet ? 72.0 : 60.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.danger.withOpacity(0.1),
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon with custom circular background
-                  Container(
-                    width: Get.height / 11.81,
-                    height: 11.81,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.danger.withOpacity(0.1),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.delete_sweep_rounded,
-                        color: AppColors.danger,
-                        size: Get.height / 23.62,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: Get.height / 37.8),
-                  // Title
-                  const Text(
-                    'Delete Homework?',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+                  child: Center(
+                    child: Icon(
+                      Icons.delete_sweep_rounded,
+                      color: AppColors.danger,
+                      size: isTablet ? 36.0 : 28.0,
                     ),
                   ),
-                  SizedBox(height: Get.height / 75.6),
-                  // Subtitle/Content
-                  const Text(
-                    'Are you sure you want to delete this homework ?',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.4,
-                    ),
+                ),
+                SizedBox(height: isTablet ? 20.0 : 16.0),
+                // Title
+                Text(
+                  'Delete Homework?',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: isTablet ? 22 : 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
-                  const SizedBox(height: 24),
-                  // Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            padding:
-                                EdgeInsets.symmetric(vertical: Get.height / 54),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(Get.height / 63),
-                            ),
-                            side: BorderSide(color: Colors.grey.shade200),
-                            foregroundColor: AppColors.textSecondary,
+                ),
+                SizedBox(height: isTablet ? 12.0 : 10.0),
+                // Subtitle/Content
+                Text(
+                  'Are you sure you want to delete this homework ?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Inter',
+                    fontSize: isTablet ? 15 : 14,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: isTablet ? 28.0 : 24.0),
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(
+                              vertical: isTablet ? 16.0 : 14.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(isTablet ? 16.0 : 12.0),
                           ),
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          side: BorderSide(color: Colors.grey.shade200),
+                          foregroundColor: AppColors.textSecondary,
+                        ),
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: isTablet ? 15 : 14,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      SizedBox(width: Get.height / 63),
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.danger,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            padding:
-                                EdgeInsets.symmetric(vertical: Get.height / 54),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(Get.height / 63),
-                            ),
+                    ),
+                    SizedBox(width: isTablet ? 16.0 : 12.0),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.danger,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: EdgeInsets.symmetric(
+                              vertical: isTablet ? 16.0 : 14.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(isTablet ? 16.0 : 12.0),
                           ),
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text(
-                            'Delete',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: isTablet ? 15 : 14,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ) ??
-        false;
-  }
+        ),
+      ) ??
+      false;
 }
 
 class _ClassDropdown extends StatelessWidget {
@@ -775,6 +788,7 @@ class _ClassDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Obx(() {
       final selected = ctrl.selectedClass.value;
       final selectedLabel = selected == null
@@ -783,153 +797,160 @@ class _ClassDropdown extends StatelessWidget {
 
       return Padding(
         padding: EdgeInsets.fromLTRB(
-          Get.height / 47.25,
-          Get.height / 63,
-          Get.height / 47.25,
-          Get.height / 189,
+          isTablet ? 24.0 : Get.height / 47.25,
+          isTablet ? 16.0 : Get.height / 63,
+          isTablet ? 24.0 : Get.height / 47.25,
+          isTablet ? 8.0 : Get.height / 189,
         ),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(Get.height / 63),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              )
-            ],
-          ),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              hoverColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-            ),
-            child: PopupMenuButton<dynamic>(
-              surfaceTintColor: Colors.white,
+        child: LayoutBuilder(builder: (context, constraints) {
+          final dropdownWidth = constraints.maxWidth;
+          return Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
               color: Colors.white,
-              offset: const Offset(0, 52),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Get.height / 63),
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderRadius:
+                  BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                )
+              ],
+            ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                hoverColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
               ),
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width - 32,
-                maxWidth: MediaQuery.of(context).size.width - 32,
-              ),
-              onSelected: (v) {
-                if (v == 'all') {
-                  ctrl.selectedClass.value = null;
-                  ctrl.loadHomework(null);
-                } else {
-                  final c = Map<String, dynamic>.from(v as Map);
-                  ctrl.selectedClass.value = c;
-                  ctrl.loadHomework(
-                      num.tryParse(c['id']?.toString() ?? '')?.toInt());
-                }
-              },
-              itemBuilder: (ctx) => [
-                PopupMenuItem<dynamic>(
-                  value: 'all',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.all_inclusive_rounded,
-                        color: ctrl.selectedClass.value == null
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                        size: Get.height / 37.8,
-                      ),
-                      SizedBox(width: Get.height / 63),
-                      Text(
-                        'All Classes',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: ctrl.selectedClass.value == null
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: ctrl.selectedClass.value == null
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
+              child: PopupMenuButton<dynamic>(
+                surfaceTintColor: Colors.white,
+                color: Colors.white,
+                offset: const Offset(0, 52),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
-                ...ctrl.classes.map((cls) {
-                  final c = Map<String, dynamic>.from(cls as Map);
-                  final isSelected =
-                      ctrl.selectedClass.value?['id']?.toString() ==
-                          c['id']?.toString();
-                  final label =
-                      '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}';
-                  return PopupMenuItem<dynamic>(
-                    value: c,
+                constraints: BoxConstraints(
+                  minWidth: dropdownWidth,
+                  maxWidth: dropdownWidth,
+                ),
+                onSelected: (v) {
+                  if (v == 'all') {
+                    ctrl.selectedClass.value = null;
+                    ctrl.loadHomework(null);
+                  } else {
+                    final c = Map<String, dynamic>.from(v as Map);
+                    ctrl.selectedClass.value = c;
+                    ctrl.loadHomework(
+                        num.tryParse(c['id']?.toString() ?? '')?.toInt());
+                  }
+                },
+                itemBuilder: (ctx) => [
+                  PopupMenuItem<dynamic>(
+                    value: 'all',
                     child: Row(
                       children: [
                         Icon(
-                          Icons.class_rounded,
-                          color: isSelected
+                          Icons.all_inclusive_rounded,
+                          color: ctrl.selectedClass.value == null
                               ? AppColors.primary
                               : AppColors.textSecondary,
-                          size: Get.height / 37.8,
+                          size: 20,
                         ),
-                        SizedBox(width: Get.height / 63),
+                        const SizedBox(width: 12),
                         Text(
-                          label,
+                          'All Classes',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontWeight:
-                                isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected
+                            fontWeight: ctrl.selectedClass.value == null
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: ctrl.selectedClass.value == null
                                 ? AppColors.primary
                                 : AppColors.textPrimary,
                           ),
                         ),
                       ],
                     ),
-                  );
-                }),
-              ],
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Get.height / 47.25,
-                  vertical: Get.height / 54,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.class_rounded,
-                            color: AppColors.primary, size: Get.height / 37.8),
-                        SizedBox(width: Get.height / 75.6),
-                        Text(
-                          selectedLabel,
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13.0,
-                            color: AppColors.textPrimary,
+                  ),
+                  ...ctrl.classes.map((cls) {
+                    final c = Map<String, dynamic>.from(cls as Map);
+                    final isSelected =
+                        ctrl.selectedClass.value?['id']?.toString() ==
+                            c['id']?.toString();
+                    final label =
+                        '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}';
+                    return PopupMenuItem<dynamic>(
+                      value: c,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.class_rounded,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                            size: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: AppColors.textSecondary,
-                      size: Get.height / 34.36,
-                    ),
-                  ],
+                          const SizedBox(width: 12),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 16.0 : Get.height / 47.25,
+                    vertical: isTablet ? 14.0 : Get.height / 54,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.class_rounded,
+                              color: AppColors.primary,
+                              size: isTablet ? 20.0 : Get.height / 37.8),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedLabel,
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.0,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.textSecondary,
+                        size: isTablet ? 20.0 : Get.height / 34.36,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       );
     });
   }
@@ -941,6 +962,9 @@ class _HomeworkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+
     final subject = hw['subject'] as Map? ?? {};
     final cls = hw['class'] as Map? ?? hw['class_name'];
     final clsName = cls is Map
@@ -951,10 +975,11 @@ class _HomeworkCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.toNamed(AppRoutes.homeworkDetail, arguments: hw),
       child: Container(
-        padding: EdgeInsets.all(Get.height / 47.25),
+        padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 47.25),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(Get.height / 47.25),
+          borderRadius:
+              BorderRadius.circular(isTablet ? 14.0 : Get.height / 47.25),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -962,78 +987,92 @@ class _HomeworkCard extends StatelessWidget {
                 offset: const Offset(0, 2))
           ],
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [
-            Container(
-              width: Get.height / 18.9,
-              height: Get.height / 18.9,
-              decoration: BoxDecoration(
-                  gradient: AppColors.gradientOrange,
-                  borderRadius: BorderRadius.circular(Get.height / 63)),
-              child: Icon(Icons.assignment_rounded,
-                  color: Colors.white, size: Get.height / 37.8),
-            ),
-            SizedBox(width: Get.height / 63),
-            Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(hw['title'] as String? ?? 'Homework',
-                        style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: AppColors.textPrimary)),
-                    Text('${subject['name'] ?? 'Subject'} • $clsName',
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: AppColors.textSecondary)),
-                  ]),
-            ),
-            if (dueDate.isNotEmpty)
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [
               Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: Get.height / 75.6, vertical: Get.height / 189),
+                width: isTablet ? 36.0 : Get.height / 18.9,
+                height: isTablet ? 36.0 : Get.height / 18.9,
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(Get.height / 94.5),
-                  border: Border.all(color: AppColors.warning.withOpacity(0.3)),
-                ),
-                child: Text(formatYmdToDmy(dueDate),
-                    style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.warning)),
+                    gradient: AppColors.gradientOrange,
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 10.0 : Get.height / 63)),
+                child: Icon(Icons.assignment_rounded,
+                    color: Colors.white,
+                    size: isTablet ? 20.0 : Get.height / 37.8),
               ),
-          ]),
-          if (hw['description'] != null &&
-              (hw['description'] as String).isNotEmpty) ...[
-            SizedBox(height: Get.height / 75.6),
-            Text(hw['description'] as String,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: AppColors.textSecondary)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(hw['title'] as String? ?? 'Homework',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w700,
+                              fontSize: isTablet ? 15 : 15,
+                              color: AppColors.textPrimary)),
+                      Text('${subject['name'] ?? 'Subject'} • $clsName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontFamily: 'Inter',
+                              fontSize: isTablet ? 12 : 12,
+                              color: AppColors.textSecondary)),
+                    ]),
+              ),
+              if (dueDate.isNotEmpty)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 8.0 : Get.height / 75.6,
+                      vertical: isTablet ? 4.0 : Get.height / 189),
+                  decoration: BoxDecoration(
+                    color: AppColors.warning.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 8.0 : Get.height / 94.5),
+                    border:
+                        Border.all(color: AppColors.warning.withOpacity(0.3)),
+                  ),
+                  child: Text(formatYmdToDmy(dueDate),
+                      style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: isTablet ? 11 : 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.warning)),
+                ),
+            ]),
+            if (hw['description'] != null &&
+                (hw['description'] as String).isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(hw['description'] as String,
+                  maxLines: isTablet ? 2 : 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Inter',
+                      fontSize: isTablet ? 13 : 13,
+                      color: AppColors.textSecondary)),
+            ],
+            const SizedBox(height: 4),
+            Row(children: [
+              Icon(Icons.drag_indicator_rounded,
+                  size: isTablet ? 16.0 : Get.height / 54,
+                  color: AppColors.textTertiary),
+              const SizedBox(width: 4),
+              Text('Swipe to edit or delete',
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Inter',
+                      fontSize: isTablet ? 11 : 11,
+                      color: AppColors.textTertiary)),
+            ]),
           ],
-          SizedBox(height: Get.height / 189),
-          Row(children: [
-            Icon(Icons.drag_indicator_rounded,
-                size: Get.height / 54, color: AppColors.textTertiary),
-            SizedBox(width: Get.height / 189),
-            Text('Swipe to edit or delete',
-                style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontFamily: 'Inter',
-                    fontSize: 11,
-                    color: AppColors.textTertiary)),
-          ]),
-        ]),
+        ),
       ),
     );
   }
@@ -1265,9 +1304,9 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                             color: AppColors.textSecondary,
                             size: Get.height / 25.2),
                         SizedBox(height: Get.height / 189),
-                        Text(
+                        const Text(
                           'FILE',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -1323,6 +1362,9 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.existing != null;
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -1350,355 +1392,420 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
           ),
         ),
         title: Text(isEdit ? 'Edit Homework' : 'Add Homework',
-            style: const TextStyle(
+            style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
+                fontSize: isTablet ? 18.0 : 16.0,
                 fontWeight: FontWeight.w700)),
       ),
       body: Obx(() {
         if (ctrl.classesLoading.value) {
           return const _HomeworkFormShimmer();
         }
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(Get.height / 37.8),
-          child: Form(
-            key: _formKey,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Class dropdown
-              // Class dropdown
-              Obx(() {
-                final isLoadingClasses = ctrl.classesLoading.value;
-                final selectedId = _selectedClass?['id']?.toString();
-                final currentSelection = ctrl.classes.firstWhereOrNull(
-                  (c) => c['id']?.toString() == selectedId,
-                );
-                return FormField<dynamic>(
-                  key: ValueKey('class_$selectedId'),
-                  initialValue: currentSelection,
-                  validator: (v) => isLoadingClasses
-                      ? null
-                      : (v == null ? 'Select a class' : null),
-                  builder: (FormFieldState<dynamic> state) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        hoverColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                      child: PopupMenuButton<dynamic>(
-                        surfaceTintColor: Colors.white,
-                        color: Colors.white,
-                        enabled: !isLoadingClasses,
-                        offset: const Offset(0, 52),
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Get.height / 63),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: MediaQuery.of(context).size.width - 40,
-                          maxWidth: MediaQuery.of(context).size.width - 40,
-                        ),
-                        onSelected: (v) {
-                          state.didChange(v);
-                          setState(() {
-                            _selectedClass = v;
-                            _selectedSubject = null;
-                          });
-                          if (v != null) {
-                            final id = num.tryParse(v['id']?.toString() ?? '')
-                                    ?.toInt() ??
+
+        final classDropdown = Obx(() {
+          final isLoadingClasses = ctrl.classesLoading.value;
+          final selectedId = _selectedClass?['id']?.toString();
+          final currentSelection = ctrl.classes.firstWhereOrNull(
+            (c) => c['id']?.toString() == selectedId,
+          );
+          return FormField<dynamic>(
+            key: ValueKey('class_$selectedId'),
+            initialValue: currentSelection,
+            validator: (v) =>
+                isLoadingClasses ? null : (v == null ? 'Select a class' : null),
+            builder: (FormFieldState<dynamic> state) {
+              return LayoutBuilder(builder: (context, constraints) {
+                final dropdownWidth = constraints.maxWidth;
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                  child: PopupMenuButton<dynamic>(
+                    surfaceTintColor: Colors.white,
+                    color: Colors.white,
+                    enabled: !isLoadingClasses,
+                    offset: const Offset(0, 52),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: dropdownWidth,
+                      maxWidth: dropdownWidth,
+                    ),
+                    onSelected: (v) {
+                      state.didChange(v);
+                      setState(() {
+                        _selectedClass = v;
+                        _selectedSubject = null;
+                      });
+                      if (v != null) {
+                        final id =
+                            num.tryParse(v['id']?.toString() ?? '')?.toInt() ??
                                 0;
-                            if (id != 0) ctrl.loadSubjects(id);
-                          }
-                        },
-                        itemBuilder: (ctx) => ctrl.classes.map((c) {
-                          return PopupMenuItem<dynamic>(
-                            value: c,
-                            child: Text(
-                                '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontFamily: 'Inter')),
-                          );
-                        }).toList(),
-                        child: InputDecorator(
-                          decoration: _inputDecoration('Class').copyWith(
-                            errorText: state.errorText,
-                            suffixIcon: const Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color: AppColors.textSecondary),
-                          ),
-                          isEmpty: currentSelection == null,
-                          child: isLoadingClasses
-                              ? const Text(
-                                  'Loading classes...',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      fontFamily: 'Inter',
-                                      fontSize: 13.0,
-                                      color: AppColors.textSecondary),
-                                )
-                              : currentSelection == null
-                                  ? null
-                                  : Text(
-                                      '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontFamily: 'Inter',
-                                          fontSize: 13.0),
-                                    ),
-                        ),
+                        if (id != 0) ctrl.loadSubjects(id);
+                      }
+                    },
+                    itemBuilder: (ctx) => ctrl.classes.map((c) {
+                      return PopupMenuItem<dynamic>(
+                        value: c,
+                        child: Text(
+                            '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                fontFamily: 'Inter')),
+                      );
+                    }).toList(),
+                    child: InputDecorator(
+                      decoration: _inputDecoration('Class').copyWith(
+                        errorText: state.errorText,
+                        suffixIcon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary),
                       ),
-                    );
-                  },
-                );
-              }),
-              SizedBox(height: Get.height / 47.25),
-              // Subject dropdown
-              Obx(() {
-                final isLoadingSubjects = ctrl.subjectsLoading.value;
-                final selectedId = _selectedSubject?['id']?.toString();
-                final currentSelection = ctrl.subjects.firstWhereOrNull(
-                  (s) => s['id']?.toString() == selectedId,
-                );
-                return FormField<dynamic>(
-                  key: ValueKey(
-                      'subject_${selectedId}_class_${_selectedClass?['id']}'),
-                  initialValue: currentSelection,
-                  validator: (v) => isLoadingSubjects
-                      ? null
-                      : (v == null ? 'Select a subject' : null),
-                  builder: (FormFieldState<dynamic> state) {
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        hoverColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                      ),
-                      child: PopupMenuButton<dynamic>(
-                        surfaceTintColor: Colors.white,
-                        color: Colors.white,
-                        enabled: !isLoadingSubjects,
-                        offset: const Offset(0, 52),
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Get.height / 63),
-                          side: const BorderSide(color: Color(0xFFE2E8F0)),
-                        ),
-                        constraints: BoxConstraints(
-                          minWidth: MediaQuery.of(context).size.width - 40,
-                          maxWidth: MediaQuery.of(context).size.width - 40,
-                        ),
-                        onSelected: (v) {
-                          state.didChange(v);
-                          setState(() => _selectedSubject = v);
-                        },
-                        itemBuilder: (ctx) => ctrl.subjects.map((s) {
-                          return PopupMenuItem<dynamic>(
-                            value: s,
-                            child: Text(
-                              s['name'] as String? ?? '',
-                              style: const TextStyle(
+                      isEmpty: currentSelection == null,
+                      child: isLoadingClasses
+                          ? const Text(
+                              'Loading classes...',
+                              style: TextStyle(
                                   fontWeight: FontWeight.normal,
-                                  fontFamily: 'Inter'),
-                            ),
-                          );
-                        }).toList(),
-                        child: InputDecorator(
-                          decoration: _inputDecoration('Subject').copyWith(
-                            errorText: state.errorText,
-                            suffixIcon: const Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color: AppColors.textSecondary),
-                          ),
-                          isEmpty: currentSelection == null,
-                          child: currentSelection == null
+                                  fontFamily: 'Inter',
+                                  fontSize: 13.0,
+                                  color: AppColors.textSecondary),
+                            )
+                          : currentSelection == null
                               ? null
                               : Text(
-                                  currentSelection['name'] as String? ?? '',
+                                  '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'Inter',
                                       fontSize: 13.0),
                                 ),
-                        ),
-                      ),
-                    );
-                  },
+                    ),
+                  ),
                 );
-              }),
-              SizedBox(height: Get.height / 63),
-              // Title
-              TextFormField(
-                controller: _titleCtrl,
-                decoration: _inputDecoration('Homework Title'),
-                style: const TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontFamily: 'Inter',
-                ),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
-              ),
-              SizedBox(height: Get.height / 63),
-              // Description
-              TextFormField(
-                controller: _descCtrl,
-                decoration: _inputDecoration('Description (optional)').copyWith(
-                  alignLabelWithHint: true,
-                ),
-                style: const TextStyle(
-                    fontWeight: FontWeight.normal, fontFamily: 'Inter'),
-                maxLines: 4,
-              ),
-              SizedBox(height: Get.height / 63),
-              // Due date
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: _dueDateCtrl,
-                builder: (context, value, _) {
-                  return TextFormField(
-                    controller: _dueDateCtrl,
-                    readOnly: true,
-                    decoration:
-                        _inputDecoration('Due Date (Optional)').copyWith(
-                      suffixIcon: value.text.isEmpty
-                          ? const Icon(Icons.calendar_today_rounded)
-                          : IconButton(
-                              icon: const Icon(Icons.clear_rounded),
-                              onPressed: () {
-                                _dueDateCtrl.clear();
-                              },
+              });
+            },
+          );
+        });
+
+        final subjectDropdown = Obx(() {
+          final isLoadingSubjects = ctrl.subjectsLoading.value;
+          final selectedId = _selectedSubject?['id']?.toString();
+          final currentSelection = ctrl.subjects.firstWhereOrNull(
+            (s) => s['id']?.toString() == selectedId,
+          );
+          return FormField<dynamic>(
+            key: ValueKey(
+                'subject_${selectedId}_class_${_selectedClass?['id']}'),
+            initialValue: currentSelection,
+            validator: (v) => isLoadingSubjects
+                ? null
+                : (v == null ? 'Select a subject' : null),
+            builder: (FormFieldState<dynamic> state) {
+              return LayoutBuilder(builder: (context, constraints) {
+                final dropdownWidth = constraints.maxWidth;
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                  child: PopupMenuButton<dynamic>(
+                    surfaceTintColor: Colors.white,
+                    color: Colors.white,
+                    enabled: !isLoadingSubjects,
+                    offset: const Offset(0, 52),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: dropdownWidth,
+                      maxWidth: dropdownWidth,
+                    ),
+                    onSelected: (v) {
+                      state.didChange(v);
+                      setState(() => _selectedSubject = v);
+                    },
+                    itemBuilder: (ctx) => ctrl.subjects.map((s) {
+                      return PopupMenuItem<dynamic>(
+                        value: s,
+                        child: Text(
+                          s['name'] as String? ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontFamily: 'Inter'),
+                        ),
+                      );
+                    }).toList(),
+                    child: InputDecorator(
+                      decoration: _inputDecoration('Subject').copyWith(
+                        errorText: state.errorText,
+                        suffixIcon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.textSecondary),
+                      ),
+                      isEmpty: currentSelection == null,
+                      child: currentSelection == null
+                          ? null
+                          : Text(
+                              currentSelection['name'] as String? ?? '',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Inter',
+                                  fontSize: 13.0),
                             ),
                     ),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.normal, fontFamily: 'Inter'),
-                    onTap: () async {
-                      final now = DateTime.now();
-                      final today = DateTime(now.year, now.month, now.day);
-                      DateTime initial = now;
-                      final currentText = _dueDateCtrl.text;
-                      if (currentText.isNotEmpty) {
-                        final parts = currentText.split('/');
-                        if (parts.length == 3) {
-                          final d = int.tryParse(parts[0]) ?? 1;
-                          final m = int.tryParse(parts[1]) ?? 1;
-                          final y = int.tryParse(parts[2]) ?? now.year;
-                          final dt = DateTime(y, m, d);
-                          if (!dt.isBefore(today)) {
-                            initial = dt;
-                          }
-                        }
-                      }
+                  ),
+                );
+              });
+            },
+          );
+        });
 
-                      final p = await showDatePicker(
-                        context: context,
-                        initialDate: initial,
-                        firstDate: today,
-                        lastDate: DateTime(2030),
-                      );
-                      if (p != null) {
-                        _dueDateCtrl.text = formatDateTimeToDmy(p);
-                      }
-                    },
-                  );
-                },
-              ),
-              SizedBox(height: Get.height / 63),
-              InkWell(
-                onTap: _pickImage,
-                borderRadius: BorderRadius.circular(
-                  Get.height / 63,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(
-                    vertical: Get.height / 54,
-                    horizontal: Get.height / 47.25,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(Get.height / 63),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_photo_alternate_rounded,
-                          color: AppColors.primary, size: Get.height / 34.36),
-                      SizedBox(width: Get.height / 75.6),
-                      Text(
-                        'Add Images / Attachments',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: AppColors.primary,
-                        ),
+        final titleField = TextFormField(
+          controller: _titleCtrl,
+          decoration: _inputDecoration('Homework Title'),
+          style: const TextStyle(
+            fontWeight: FontWeight.normal,
+            fontFamily: 'Inter',
+          ),
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Enter a title' : null,
+        );
+
+        final descriptionField = TextFormField(
+          controller: _descCtrl,
+          decoration: _inputDecoration('Description (optional)').copyWith(
+            alignLabelWithHint: true,
+          ),
+          style: const TextStyle(
+              fontWeight: FontWeight.normal, fontFamily: 'Inter'),
+          maxLines: isTablet ? 7 : 4,
+        );
+
+        final dueDateField = ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _dueDateCtrl,
+          builder: (context, value, _) {
+            return TextFormField(
+              controller: _dueDateCtrl,
+              readOnly: true,
+              decoration: _inputDecoration('Due Date (Optional)').copyWith(
+                suffixIcon: value.text.isEmpty
+                    ? const Icon(Icons.calendar_today_rounded)
+                    : IconButton(
+                        icon: const Icon(Icons.clear_rounded),
+                        onPressed: () {
+                          _dueDateCtrl.clear();
+                        },
                       ),
+              ),
+              style: const TextStyle(
+                  fontWeight: FontWeight.normal, fontFamily: 'Inter'),
+              onTap: () async {
+                final now = DateTime.now();
+                final today = DateTime(now.year, now.month, now.day);
+                DateTime initial = now;
+                final currentText = _dueDateCtrl.text;
+                if (currentText.isNotEmpty) {
+                  final parts = currentText.split('/');
+                  if (parts.length == 3) {
+                    final d = int.tryParse(parts[0]) ?? 1;
+                    final m = int.tryParse(parts[1]) ?? 1;
+                    final y = int.tryParse(parts[2]) ?? now.year;
+                    final dt = DateTime(y, m, d);
+                    if (!dt.isBefore(today)) {
+                      initial = dt;
+                    }
+                  }
+                }
+
+                final p = await showDatePicker(
+                  context: context,
+                  initialDate: initial,
+                  firstDate: today,
+                  lastDate: DateTime(2030),
+                );
+                if (p != null) {
+                  _dueDateCtrl.text = formatDateTimeToDmy(p);
+                }
+              },
+            );
+          },
+        );
+
+        final attachButton = InkWell(
+          onTap: _pickImage,
+          borderRadius: BorderRadius.circular(
+            isTablet ? 12.0 : Get.height / 63,
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              vertical: isTablet ? 16.0 : Get.height / 54,
+              horizontal: isTablet ? 20.0 : Get.height / 47.25,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_photo_alternate_rounded,
+                    color: AppColors.primary,
+                    size: isTablet ? 24.0 : Get.height / 34.36),
+                const SizedBox(width: 8),
+                Text(
+                  'Add Images / Attachments',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final submitButton = Obx(() => SizedBox(
+              width: double.infinity,
+              height: isTablet ? 50.0 : Get.height / 14.53,
+              child: ElevatedButton(
+                onPressed: ctrl.formSubmitting.value ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(isTablet ? 12.0 : 14)),
+                ),
+                child: ctrl.formSubmitting.value
+                    ? SizedBox(
+                        width: isTablet ? 24.0 : Get.height / 34.36,
+                        height: isTablet ? 24.0 : Get.height / 34.36,
+                        child: const CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : Text(isEdit ? 'Update Homework' : 'Add Homework',
+                        style: const TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16)),
+              ),
+            ));
+
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(isTablet ? 32.0 : Get.height / 37.8),
+          child: Form(
+            key: _formKey,
+            child: isTablet
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                classDropdown,
+                                const SizedBox(height: 20),
+                                subjectDropdown,
+                                const SizedBox(height: 20),
+                                titleField,
+                                const SizedBox(height: 20),
+                                dueDateField,
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                descriptionField,
+                                const SizedBox(height: 20),
+                                attachButton,
+                                _buildAttachmentList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      submitButton,
+                    ],
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      classDropdown,
+                      SizedBox(height: Get.height / 47.25),
+                      subjectDropdown,
+                      SizedBox(height: Get.height / 63),
+                      titleField,
+                      SizedBox(height: Get.height / 63),
+                      descriptionField,
+                      SizedBox(height: Get.height / 63),
+                      dueDateField,
+                      SizedBox(height: Get.height / 63),
+                      attachButton,
+                      _buildAttachmentList(),
+                      SizedBox(height: Get.height / 27),
+                      submitButton,
                     ],
                   ),
-                ),
-              ),
-              _buildAttachmentList(),
-              SizedBox(height: Get.height / 27),
-              Obx(() => SizedBox(
-                    width: double.infinity,
-                    height: Get.height / 14.53,
-                    child: ElevatedButton(
-                      onPressed: ctrl.formSubmitting.value ? null : _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: ctrl.formSubmitting.value
-                          ? SizedBox(
-                              width: Get.height / 34.36,
-                              height: Get.height / 34.36,
-                              child: const CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : Text(isEdit ? 'Update Homework' : 'Add Homework',
-                              style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16)),
-                    ),
-                  )),
-            ]),
           ),
         );
       }),
     );
   }
 
-  InputDecoration _inputDecoration(String label) => InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 14,
-            fontFamily: 'Inter',
-            color: AppColors.textSecondary),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Get.height / 63)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(Get.height / 63),
-            borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(Get.height / 63),
-          borderSide: BorderSide(
-            color: AppColors.primary,
-            width: Get.height / 378,
-          ),
+  InputDecoration _inputDecoration(String label) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(
+          fontWeight: FontWeight.normal,
+          fontSize: 14,
+          fontFamily: 'Inter',
+          color: AppColors.textSecondary),
+      border: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(isTablet ? 12.0 : Get.height / 63)),
+      enabledBorder: OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+        borderSide: BorderSide(
+          color: AppColors.primary,
+          width: isTablet ? 2.0 : Get.height / 378,
         ),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Get.height / 47.25,
-          vertical: Get.height / 54,
-        ),
-      );
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 16.0 : Get.height / 47.25,
+        vertical: isTablet ? 14.0 : Get.height / 54,
+      ),
+    );
+  }
 
   Future<List<String>> _downloadExistingAttachments() async {
     final List<String> paths = [];
@@ -1771,7 +1878,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
       filePaths: filePaths,
     );
     if (result != null) {
-      // Update the active filter in HomeworkController to show the class that the homework was added/edited for
       ctrl.selectedClass.value = _selectedClass;
       final classId =
           num.tryParse(_selectedClass?['id']?.toString() ?? '')?.toInt();
@@ -1827,6 +1933,9 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+
     final subject = _currentHomework['subject'] as Map? ?? {};
     final cls =
         _currentHomework['class'] as Map? ?? _currentHomework['class_name'];
@@ -1836,7 +1945,6 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
     final creator = _currentHomework['assigned_by'] as Map? ?? {};
     final teacherName = creator['name'] as String? ?? 'Teacher';
     final teacherEmail = creator['email'] as String? ?? '';
-
     final attachments = _currentHomework['attachment_urls'] as List? ?? [];
 
     final List<String> imageUrls = [];
@@ -1852,6 +1960,284 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
         }
       }
     }
+
+    final infoCard = PremiumCard(
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 37.8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 12.0 : Get.height / 75.6,
+                    vertical: isTablet ? 6.0 : Get.height / 126),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(
+                      isTablet ? 16.0 : Get.height / 37.8),
+                ),
+                child: Text(
+                  subject['name'] as String? ?? 'Subject',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 12.0 : Get.height / 75.6,
+                    vertical: isTablet ? 6.0 : Get.height / 126),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(
+                      isTablet ? 16.0 : Get.height / 37.8),
+                ),
+                child: Text(
+                  clsName,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    color: AppColors.secondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: isTablet ? 20.0 : Get.height / 47.25),
+          Text(
+            _currentHomework['title'] as String? ?? 'Homework Title',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w800,
+              fontSize: isTablet ? 22 : 20,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          SizedBox(height: isTablet ? 16.0 : Get.height / 63),
+          const Divider(color: Color(0xFFF1F5F9)),
+          SizedBox(height: isTablet ? 12.0 : Get.height / 94.5),
+          const Text(
+            'Description',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          Text(
+            _currentHomework['description'] != null &&
+                    (_currentHomework['description'] as String).isNotEmpty
+                ? _currentHomework['description'] as String
+                : 'No description provided.',
+            style: const TextStyle(
+              fontWeight: FontWeight.normal,
+              fontFamily: 'Inter',
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final summaryCard = PremiumCard(
+      padding: EdgeInsets.all(
+        isTablet ? 24.0 : Get.height / 42,
+      ),
+      child: Column(
+        children: [
+          _DetailRow(
+            icon: Icons.calendar_today_rounded,
+            iconColor: Colors.blue,
+            title: 'Assigned Date',
+            value: _formatDate(_currentHomework['created_at'] as String?),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: isTablet ? 16.0 : Get.height / 63),
+            child: const Divider(color: Color(0xFFF1F5F9)),
+          ),
+          _DetailRow(
+            icon: Icons.event_available_rounded,
+            iconColor: Colors.orange,
+            title: 'Due Date',
+            value: _formatDate(_currentHomework['due_date'] as String?),
+            valueColor: AppColors.warning,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: isTablet ? 16.0 : Get.height / 63),
+            child: const Divider(color: Color(0xFFF1F5F9)),
+          ),
+          _DetailRow(
+            icon: Icons.person_outline_rounded,
+            iconColor: Colors.purple,
+            title: 'Assigned By',
+            value: teacherName,
+            subtitle: teacherEmail,
+          ),
+        ],
+      ),
+    );
+
+    final imagesSection = imageUrls.isEmpty
+        ? const SizedBox.shrink()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Images',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: Color.fromRGBO(26, 16, 37, 1),
+                ),
+              ),
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: imageUrls.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isTablet ? 4 : 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.0,
+                ),
+                itemBuilder: (ctx, idx) {
+                  final url = imageUrls[idx];
+                  return GestureDetector(
+                    onTap: () => Get.to(
+                      () => FullScreenImage(
+                        imageUrls: imageUrls,
+                        initialIndex: idx,
+                      ),
+                      transition: Transition.fade,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        color: Colors.white,
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              const ShimmerCard(radius: 12),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.broken_image_rounded,
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+
+    final documentsSection = docUrls.isEmpty
+        ? const SizedBox.shrink()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Documents',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: docUrls.length,
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: isTablet ? 12 : Get.height / 63),
+                itemBuilder: (ctx, idx) {
+                  final url = docUrls[idx];
+                  return PremiumCard(
+                    padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 54),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(
+                              isTablet ? 8.0 : Get.height / 75.6),
+                          decoration: BoxDecoration(
+                            color: AppColors.danger.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.picture_as_pdf_rounded,
+                            color: AppColors.danger,
+                            size: isTablet ? 24 : Get.height / 31.5,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                url.split('/').last,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const Text(
+                                'Document File',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontFamily: 'Inter',
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => _launchUrl(url),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            textStyle: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          child: const Text('View'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
 
     return Stack(
       children: [
@@ -1872,14 +2258,17 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                 _currentHomework['title'] as String? ?? 'Homework Details',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     color: Colors.white,
                     fontFamily: 'Inter',
+                    fontSize: isTablet ? 18.0 : 16.0,
                     fontWeight: FontWeight.w700)),
             actions: [
               Padding(
-                padding:
-                    const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+                padding: isTablet
+                    ? const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0)
+                    : const EdgeInsets.only(
+                        right: 16.0, top: 10.0, bottom: 10.0),
                 child: OutlinedButton(
                   onPressed: _isNavigating
                       ? null
@@ -1903,12 +2292,13 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.white, width: 1.5),
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 18.0 : 12.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -1916,13 +2306,13 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontWeight: FontWeight.w600,
-                          fontSize: 12.0,
+                          fontSize: isTablet ? 14.0 : 12.0,
                           color: Colors.white,
                         ),
                       ),
                       Icon(
                         Icons.edit_rounded,
-                        size: 16.0,
+                        size: isTablet ? 18.0 : 16.0,
                         color: Colors.white,
                       ),
                     ],
@@ -1932,292 +2322,22 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
             ],
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.all(isTablet ? 32.0 : Get.height / 47.25),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Subject and Class Info Card
-                PremiumCard(
-                  padding: EdgeInsets.all(Get.height / 37.8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: Get.height / 75.6,
-                                vertical: Get.height / 126),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius:
-                                  BorderRadius.circular(Get.height / 37.8),
-                            ),
-                            child: Text(
-                              subject['name'] as String? ?? 'Subject',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: Get.height / 94.5),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: Get.height / 75.6,
-                                vertical: Get.height / 126),
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary.withOpacity(0.1),
-                              borderRadius:
-                                  BorderRadius.circular(Get.height / 37.8),
-                            ),
-                            child: Text(
-                              clsName,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: Get.height / 47.25),
-                      Text(
-                        _currentHomework['title'] as String? ??
-                            'Homework Title',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w800,
-                          fontSize: 20,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(height: Get.height / 63),
-                      const Divider(color: Color(0xFFF1F5F9)),
-                      SizedBox(height: Get.height / 94.5),
-                      Text(
-                        'Description',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      SizedBox(
-                        height: Get.height / 126,
-                      ),
-                      Text(
-                        _currentHomework['description'] != null &&
-                                (_currentHomework['description'] as String)
-                                    .isNotEmpty
-                            ? _currentHomework['description'] as String
-                            : 'No description provided.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: Get.height / 47.25),
-
-                // Date & Teacher Summary Card
-                PremiumCard(
-                  padding: EdgeInsets.all(
-                    Get.height / 42,
-                  ),
-                  child: Column(
-                    children: [
-                      _DetailRow(
-                        icon: Icons.calendar_today_rounded,
-                        iconColor: Colors.blue,
-                        title: 'Assigned Date',
-                        value: _formatDate(
-                            _currentHomework['created_at'] as String?),
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: Get.height / 63),
-                        child: Divider(color: Color(0xFFF1F5F9)),
-                      ),
-                      _DetailRow(
-                        icon: Icons.event_available_rounded,
-                        iconColor: Colors.orange,
-                        title: 'Due Date',
-                        value: _formatDate(
-                            _currentHomework['due_date'] as String?),
-                        valueColor: AppColors.warning,
-                      ),
-                      Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: Get.height / 63),
-                        child: Divider(color: Color(0xFFF1F5F9)),
-                      ),
-                      _DetailRow(
-                        icon: Icons.person_outline_rounded,
-                        iconColor: Colors.purple,
-                        title: 'Assigned By',
-                        value: teacherName,
-                        subtitle: teacherEmail,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: Get.height / 37.8),
-
-                // Attachment Section
-                if (imageUrls.isNotEmpty) ...[
-                  Text(
-                    'Images',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: Color.fromRGBO(26, 16, 37, 1),
-                    ),
-                  ),
-                  SizedBox(height: Get.height / 75.6),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: imageUrls.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemBuilder: (ctx, idx) {
-                      final url = imageUrls[idx];
-                      return GestureDetector(
-                        onTap: () => Get.to(
-                          () => FullScreenImage(
-                            imageUrls: imageUrls,
-                            initialIndex: idx,
-                          ),
-                          transition: Transition.fade,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            color: Colors.white,
-                            child: CachedNetworkImage(
-                              imageUrl: url,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) =>
-                                  const ShimmerCard(radius: 12),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.broken_image_rounded,
-                                color: AppColors.textTertiary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: Get.height / 47.25),
-                ],
-                if (docUrls.isNotEmpty) ...[
-                  Text(
-                    'Documents',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: Get.height / 75.6),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: docUrls.length,
-                    separatorBuilder: (_, __) =>
-                        SizedBox(height: Get.height / 63),
-                    itemBuilder: (ctx, idx) {
-                      final url = docUrls[idx];
-                      return PremiumCard(
-                        padding: EdgeInsets.all(Get.height / 54),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(Get.height / 75.6),
-                              decoration: BoxDecoration(
-                                color: AppColors.danger.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.picture_as_pdf_rounded,
-                                color: AppColors.danger,
-                                size: Get.height / 31.5,
-                              ),
-                            ),
-                            SizedBox(width: Get.height / 54),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    url.split('/').last,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: 'Inter',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Document File',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      fontFamily: 'Inter',
-                                      fontSize: 11,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () => _launchUrl(url),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: Get.height / 54,
-                                    vertical: Get.height / 94.5),
-                                textStyle: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              child: const Text('View'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                infoCard,
+                SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
+                summaryCard,
+                SizedBox(height: isTablet ? 24.0 : Get.height / 37.8),
+                imagesSection,
+                if (imageUrls.isNotEmpty)
+                  SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
+                documentsSection,
               ],
             ),
           ),
-        ), // end Scaffold
-        // Loading overlay when navigating to edit screen
+        ),
         if (_isNavigating)
           Container(
             color: Colors.black.withOpacity(0.15),
@@ -2229,8 +2349,8 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
               ),
             ),
           ),
-      ], // end Stack children
-    ); // end Stack
+      ],
+    );
   }
 }
 
@@ -2402,18 +2522,21 @@ class _HomeworkClassesLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Padding(
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
       child: Column(
         children: [
           const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 47.25),
+          SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
           Expanded(
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 6,
-              separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
-              itemBuilder: (_, __) => const ShimmerCard(height: 80, radius: 14),
+              separatorBuilder: (_, __) =>
+                  SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
+              itemBuilder: (_, __) =>
+                  ShimmerCard(height: isTablet ? 100 : 80, radius: 14),
             ),
           ),
         ],
@@ -2428,12 +2551,15 @@ class _HomeworkListLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
       itemCount: 6,
-      separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
-      itemBuilder: (_, __) => const ShimmerCard(height: 80, radius: 14),
+      separatorBuilder: (_, __) =>
+          SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
+      itemBuilder: (_, __) =>
+          ShimmerCard(height: isTablet ? 100 : 80, radius: 14),
     );
   }
 }
@@ -2444,26 +2570,63 @@ class _HomeworkFormShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Padding(
-      padding: EdgeInsets.all(Get.height / 37.8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 47.25),
-          const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 47.25),
-          const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 47.25),
-          const ShimmerCard(height: 100, radius: 12),
-          SizedBox(height: Get.height / 47.25),
-          const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 47.25),
-          const ShimmerCard(height: 100, radius: 12),
-          SizedBox(height: Get.height / 27),
-          const ShimmerCard(height: 56, radius: 14),
-        ],
-      ),
+      padding: EdgeInsets.all(isTablet ? 32.0 : Get.height / 37.8),
+      child: isTablet
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          ShimmerCard(height: 54, radius: 12),
+                          SizedBox(height: 20),
+                          ShimmerCard(height: 54, radius: 12),
+                          SizedBox(height: 20),
+                          ShimmerCard(height: 54, radius: 12),
+                          SizedBox(height: 20),
+                          ShimmerCard(height: 54, radius: 12),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 24),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          ShimmerCard(height: 180, radius: 12),
+                          SizedBox(height: 20),
+                          ShimmerCard(height: 54, radius: 12),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                const ShimmerCard(height: 56, radius: 14),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ShimmerCard(height: 54, radius: 12),
+                SizedBox(height: Get.height / 47.25),
+                const ShimmerCard(height: 54, radius: 12),
+                SizedBox(height: Get.height / 47.25),
+                const ShimmerCard(height: 54, radius: 12),
+                SizedBox(height: Get.height / 47.25),
+                const ShimmerCard(height: 100, radius: 12),
+                SizedBox(height: Get.height / 47.25),
+                const ShimmerCard(height: 54, radius: 12),
+                SizedBox(height: Get.height / 47.25),
+                const ShimmerCard(height: 100, radius: 12),
+                SizedBox(height: Get.height / 27),
+                const ShimmerCard(height: 56, radius: 14),
+              ],
+            ),
     );
   }
 }

@@ -149,6 +149,9 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.put(DashboardController());
     final auth = Get.find<AuthController>();
+    final mediaQuery = MediaQuery.of(context);
+    final width = mediaQuery.size.width;
+    final isTablet = width >= 600;
 
     return PopScope(
       canPop: false,
@@ -182,7 +185,7 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: 130,
+                  expandedHeight: isTablet ? 170.0 : 130.0,
                   pinned: true,
                   stretch: true,
                   backgroundColor: AppColors.primary,
@@ -193,7 +196,8 @@ class DashboardScreen extends StatelessWidget {
                     final double statusBarHeight =
                         MediaQuery.of(context).padding.top;
                     final double minHeight = statusBarHeight + kToolbarHeight;
-                    final double maxHeight = 130.0 + statusBarHeight;
+                    final double maxHeight =
+                        (isTablet ? 170.0 : 130.0) + statusBarHeight;
 
                     final double delta = maxHeight - minHeight;
                     final double collapsePercent =
@@ -217,8 +221,8 @@ class DashboardScreen extends StatelessWidget {
                           right: -30,
                           top: -20,
                           child: Container(
-                            width: Get.height / 4.72,
-                            height: Get.height / 4.72,
+                            width: isTablet ? 260.0 : 170.0,
+                            height: isTablet ? 260.0 : 170.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.08),
@@ -229,8 +233,8 @@ class DashboardScreen extends StatelessWidget {
                           left: -40,
                           bottom: 20,
                           child: Container(
-                            width: Get.height / 6.3,
-                            height: Get.height / 6.3,
+                            width: isTablet ? 200.0 : 127.0,
+                            height: isTablet ? 200.0 : 127.0,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white.withOpacity(0.05),
@@ -247,10 +251,10 @@ class DashboardScreen extends StatelessWidget {
                               opacity: expandedOpacity,
                               child: Padding(
                                 padding: EdgeInsets.fromLTRB(
-                                  Get.height / 37.8,
+                                  isTablet ? 32.0 : 20.0,
                                   0,
-                                  Get.height / 37.85,
-                                  Get.height / 50.4,
+                                  isTablet ? 32.0 : 20.0,
+                                  isTablet ? 24.0 : 16.0,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,16 +273,18 @@ class DashboardScreen extends StatelessWidget {
                                                     color: Colors.white
                                                         .withOpacity(0.85),
                                                     fontFamily: 'Inter',
-                                                    fontSize: 12,
+                                                    fontSize:
+                                                        isTablet ? 16.0 : 12.0,
                                                     fontWeight: FontWeight.w400,
                                                   )),
                                               SizedBox(
-                                                  height: Get.height / 189),
+                                                  height: isTablet ? 8.0 : 4.0),
                                               Text(name,
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontFamily: 'Inter',
-                                                    fontSize: 18,
+                                                    fontSize:
+                                                        isTablet ? 28.0 : 20.0,
                                                     fontWeight: FontWeight.w600,
                                                   )),
                                             ],
@@ -289,67 +295,68 @@ class DashboardScreen extends StatelessWidget {
                                               AppRoutes.notifications),
                                           child: Container(
                                             padding: EdgeInsets.all(
-                                                Get.height / 75.6),
+                                                isTablet ? 14.0 : 10.0),
                                             decoration: BoxDecoration(
                                               color: Colors.white
                                                   .withOpacity(0.15),
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                      Get.height / 63),
+                                                      isTablet ? 16.0 : 12.0),
                                             ),
                                             child: Icon(
                                                 Icons.notifications_rounded,
                                                 color: Colors.white,
-                                                size: Get.height / 37.8),
+                                                size: isTablet ? 28.0 : 22.0),
                                           ),
                                         ),
-                                        SizedBox(width: Get.height / 94.5),
+                                        SizedBox(width: isTablet ? 12.0 : 8.0),
                                         GestureDetector(
                                           onTap: () =>
                                               _showLogoutConfirm(context, auth),
                                           child: Container(
                                             padding: EdgeInsets.all(
-                                                Get.height / 75.6),
+                                                isTablet ? 14.0 : 10.0),
                                             decoration: BoxDecoration(
                                               color: Colors.white
                                                   .withOpacity(0.15),
                                               borderRadius:
                                                   BorderRadius.circular(
-                                                      Get.height / 63),
+                                                      isTablet ? 16.0 : 12.0),
                                             ),
                                             child: Icon(
                                               Icons.logout_rounded,
                                               color: Colors.white,
-                                              size: Get.height / 37.8,
+                                              size: isTablet ? 28.0 : 22.0,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
                                     SizedBox(
-                                      height: Get.height / 63,
+                                      height: isTablet ? 16.0 : 12.0,
                                     ),
                                     Container(
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: Get.height / 63,
-                                          vertical: Get.height / 126),
+                                          horizontal: isTablet ? 14.0 : 10.0,
+                                          vertical: isTablet ? 8.0 : 6.0),
                                       decoration: BoxDecoration(
                                         color: Colors.white.withOpacity(0.15),
                                         borderRadius: BorderRadius.circular(
-                                            Get.height / 37.8),
+                                            isTablet ? 24.0 : 16.0),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Container(
-                                            width: Get.height / 94.5,
-                                            height: Get.height / 94.5,
+                                            width: isTablet ? 10.0 : 8.0,
+                                            height: isTablet ? 10.0 : 8.0,
                                             decoration: const BoxDecoration(
                                               color: Color(0xFF4ADE80),
                                               shape: BoxShape.circle,
                                             ),
                                           ),
-                                          SizedBox(width: Get.height / 126),
+                                          SizedBox(
+                                              width: isTablet ? 10.0 : 6.0),
                                           Text(
                                             user?['employee_id'] != null
                                                 ? 'ID: ${user!['employee_id']}'
@@ -358,7 +365,7 @@ class DashboardScreen extends StatelessWidget {
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Inter',
-                                              fontSize: 12,
+                                              fontSize: isTablet ? 14.0 : 12.0,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -382,7 +389,7 @@ class DashboardScreen extends StatelessWidget {
                               opacity: collapsedOpacity,
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: Get.height / 37.8),
+                                    horizontal: isTablet ? 32.0 : 20.0),
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -398,17 +405,17 @@ class DashboardScreen extends StatelessWidget {
                                               color: Colors.white
                                                   .withOpacity(0.85),
                                               fontFamily: 'Inter',
-                                              fontSize: 12,
+                                              fontSize: isTablet ? 14.0 : 12.0,
                                               fontWeight: FontWeight.w400,
                                             ),
                                           ),
-                                          const SizedBox(height: 2),
+                                          const SizedBox(height: 2.0),
                                           Text(
                                             name,
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'Inter',
-                                              fontSize: 15,
+                                              fontSize: isTablet ? 22.0 : 16.0,
                                               fontWeight: FontWeight.w700,
                                             ),
                                             maxLines: 1,
@@ -421,35 +428,35 @@ class DashboardScreen extends StatelessWidget {
                                       onTap: () =>
                                           Get.toNamed(AppRoutes.notifications),
                                       child: Container(
-                                        padding:
-                                            EdgeInsets.all(Get.height / 75.6),
+                                        padding: EdgeInsets.all(
+                                            isTablet ? 12.0 : 10.0),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.15),
                                           borderRadius: BorderRadius.circular(
-                                              Get.height / 37.8),
+                                              isTablet ? 24.0 : 16.0),
                                         ),
                                         child: Icon(Icons.notifications_rounded,
                                             color: Colors.white,
-                                            size: Get.height / 37.8),
+                                            size: isTablet ? 26.0 : 22.0),
                                       ),
                                     ),
                                     SizedBox(
-                                      width: Get.height / 94.5,
+                                      width: isTablet ? 12.0 : 8.0,
                                     ),
                                     GestureDetector(
                                       onTap: () =>
                                           _showLogoutConfirm(context, auth),
                                       child: Container(
-                                        padding:
-                                            EdgeInsets.all(Get.height / 75.6),
+                                        padding: EdgeInsets.all(
+                                            isTablet ? 12.0 : 10.0),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.15),
                                           borderRadius: BorderRadius.circular(
-                                              Get.height / 63),
+                                              isTablet ? 16.0 : 12.0),
                                         ),
                                         child: Icon(Icons.logout_rounded,
                                             color: Colors.white,
-                                            size: Get.height / 37.8),
+                                            size: isTablet ? 26.0 : 22.0),
                                       ),
                                     ),
                                   ],
@@ -467,16 +474,16 @@ class DashboardScreen extends StatelessWidget {
                 if (ctrl.isLoading.value) ...[
                   // Shimmer Stats grid
                   SliverPadding(
-                    padding: EdgeInsets.fromLTRB(Get.height / 47.25,
-                        Get.height / 37.8, Get.height / 47.25, 0),
+                    padding: EdgeInsets.fromLTRB(isTablet ? 32.0 : 16.0,
+                        isTablet ? 32.0 : 20.0, isTablet ? 32.0 : 16.0, 0),
                     sliver: SliverGrid.count(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.1,
-                      children: const [
-                        ShimmerCard(radius: 16),
-                        ShimmerCard(radius: 16),
+                      crossAxisSpacing: isTablet ? 24.0 : 12.0,
+                      mainAxisSpacing: isTablet ? 24.0 : 12.0,
+                      childAspectRatio: isTablet ? 2.5 : 1.1,
+                      children: [
+                        ShimmerCard(radius: isTablet ? 20.0 : 16.0),
+                        ShimmerCard(radius: isTablet ? 20.0 : 16.0),
                       ],
                     ),
                   ),
@@ -485,7 +492,7 @@ class DashboardScreen extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                          0, Get.height / 31.5, 0, Get.height / 63),
+                          0, isTablet ? 40.0 : 24.0, 0, isTablet ? 20.0 : 12.0),
                       child: const SectionHeader(
                         title: 'Quick Actions',
                       ),
@@ -495,16 +502,16 @@ class DashboardScreen extends StatelessWidget {
                   // Shimmer Quick Actions Grid
                   SliverPadding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: Get.height / 47.25,
+                      horizontal: isTablet ? 32.0 : 16.0,
                     ),
                     sliver: SliverGrid.count(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.0,
+                      crossAxisCount: isTablet ? 5 : 3,
+                      crossAxisSpacing: isTablet ? 18.0 : 12.0,
+                      mainAxisSpacing: isTablet ? 18.0 : 12.0,
+                      childAspectRatio: isTablet ? 0.85 : 0.9,
                       children: List.generate(
-                        6,
-                        (index) => const ShimmerCard(radius: 12),
+                        7,
+                        (index) => ShimmerCard(radius: isTablet ? 16.0 : 12.0),
                       ),
                     ),
                   ),
@@ -513,7 +520,7 @@ class DashboardScreen extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                          0, Get.height / 31.5, 0, Get.height / 31.5),
+                          0, isTablet ? 40.0 : 24.0, 0, isTablet ? 24.0 : 16.0),
                       child: const SectionHeader(
                         title: 'Recent Homework',
                       ),
@@ -523,17 +530,20 @@ class DashboardScreen extends StatelessWidget {
                   // Shimmer Recent Homework List
                   SliverPadding(
                     padding: EdgeInsets.fromLTRB(
-                      Get.height / 47.25,
+                      isTablet ? 32.0 : 16.0,
                       0,
-                      Get.height / 47.25,
-                      Get.height / 50.4,
+                      isTablet ? 32.0 : 16.0,
+                      isTablet ? 24.0 : 16.0,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (ctx, i) {
                           return Padding(
-                            padding: EdgeInsets.only(bottom: Get.height / 75.6),
-                            child: const ShimmerCard(height: 70, radius: 12),
+                            padding:
+                                EdgeInsets.only(bottom: isTablet ? 16.0 : 10.0),
+                            child: ShimmerCard(
+                                height: isTablet ? 90.0 : 70.0,
+                                radius: isTablet ? 16.0 : 12.0),
                           );
                         },
                         childCount: 3,
@@ -543,13 +553,13 @@ class DashboardScreen extends StatelessWidget {
                 ] else ...[
                   // Stats grid
                   SliverPadding(
-                    padding: EdgeInsets.fromLTRB(Get.height / 47.25,
-                        Get.height / 37.8, Get.height / 47.25, 0),
+                    padding: EdgeInsets.fromLTRB(isTablet ? 32.0 : 16.0,
+                        isTablet ? 32.0 : 20.0, isTablet ? 32.0 : 16.0, 0),
                     sliver: SliverGrid.count(
                       crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.1,
+                      crossAxisSpacing: isTablet ? 24.0 : 12.0,
+                      mainAxisSpacing: isTablet ? 24.0 : 12.0,
+                      childAspectRatio: isTablet ? 2.5 : 1.1,
                       children: [
                         FadeInUp(
                           duration: const Duration(milliseconds: 300),
@@ -574,28 +584,6 @@ class DashboardScreen extends StatelessWidget {
                             },
                           ),
                         ),
-                        // FadeInUp(
-                        //   duration: const Duration(milliseconds: 400),
-                        //   child: StatCard(
-                        //     title: 'Homework',
-                        //     value: ctrl.dashData.value?['pending_homework']
-                        //             ?.toString() ??
-                        //         '--',
-                        //     icon: Icons.assignment_rounded,
-                        //     gradient: AppColors.gradientOrange,
-                        //     onTap: () => Get.toNamed(AppRoutes.homework),
-                        //   ),
-                        // ),
-                        // FadeInUp(
-                        //   duration: const Duration(milliseconds: 450),
-                        //   child: StatCard(
-                        //     title: 'Leave Requests',
-                        //     value: ctrl.pendingLeaves.length.toString(),
-                        //     icon: Icons.event_busy_rounded,
-                        //     gradient: AppColors.gradientRed,
-                        //     onTap: () => Get.toNamed(AppRoutes.leaves),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -604,7 +592,7 @@ class DashboardScreen extends StatelessWidget {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(
-                          0, Get.height / 31.5, 0, Get.height / 63),
+                          0, isTablet ? 40.0 : 24.0, 0, isTablet ? 20.0 : 12.0),
                       child: const SectionHeader(
                         title: 'Quick Actions',
                       ),
@@ -612,13 +600,13 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   SliverPadding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: Get.height / 47.25,
+                      horizontal: isTablet ? 32.0 : 16.0,
                     ),
                     sliver: SliverGrid.count(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.0,
+                      crossAxisCount: isTablet ? 5 : 3,
+                      crossAxisSpacing: isTablet ? 18.0 : 12.0,
+                      mainAxisSpacing: isTablet ? 18.0 : 12.0,
+                      childAspectRatio: isTablet ? 0.85 : 0.9,
                       children: [
                         _QuickAction(
                           icon: Icons.fact_check_rounded,
@@ -676,8 +664,8 @@ class DashboardScreen extends StatelessWidget {
                   if (ctrl.recentHomework.isNotEmpty) ...[
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            0, Get.height / 31.5, 0, Get.height / 31.5),
+                        padding: EdgeInsets.fromLTRB(0, isTablet ? 40.0 : 24.0,
+                            0, isTablet ? 24.0 : 16.0),
                         child: SectionHeader(
                           title: 'Recent Homework',
                           actionLabel: 'View All',
@@ -690,10 +678,10 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(
-                        Get.height / 47.25,
+                        isTablet ? 32.0 : 16.0,
                         0,
-                        Get.height / 47.25,
-                        Get.height / 50.4,
+                        isTablet ? 32.0 : 16.0,
+                        isTablet ? 24.0 : 16.0,
                       ),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
@@ -710,83 +698,87 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     ),
                   ],
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: Get.height / 31.5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Powered by',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: Get.height / 63,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          SizedBox(
-                            width: Get.height / 151.2,
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              final Uri url = Uri.parse(
-                                  'https://www.emaadinfotech.com/get-in-touch');
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            },
-                            child: Text(
-                              'Emaad Infotech®',
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: Get.height / 63,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ],
             ),
           );
         }),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Container(
+            color: const Color(0xFFF7F8FC),
+            padding: EdgeInsets.symmetric(vertical: isTablet ? 20.0 : 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Powered by',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: isTablet ? 14.0 : 12.0,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(
+                  width: isTablet ? 8.0 : 4.0,
+                ),
+                GestureDetector(
+                  onTap: () async {
+                    final Uri url =
+                        Uri.parse('https://www.emaadinfotech.com/get-in-touch');
+                    await launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  },
+                  child: Text(
+                    'Emaad Infotech®',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: isTablet ? 14.0 : 12.0,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   void _showExitConfirm(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
-            Get.height / 31.5,
+            isTablet ? 24.0 : 16.0,
           ),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
           padding: EdgeInsets.all(
-            Get.height / 31.5,
+            isTablet ? 32.0 : 20.0,
           ),
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(
-              Get.height / 31.5,
+              isTablet ? 24.0 : 16.0,
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
-                blurRadius: Get.height / 37.8,
+                blurRadius: 16.0,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -796,8 +788,8 @@ class DashboardScreen extends StatelessWidget {
             children: [
               // Beautiful Double-Ring Gradient Glow Icon Header
               Container(
-                width: Get.height / 11.11,
-                height: Get.height / 11.11,
+                width: isTablet ? 90.0 : 70.0,
+                height: isTablet ? 90.0 : 70.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
@@ -811,8 +803,8 @@ class DashboardScreen extends StatelessWidget {
                 ),
                 child: Center(
                   child: Container(
-                    width: Get.height / 15.12,
-                    height: Get.height / 15.12,
+                    width: isTablet ? 64.0 : 48.0,
+                    height: isTablet ? 64.0 : 48.0,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
@@ -821,26 +813,26 @@ class DashboardScreen extends StatelessWidget {
                       child: Icon(
                         Icons.power_settings_new_rounded,
                         color: AppColors.primary,
-                        size: Get.height / 27,
+                        size: isTablet ? 36.0 : 28.0,
                       ),
                     ),
                   ),
                 ),
               ),
               SizedBox(
-                height: Get.height / 37.8,
+                height: isTablet ? 24.0 : 16.0,
               ),
               // Title
               Text(
                 'Exit App?',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 20,
+                  fontSize: isTablet ? 22.0 : 18.0,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
-              SizedBox(height: Get.height / 75.6),
+              SizedBox(height: isTablet ? 12.0 : 8.0),
               // Description
               Text(
                 'Are you sure you want to close the app?',
@@ -848,12 +840,12 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: isTablet ? 15.0 : 13.0,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
               ),
-              SizedBox(height: Get.height / 31.5),
+              SizedBox(height: isTablet ? 32.0 : 24.0),
               // Premium buttons side by side
               Row(
                 children: [
@@ -861,11 +853,11 @@ class DashboardScreen extends StatelessWidget {
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
-                          vertical: Get.height / 54,
+                          vertical: isTablet ? 16.0 : 12.0,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            Get.height / 63,
+                            isTablet ? 14.0 : 12.0,
                           ),
                         ),
                         side: const BorderSide(color: Color(0xFFE2E8F0)),
@@ -876,7 +868,7 @@ class DashboardScreen extends StatelessWidget {
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: isTablet ? 15.0 : 13.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -889,10 +881,11 @@ class DashboardScreen extends StatelessWidget {
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        padding:
-                            EdgeInsets.symmetric(vertical: Get.height / 54),
+                        padding: EdgeInsets.symmetric(
+                            vertical: isTablet ? 16.0 : 12.0),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Get.height / 63),
+                          borderRadius:
+                              BorderRadius.circular(isTablet ? 14.0 : 12.0),
                         ),
                       ),
                       onPressed: () {
@@ -903,7 +896,7 @@ class DashboardScreen extends StatelessWidget {
                         'Exit',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: isTablet ? 15.0 : 13.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -919,31 +912,33 @@ class DashboardScreen extends StatelessWidget {
   }
 
   void _showLogoutConfirm(BuildContext context, AuthController auth) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(
-            Get.height / 31.5,
+            isTablet ? 24.0 : 16.0,
           ),
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
           padding: EdgeInsets.all(
-            Get.height / 34.5,
+            isTablet ? 32.0 : 20.0,
           ),
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(
-              Get.height / 31.5,
+              isTablet ? 24.0 : 16.0,
             ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.08),
-                blurRadius: Get.height / 37.8,
+                blurRadius: 16.0,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -953,8 +948,8 @@ class DashboardScreen extends StatelessWidget {
             children: [
               // Icon with custom circular gradient background
               Container(
-                width: Get.height / 11.81,
-                height: Get.height / 11.81,
+                width: isTablet ? 80.0 : 60.0,
+                height: isTablet ? 80.0 : 60.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.danger.withOpacity(0.1),
@@ -963,25 +958,25 @@ class DashboardScreen extends StatelessWidget {
                   child: Icon(
                     Icons.logout_rounded,
                     color: AppColors.danger,
-                    size: Get.height / 23.62,
+                    size: isTablet ? 36.0 : 28.0,
                   ),
                 ),
               ),
               SizedBox(
-                height: Get.height / 37.8,
+                height: isTablet ? 24.0 : 16.0,
               ),
               // Title
               Text(
                 'Logout',
                 style: TextStyle(
                   fontFamily: 'Inter',
-                  fontSize: 20,
+                  fontSize: isTablet ? 22.0 : 18.0,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
               SizedBox(
-                height: Get.height / 75.6,
+                height: isTablet ? 12.0 : 8.0,
               ),
               // Subtitle/Content
               Text(
@@ -990,13 +985,13 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: 14,
+                  fontSize: isTablet ? 15.0 : 13.0,
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
               ),
               SizedBox(
-                height: Get.height / 31.5,
+                height: isTablet ? 32.0 : 24.0,
               ),
               // Buttons
               Row(
@@ -1005,11 +1000,11 @@ class DashboardScreen extends StatelessWidget {
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(
-                          vertical: Get.height / 54,
+                          vertical: isTablet ? 16.0 : 12.0,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            Get.height / 63,
+                            isTablet ? 14.0 : 12.0,
                           ),
                         ),
                         side: BorderSide(color: Colors.grey.shade200),
@@ -1020,14 +1015,14 @@ class DashboardScreen extends StatelessWidget {
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: isTablet ? 15.0 : 13.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
                   SizedBox(
-                    width: Get.height / 63,
+                    width: isTablet ? 16.0 : 12.0,
                   ),
                   Expanded(
                     child: ElevatedButton(
@@ -1036,11 +1031,11 @@ class DashboardScreen extends StatelessWidget {
                         foregroundColor: Colors.white,
                         elevation: 0,
                         padding: EdgeInsets.symmetric(
-                          vertical: Get.height / 54,
+                          vertical: isTablet ? 16.0 : 12.0,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                            Get.height / 63,
+                            isTablet ? 14.0 : 12.0,
                           ),
                         ),
                       ),
@@ -1052,7 +1047,7 @@ class DashboardScreen extends StatelessWidget {
                         'Logout',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 15,
+                          fontSize: isTablet ? 15.0 : 13.0,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1082,61 +1077,65 @@ class _QuickAction extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(
-              Get.height / 47.25,
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 12.0 : 6.0, vertical: isTablet ? 16.0 : 8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(
+            isTablet ? 20.0 : 16.0,
+          ),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
             ),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: Get.height / 17.18,
-                height: Get.height / 17.18,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(Get.height / 63),
-                  border: Border.all(color: color.withOpacity(0.2)),
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: Get.height / 37.8,
-                ),
-              ),
-              SizedBox(
-                height: Get.height / 94.5,
-              ),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
+          ],
         ),
-      );
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: isTablet ? 60.0 : 44.0,
+              height: isTablet ? 60.0 : 44.0,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(isTablet ? 16.0 : 12.0),
+                border: Border.all(color: color.withOpacity(0.2)),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: isTablet ? 28.0 : 22.0,
+              ),
+            ),
+            SizedBox(
+              height: isTablet ? 12.0 : 8.0,
+            ),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: isTablet ? 13.0 : 11.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textPrimary,
+                height: 1.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _HomeworkTile extends StatefulWidget {
@@ -1152,6 +1151,7 @@ class _HomeworkTileState extends State<_HomeworkTile> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return GestureDetector(
       onTap: _isLoading
           ? null
@@ -1163,12 +1163,12 @@ class _HomeworkTileState extends State<_HomeworkTile> {
       child: Stack(
         children: [
           Container(
-            margin: EdgeInsets.only(bottom: Get.height / 75.6),
-            padding: EdgeInsets.all(Get.height / 54),
+            margin: EdgeInsets.only(bottom: isTablet ? 16.0 : 10.0),
+            padding: EdgeInsets.all(isTablet ? 20.0 : 14.0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(
-                Get.height / 54,
+                isTablet ? 18.0 : 12.0,
               ),
               border: Border.all(color: const Color(0xFFF1F5F9)),
               boxShadow: [
@@ -1182,22 +1182,22 @@ class _HomeworkTileState extends State<_HomeworkTile> {
             child: Row(
               children: [
                 Container(
-                  width: Get.height / 18.9,
-                  height: Get.height / 18.9,
+                  width: isTablet ? 54.0 : 42.0,
+                  height: isTablet ? 54.0 : 42.0,
                   decoration: BoxDecoration(
                     gradient: AppColors.gradientOrange,
                     borderRadius: BorderRadius.circular(
-                      Get.height / 75.6,
+                      isTablet ? 14.0 : 10.0,
                     ),
                   ),
                   child: Icon(
                     Icons.assignment_rounded,
                     color: Colors.white,
-                    size: Get.height / 37.8,
+                    size: isTablet ? 28.0 : 22.0,
                   ),
                 ),
                 SizedBox(
-                  width: Get.height / 63,
+                  width: isTablet ? 18.0 : 12.0,
                 ),
                 Expanded(
                   child: Column(
@@ -1208,11 +1208,11 @@ class _HomeworkTileState extends State<_HomeworkTile> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 14,
+                            fontSize: isTablet ? 18.0 : 14.0,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           )),
-                      SizedBox(height: Get.height / 378),
+                      SizedBox(height: isTablet ? 6.0 : 2.0),
                       Text(
                         (widget.hw['class'] as Map?)?['name'] as String? ??
                             widget.hw['class_name'] as String? ??
@@ -1220,7 +1220,7 @@ class _HomeworkTileState extends State<_HomeworkTile> {
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           fontFamily: 'Inter',
-                          fontSize: 12,
+                          fontSize: isTablet ? 14.0 : 12.0,
                           color: AppColors.textSecondary,
                         ),
                       ),
@@ -1228,15 +1228,16 @@ class _HomeworkTileState extends State<_HomeworkTile> {
                   ),
                 ),
                 if (_isLoading)
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
+                  SizedBox(
+                    width: isTablet ? 32.0 : 22.0,
+                    height: isTablet ? 32.0 : 22.0,
+                    child: const CircularProgressIndicator(
                         strokeWidth: 2, color: AppColors.primary),
                   )
                 else
-                  const Icon(Icons.chevron_right_rounded,
-                      color: AppColors.textTertiary),
+                  Icon(Icons.chevron_right_rounded,
+                      color: AppColors.textTertiary,
+                      size: isTablet ? 30.0 : 24.0),
               ],
             ),
           ),

@@ -104,6 +104,9 @@ class TimetableScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(TimetableController());
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+
     return DefaultTabController(
       length: _days.length,
       child: Scaffold(
@@ -114,28 +117,33 @@ class TimetableScreen extends StatelessWidget {
                   const BoxDecoration(gradient: AppColors.gradientPrimary)),
           backgroundColor: Colors.transparent,
           elevation: 0,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: const Icon(
-                  Icons.chevron_left_rounded,
-                  color: Colors.white,
-                  size: 24,
+          leadingWidth: isTablet ? 72.0 : 56.0,
+          leading: UnconstrainedBox(
+            child: GestureDetector(
+              onTap: () => Get.offNamed(AppRoutes.dashboard),
+              child: Container(
+                width: isTablet ? 40.0 : Get.height / 18.9,
+                height: isTablet ? 40.0 : Get.height / 18.9,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.16),
+                  borderRadius:
+                      BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
                 ),
-                onPressed: () => Get.offNamed(AppRoutes.dashboard),
+                child: Center(
+                  child: Icon(
+                    Icons.arrow_back_ios_rounded,
+                    color: Colors.white,
+                    size: isTablet ? 20.0 : Get.height / 42,
+                  ),
+                ),
               ),
             ),
           ),
-          title: const Text('Timetable',
+          title: Text('Timetable',
               style: TextStyle(
                   color: Colors.white,
                   fontFamily: 'Inter',
+                  fontSize: isTablet ? 20 : 18,
                   fontWeight: FontWeight.w700)),
           bottom: TabBar(
             isScrollable: false,
@@ -157,13 +165,28 @@ class TimetableScreen extends StatelessWidget {
               Container(
                 color: Colors.white,
                 padding: EdgeInsets.symmetric(
-                    horizontal: Get.height / 47.25,
-                    vertical: Get.height / 75.6),
+                    horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                    vertical: isTablet ? 16.0 : Get.height / 75.6),
                 width: double.infinity,
                 child: DropdownMenu<dynamic>(
                   expandedInsets: EdgeInsets.zero,
                   initialSelection: ctrl.selectedClass.value?['id'],
                   hintText: 'Select Class',
+                  leadingIcon: const Icon(
+                    Icons.class_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  trailingIcon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textSecondary,
+                    size: 24,
+                  ),
+                  selectedTrailingIcon: const Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textSecondary,
+                    size: 24,
+                  ),
                   textStyle: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
@@ -174,18 +197,21 @@ class TimetableScreen extends StatelessWidget {
                     filled: true,
                     fillColor: const Color(0xFFFAFAFA),
                     contentPadding: EdgeInsets.symmetric(
-                        horizontal: Get.height / 47.25,
-                        vertical: Get.height / 75.6),
+                        horizontal: isTablet ? 16.0 : Get.height / 47.25,
+                        vertical: isTablet ? 0.0 : Get.height / 75.6),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(Get.height / 63),
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(Get.height / 63),
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
                       borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(Get.height / 63),
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
                       borderSide: const BorderSide(
                           color: AppColors.primary, width: 1.5),
                     ),
@@ -275,19 +301,21 @@ class TimetableScreen extends StatelessWidget {
                                       'No periods scheduled for this day');
                             }
                             return ListView.separated(
-                              padding: EdgeInsets.all(Get.height / 47.25),
+                              padding: EdgeInsets.all(
+                                  isTablet ? 24.0 : Get.height / 47.25),
                               itemCount: periods.length,
-                              separatorBuilder: (_, __) =>
-                                  SizedBox(height: Get.height / 75.6),
+                              separatorBuilder: (_, __) => SizedBox(
+                                  height: isTablet ? 16.0 : Get.height / 75.6),
                               itemBuilder: (ctx, i) {
                                 final p = periods[i] as Map<String, dynamic>;
                                 final subj = p['subject'] as Map? ?? {};
                                 return Container(
-                                  padding: EdgeInsets.all(Get.height / 47.25),
+                                  padding: EdgeInsets.all(
+                                      isTablet ? 16.0 : Get.height / 47.25),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.circular(Get.height / 54),
+                                    borderRadius: BorderRadius.circular(
+                                        isTablet ? 14.0 : Get.height / 54),
                                     border: Border.all(
                                         color:
                                             AppColors.primary.withOpacity(0.1)),
@@ -299,22 +327,28 @@ class TimetableScreen extends StatelessWidget {
                                   ),
                                   child: Row(children: [
                                     Container(
-                                      width: Get.height / 15.75,
-                                      height: Get.height / 15.75,
+                                      width:
+                                          isTablet ? 48.0 : Get.height / 15.75,
+                                      height:
+                                          isTablet ? 48.0 : Get.height / 15.75,
                                       decoration: BoxDecoration(
                                           gradient: AppColors.gradientPrimary,
                                           borderRadius: BorderRadius.circular(
-                                              Get.height / 63)),
+                                              isTablet
+                                                  ? 12.0
+                                                  : Get.height / 63)),
                                       child: Center(
                                         child: Text('${i + 1}',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontFamily: 'Inter',
                                                 fontWeight: FontWeight.w800,
                                                 fontSize: 18)),
                                       ),
                                     ),
-                                    SizedBox(width: Get.height / 54),
+                                    SizedBox(
+                                        width:
+                                            isTablet ? 16.0 : Get.height / 54),
                                     Expanded(
                                       child: Column(
                                           crossAxisAlignment:
@@ -328,14 +362,17 @@ class TimetableScreen extends StatelessWidget {
                                                 style: TextStyle(
                                                     fontFamily: 'Inter',
                                                     fontWeight: FontWeight.w700,
-                                                    fontSize: 15)),
+                                                    fontSize:
+                                                        isTablet ? 16 : 15)),
+                                            const SizedBox(height: 4),
                                             Text(
                                                 '${formatTimeToAmPm(p['start_time'] as String?)} – ${formatTimeToAmPm(p['end_time'] as String?)}',
                                                 style: TextStyle(
                                                     fontWeight:
                                                         FontWeight.normal,
                                                     fontFamily: 'Inter',
-                                                    fontSize: 13,
+                                                    fontSize:
+                                                        isTablet ? 14 : 13,
                                                     color: AppColors
                                                         .textSecondary)),
                                           ]),
@@ -360,11 +397,12 @@ class _TimetableCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Container(
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 47.25),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(Get.height / 54),
+        borderRadius: BorderRadius.circular(isTablet ? 14.0 : Get.height / 54),
         border: Border.all(color: AppColors.primary.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4)
@@ -374,24 +412,24 @@ class _TimetableCardShimmer extends StatelessWidget {
         children: [
           // Simulated period index
           ShimmerCard(
-            width: Get.height / 15.75,
-            height: Get.height / 15.75,
-            radius: Get.height / 63,
+            width: isTablet ? 48.0 : Get.height / 15.75,
+            height: isTablet ? 48.0 : Get.height / 15.75,
+            radius: isTablet ? 12.0 : Get.height / 63,
           ),
-          SizedBox(width: Get.height / 54),
+          SizedBox(width: isTablet ? 16.0 : Get.height / 54),
           // Simulated subject & time
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ShimmerCard(
-                  width: Get.width * 0.4,
+                  width: isTablet ? 180.0 : Get.width * 0.4,
                   height: 16,
                   radius: 4,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ShimmerCard(
-                  width: Get.width * 0.3,
+                  width: isTablet ? 120.0 : Get.width * 0.3,
                   height: 12,
                   radius: 4,
                 ),
@@ -409,26 +447,31 @@ class _TimetableClassesLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Column(
       children: [
         // Simulated class picker
         Container(
           color: Colors.white,
           padding: EdgeInsets.symmetric(
-              horizontal: Get.height / 47.25, vertical: Get.height / 75.6),
+              horizontal: isTablet ? 24.0 : Get.height / 47.25,
+              vertical: isTablet ? 16.0 : Get.height / 75.6),
           width: double.infinity,
           child: ShimmerCard(
-            height: Get.height / 15.75, // Matching dropdown button height
-            radius: Get.height / 63,
+            height: isTablet
+                ? 48.0
+                : Get.height / 15.75, // Matching dropdown button height
+            radius: isTablet ? 12.0 : Get.height / 63,
           ),
         ),
         // Simulated list of timetable cards
         Expanded(
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
             itemCount: 5,
-            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+            separatorBuilder: (_, __) =>
+                SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
             itemBuilder: (_, __) => const _TimetableCardShimmer(),
           ),
         ),
@@ -442,11 +485,13 @@ class _TimetableLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
       itemCount: 5,
-      separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
+      separatorBuilder: (_, __) =>
+          SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
       itemBuilder: (_, __) => const _TimetableCardShimmer(),
     );
   }
@@ -564,6 +609,8 @@ class _LeavesScreenState extends State<LeavesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     final statuses = ['pending', 'approved', 'rejected'];
 
     return Scaffold(
@@ -574,36 +621,42 @@ class _LeavesScreenState extends State<LeavesScreen> {
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: const Icon(
-                Icons.chevron_left_rounded,
-                color: Colors.white,
-                size: 24,
+        leadingWidth: isTablet ? 72.0 : 56.0,
+        leading: UnconstrainedBox(
+          child: GestureDetector(
+            onTap: () => Get.offNamed(AppRoutes.dashboard),
+            child: Container(
+              width: isTablet ? 40.0 : Get.height / 18.9,
+              height: isTablet ? 40.0 : Get.height / 18.9,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.16),
+                borderRadius:
+                    BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
               ),
-              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+              child: Center(
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: Colors.white,
+                  size: isTablet ? 20.0 : Get.height / 42,
+                ),
+              ),
             ),
           ),
         ),
-        title: const Text('Leave Requests',
+        title: Text('Leave Requests',
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
+                fontSize: isTablet ? 20 : 18,
                 fontWeight: FontWeight.w700)),
       ),
       body: Column(children: [
         // Status filter dropdown
         Container(
           color: Colors.white,
-          padding:
-              EdgeInsets.symmetric(horizontal: 16, vertical: Get.height / 75.6),
+          padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 24.0 : 16.0,
+              vertical: isTablet ? 16.0 : Get.height / 75.6),
           width: double.infinity,
           child: Obx(() => DropdownMenu<String>(
                 expandedInsets: EdgeInsets.zero,
@@ -616,7 +669,7 @@ class _LeavesScreenState extends State<LeavesScreen> {
                   size: 24,
                 ),
                 selectedTrailingIcon: const Icon(
-                  Icons.keyboard_arrow_up_rounded,
+                  Icons.keyboard_arrow_down_rounded,
                   color: AppColors.textSecondary,
                   size: 24,
                 ),
@@ -630,18 +683,21 @@ class _LeavesScreenState extends State<LeavesScreen> {
                   filled: true,
                   fillColor: const Color(0xFFFAFAFA),
                   contentPadding: EdgeInsets.symmetric(
-                      horizontal: Get.height / 47.25,
-                      vertical: Get.height / 75.6),
+                      horizontal: isTablet ? 16.0 : Get.height / 47.25,
+                      vertical: isTablet ? 0.0 : Get.height / 75.6),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(Get.height / 63),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : Get.height / 63),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(Get.height / 63),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : Get.height / 63),
                     borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(Get.height / 63),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : Get.height / 63),
                     borderSide:
                         const BorderSide(color: AppColors.primary, width: 1.5),
                   ),
@@ -696,15 +752,17 @@ class _LeavesScreenState extends State<LeavesScreen> {
               child: ListView.separated(
                 controller: _scrollCtrl,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.all(Get.height / 47.25),
+                padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
                 itemCount: ctrl.leaves.length + (ctrl.hasMore.value ? 1 : 0),
                 separatorBuilder: (_, __) =>
-                    SizedBox(height: Get.height / 75.6),
+                    SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
                 itemBuilder: (ctx, i) {
                   if (i == ctrl.leaves.length) {
                     return Padding(
-                      padding: EdgeInsets.symmetric(vertical: Get.height / 63),
-                      child: const ShimmerCard(height: 88, radius: 14),
+                      padding: EdgeInsets.symmetric(
+                          vertical: isTablet ? 16.0 : Get.height / 63),
+                      child: ShimmerCard(
+                          height: isTablet ? 100.0 : 88.0, radius: 14),
                     );
                   }
                   final leave =
@@ -733,6 +791,7 @@ class _LeaveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     final student = leave['student'] as Map? ?? {};
     final from = leave['from_date'] as String? ?? '';
     final to = leave['to_date'] as String? ?? '';
@@ -752,15 +811,15 @@ class _LeaveCard extends StatelessWidget {
         leave['image'] as String?;
 
     return Container(
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 47.25),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(Get.height / 63),
+        borderRadius: BorderRadius.circular(isTablet ? 14.0 : Get.height / 63),
         border: Border.all(color: statusColor.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.03),
-              blurRadius: Get.height / 94.5,
+              blurRadius: isTablet ? 10.0 : Get.height / 94.5,
               offset: const Offset(0, 2))
         ],
       ),
@@ -768,23 +827,23 @@ class _LeaveCard extends StatelessWidget {
         Row(children: [
           NetAvatar(
             url: studentPhotoUrl,
-            radius: Get.height / 34.36,
+            radius: isTablet ? 24.0 : Get.height / 34.36,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
-          SizedBox(width: Get.height / 63),
+          SizedBox(width: isTablet ? 16.0 : Get.height / 63),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(student['name'] as String? ?? 'Student',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 15)),
+                      fontSize: isTablet ? 16 : 15)),
               Text('${formatYmdToDmy(from)} To ${formatYmdToDmy(to)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: 12,
+                      fontSize: isTablet ? 13 : 12,
                       color: AppColors.textSecondary)),
             ]),
           ),
@@ -796,16 +855,16 @@ class _LeaveCard extends StatelessWidget {
           ),
         ]),
         if (reason.isNotEmpty) ...[
-          SizedBox(height: Get.height / 75.6),
+          SizedBox(height: isTablet ? 12.0 : Get.height / 75.6),
           Text(reason,
-              style: const TextStyle(
+              style: TextStyle(
                   fontWeight: FontWeight.normal,
                   fontFamily: 'Inter',
-                  fontSize: 12,
+                  fontSize: isTablet ? 13 : 12,
                   color: AppColors.textSecondary)),
         ],
         if (status == 'pending') ...[
-          SizedBox(height: Get.height / 63),
+          SizedBox(height: isTablet ? 16.0 : Get.height / 63),
           Row(children: [
             Expanded(
               child: GestureDetector(
@@ -813,11 +872,12 @@ class _LeaveCard extends StatelessWidget {
                 onTap: () => onReview('rejected'),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    vertical: Get.height / 75.6,
+                    vertical: isTablet ? 12.0 : Get.height / 75.6,
                   ),
                   decoration: BoxDecoration(
                     color: AppColors.danger.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(Get.height / 75.6),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 10.0 : Get.height / 75.6),
                     border:
                         Border.all(color: AppColors.danger.withOpacity(0.25)),
                   ),
@@ -837,16 +897,19 @@ class _LeaveCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: Get.height / 75.6),
+            SizedBox(width: isTablet ? 16.0 : Get.height / 75.6),
             Expanded(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onReview('approved'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: Get.height / 75.6),
+                  padding: EdgeInsets.symmetric(
+                    vertical: isTablet ? 12.0 : Get.height / 75.6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.success.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(Get.height / 75.6),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 10.0 : Get.height / 75.6),
                     border:
                         Border.all(color: AppColors.success.withOpacity(0.25)),
                   ),
@@ -879,27 +942,30 @@ class _LeavesLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Column(
       children: [
         // Simulated status filter dropdown
         Container(
           color: Colors.white,
-          padding:
-              EdgeInsets.symmetric(horizontal: 16, vertical: Get.height / 75.6),
+          padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 24.0 : 16.0,
+              vertical: isTablet ? 16.0 : Get.height / 75.6),
           width: double.infinity,
           child: ShimmerCard(
-            height: Get.height / 15.75,
-            radius: Get.height / 63,
+            height: isTablet ? 48.0 : Get.height / 15.75,
+            radius: isTablet ? 12.0 : Get.height / 63,
           ),
         ),
         // Simulated leave cards list
         Expanded(
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
             itemCount: 5,
-            separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
-            itemBuilder: (_, __) => _LeaveCardShimmer(),
+            separatorBuilder: (_, __) =>
+                SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
+            itemBuilder: (_, __) => const _LeaveCardShimmer(),
           ),
         ),
       ],
@@ -912,51 +978,55 @@ class _LeaveCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Container(
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 47.25),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(Get.height / 63),
+        borderRadius: BorderRadius.circular(isTablet ? 14.0 : Get.height / 63),
         border: Border.all(color: const Color(0xFFE2E8F0)),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.03),
-              blurRadius: Get.height / 94.5,
+              blurRadius: isTablet ? 10.0 : Get.height / 94.5,
               offset: const Offset(0, 2)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top row: avatar + name/date + status badge
           Row(
             children: [
-              // Avatar
               ShimmerCard(
-                width: Get.height / 17.18,
-                height: Get.height / 17.18,
-                radius: Get.height / 17.18,
+                width: isTablet ? 48.0 : Get.height / 17.18,
+                height: isTablet ? 48.0 : Get.height / 17.18,
+                radius: isTablet ? 48.0 : Get.height / 17.18,
               ),
-              SizedBox(width: Get.height / 63),
+              SizedBox(width: isTablet ? 16.0 : Get.height / 63),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ShimmerCard(width: Get.width * 0.38, height: 14, radius: 4),
-                    SizedBox(height: 6),
-                    ShimmerCard(width: Get.width * 0.28, height: 11, radius: 4),
+                    ShimmerCard(
+                        width: isTablet ? 200.0 : Get.width * 0.38,
+                        height: 14,
+                        radius: 4),
+                    const SizedBox(height: 6),
+                    ShimmerCard(
+                        width: isTablet ? 150.0 : Get.width * 0.28,
+                        height: 11,
+                        radius: 4),
                   ],
                 ),
               ),
-              SizedBox(width: Get.height / 75.6),
-              // Status badge
+              SizedBox(width: isTablet ? 16.0 : Get.height / 75.6),
               const ShimmerCard(width: 64, height: 22, radius: 20),
             ],
           ),
-          SizedBox(height: Get.height / 75.6),
-          // Reason text
-          ShimmerCard(width: Get.width * 0.6, height: 11, radius: 4),
-          SizedBox(height: 6),
+          SizedBox(height: isTablet ? 12.0 : Get.height / 75.6),
+          ShimmerCard(
+              width: isTablet ? 300.0 : Get.width * 0.6, height: 11, radius: 4),
+          const SizedBox(height: 6),
           const ShimmerCard(height: 11, radius: 4),
         ],
       ),
@@ -1218,6 +1288,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -1265,7 +1337,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                                 const Icon(Icons.broken_image_rounded,
                                     color: Colors.grey, size: 64),
                                 SizedBox(height: Get.height / 63),
-                                Text(
+                                const Text(
                                   'Failed to load image',
                                   style: TextStyle(
                                       fontWeight: FontWeight.normal,
@@ -1285,7 +1357,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
           if (widget.photos.length > 1) ...[
             if (_currentIndex > 0)
               Positioned(
-                left: Get.height / 47.25,
+                left: isTablet ? 24.0 : Get.height / 47.25,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -1297,20 +1369,20 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.all(Get.height / 94.5),
+                      padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
                       ),
-                      child: const Icon(Icons.chevron_left_rounded,
-                          color: Colors.white, size: 36),
+                      child: Icon(Icons.chevron_left_rounded,
+                          color: Colors.white, size: isTablet ? 44.0 : 36.0),
                     ),
                   ),
                 ),
               ),
             if (_currentIndex < widget.photos.length - 1)
               Positioned(
-                right: Get.height / 47.25,
+                right: isTablet ? 24.0 : Get.height / 47.25,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -1322,13 +1394,13 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.all(Get.height / 94.5),
+                      padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
                       ),
-                      child: const Icon(Icons.chevron_right_rounded,
-                          color: Colors.white, size: 36),
+                      child: Icon(Icons.chevron_right_rounded,
+                          color: Colors.white, size: isTablet ? 44.0 : 36.0),
                     ),
                   ),
                 ),
@@ -1338,8 +1410,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
           // Top bar overlay with Close and Download buttons
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
-            left: Get.height / 47.25,
-            right: Get.height / 47.25,
+            left: isTablet ? 24.0 : Get.height / 47.25,
+            right: isTablet ? 24.0 : Get.height / 47.25,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -1347,7 +1419,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
-                    padding: EdgeInsets.all(Get.height / 94.5),
+                    padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.black.withOpacity(0.4),
@@ -1355,7 +1427,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                     child: Icon(
                       Icons.close_rounded,
                       color: Colors.white,
-                      size: Get.height / 31.5,
+                      size: isTablet ? 28.0 : Get.height / 31.5,
                     ),
                   ),
                 ),
@@ -1364,11 +1436,11 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 if (widget.photos.length > 1)
                   Container(
                     padding: EdgeInsets.symmetric(
-                        horizontal: Get.height / 63,
-                        vertical: Get.height / 126),
+                        horizontal: isTablet ? 16.0 : Get.height / 63,
+                        vertical: isTablet ? 8.0 : Get.height / 126),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(Get.height / 47.25),
+                      borderRadius: BorderRadius.circular(isTablet ? 16.0 : Get.height / 47.25),
                     ),
                     child: Text(
                       '${_currentIndex + 1} / ${widget.photos.length}',
@@ -1376,7 +1448,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         color: Colors.white,
                         fontFamily: 'Inter',
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: isTablet ? 15 : 14,
                       ),
                     ),
                   )
@@ -1384,7 +1456,7 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                   const SizedBox(),
 
                 // Empty space to balance the Close button and keep Page Indicator centered
-                SizedBox(width: Get.height / 18.9),
+                SizedBox(width: isTablet ? 56.0 : Get.height / 18.9),
               ],
             ),
           ),
@@ -1399,6 +1471,8 @@ class _GalleryLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     return SingleChildScrollView(
       physics: const NeverScrollableScrollPhysics(),
       child: Column(
@@ -1407,18 +1481,19 @@ class _GalleryLoadingShimmer extends StatelessWidget {
           // Albums Section Row
           Padding(
             padding: EdgeInsets.symmetric(
-                horizontal: Get.height / 47.25, vertical: Get.height / 63),
+                horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                vertical: isTablet ? 16.0 : Get.height / 63),
             child: Row(
               children: [
                 ShimmerCard(
-                  width: Get.height / 189,
-                  height: Get.height / 94.5,
+                  width: isTablet ? 6.0 : Get.height / 189,
+                  height: isTablet ? 12.0 : Get.height / 94.5,
                   radius: 2,
                 ),
-                SizedBox(width: Get.height / 94.5),
+                SizedBox(width: isTablet ? 10.0 : Get.height / 94.5),
                 ShimmerCard(
-                  width: 80,
-                  height: 18,
+                  width: isTablet ? 90.0 : 80.0,
+                  height: isTablet ? 20.0 : 18.0,
                   radius: 4,
                 ),
               ],
@@ -1429,45 +1504,46 @@ class _GalleryLoadingShimmer extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: Get.height / 47.25),
+            padding: EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : Get.height / 47.25),
             child: Row(
               children: List.generate(4, (index) {
                 return Padding(
-                  padding: EdgeInsets.only(right: Get.height / 94.5),
+                  padding: EdgeInsets.only(right: isTablet ? 12.0 : Get.height / 94.5),
                   child: ShimmerCard(
-                    width: 90 + (index % 2 * 20).toDouble(),
-                    height: 38,
-                    radius: Get.height / 31.5,
+                    width: isTablet ? 110.0 + (index % 2 * 24).toDouble() : 90 + (index % 2 * 20).toDouble(),
+                    height: isTablet ? 42.0 : 38.0,
+                    radius: isTablet ? 16.0 : Get.height / 31.5,
                   ),
                 );
               }),
             ),
           ),
 
-          SizedBox(height: Get.height / 47.25),
+          SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
 
           // Grid of image cards shimmer
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: EdgeInsets.symmetric(
-                horizontal: Get.height / 47.25, vertical: Get.height / 94.5),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+                horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                vertical: isTablet ? 12.0 : Get.height / 94.5),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: isTablet ? 4 : 2,
+              crossAxisSpacing: isTablet ? 16 : 12,
+              mainAxisSpacing: isTablet ? 16 : 12,
               childAspectRatio: 1.0,
             ),
-            itemCount: 6,
+            itemCount: 8,
             itemBuilder: (ctx, i) {
               return ShimmerCard(
                 height: double.infinity,
                 width: double.infinity,
-                radius: Get.height / 37.8,
+                radius: isTablet ? 16.0 : Get.height / 37.8,
               );
             },
           ),
-          SizedBox(height: Get.height / 23.62),
+          SizedBox(height: isTablet ? 32.0 : Get.height / 23.62),
         ],
       ),
     );
@@ -1511,6 +1587,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -1518,7 +1596,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leadingWidth: 60,
+        leadingWidth: isTablet ? 72.0 : 60.0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -1531,33 +1609,31 @@ class _GalleryScreenState extends State<GalleryScreen> {
             ),
           ),
         ),
-        leading: Padding(
-          padding: EdgeInsets.only(
-            left: Get.height / 47.25,
-            top: Get.height / 30.24,
-            bottom: Get.height / 30.24,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(33, 255, 255, 255),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color.fromARGB(255, 255, 255, 255)
-                      .withOpacity(0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: const Icon(
-                Icons.chevron_left_rounded,
-                color: Color.fromARGB(255, 255, 255, 255),
-                size: 28,
+        leading: UnconstrainedBox(
+          child: GestureDetector(
+            onTap: () => Get.offNamed(AppRoutes.dashboard),
+            child: Container(
+              width: 40.0,
+              height: 40.0,
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(33, 255, 255, 255),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color.fromARGB(255, 255, 255, 255)
+                        .withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              onPressed: () => Get.offNamed(AppRoutes.dashboard),
+              child: const Center(
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
             ),
           ),
         ),
@@ -1567,7 +1643,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
             color: Colors.white,
             fontFamily: 'Inter',
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: isTablet ? 22.0 : 20.0,
           ),
         ),
       ),
@@ -1597,23 +1673,23 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     // Albums Section Row
                     Padding(
                       padding: EdgeInsets.symmetric(
-                          horizontal: Get.height / 47.25,
-                          vertical: Get.height / 63),
+                          horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                          vertical: isTablet ? 16.0 : Get.height / 63),
                       child: Row(
                         children: [
                           Container(
-                            width: Get.height / 189,
-                            height: Get.height / 94.5,
+                            width: isTablet ? 6.0 : Get.height / 189,
+                            height: isTablet ? 12.0 : Get.height / 94.5,
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          SizedBox(width: Get.height / 94.5),
+                          SizedBox(width: isTablet ? 10.0 : Get.height / 94.5),
                           Text(
                             'Albums',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: isTablet ? 18.0 : 16.0,
                               fontWeight: FontWeight.bold,
                               fontStyle: FontStyle.italic,
                               color: AppColors.textPrimary,
@@ -1627,30 +1703,30 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       padding:
-                          EdgeInsets.symmetric(horizontal: Get.height / 47.25),
+                          EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : Get.height / 47.25),
                       child: Row(
                         children: ctrl.albumTitles.map((title) {
                           final isSelected = ctrl.selectedAlbum.value == title;
                           return Padding(
-                            padding: EdgeInsets.only(right: Get.height / 94.5),
+                            padding: EdgeInsets.only(right: isTablet ? 12.0 : Get.height / 94.5),
                             child: GestureDetector(
                               onTap: () => ctrl.selectedAlbum.value = title,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: Get.height / 37.8,
-                                    vertical: Get.height / 75.6),
+                                    horizontal: isTablet ? 24.0 : Get.height / 37.8,
+                                    vertical: isTablet ? 10.0 : Get.height / 75.6),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppColors.primary
                                       : AppColors.primary.withOpacity(0.08),
                                   borderRadius:
-                                      BorderRadius.circular(Get.height / 31.5),
+                                      BorderRadius.circular(isTablet ? 16.0 : Get.height / 31.5),
                                 ),
                                 child: Text(
                                   title,
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: isTablet ? 15.0 : 14.0,
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.w500,
@@ -1666,111 +1742,109 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       ),
                     ),
 
-                    SizedBox(height: Get.height / 47.25),
+                    SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
 
                     // Grid of image cards
                     photos.isEmpty
-                        ? Container(
-                            height: Get.height / 3.78,
-                            alignment: Alignment.center,
-                            child: Text(
-                              'No photos in this album',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  color: AppColors.textSecondary,
-                                  fontSize: 14),
-                            ),
-                          )
-                        : GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: Get.height / 47.25,
-                                vertical: Get.height / 94.5),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 1.0,
-                            ),
-                            itemCount: photos.length,
-                            itemBuilder: (ctx, i) {
-                              final photo = photos[i];
-                              final url = (photo is Map
-                                      ? photo['url']
-                                      : photo.toString()) ??
-                                  '';
-                              return GestureDetector(
-                                onTap: () => _openImage(context, photos, i),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                        Get.height / 37.8),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.06),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        Get.height / 37.8),
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        url.isEmpty
-                                            ? Container(
+                      ? Container(
+                          height: Get.height / 3.78,
+                          alignment: Alignment.center,
+                          child: Text(
+                            'No photos in this album',
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: AppColors.textSecondary,
+                                fontSize: isTablet ? 15.0 : 14.0),
+                          ),
+                        )
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                              vertical: isTablet ? 12.0 : Get.height / 94.5),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isTablet ? 4 : 2,
+                            crossAxisSpacing: isTablet ? 16 : 12,
+                            mainAxisSpacing: isTablet ? 16 : 12,
+                            childAspectRatio: 1.0,
+                          ),
+                          itemCount: photos.length,
+                          itemBuilder: (ctx, i) {
+                            final photo = photos[i];
+                            final url = (photo is Map
+                                    ? photo['url']
+                                    : photo.toString()) ??
+                                '';
+                            return GestureDetector(
+                              onTap: () => _openImage(context, photos, i),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                      isTablet ? 16.0 : Get.height / 37.8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.06),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                      isTablet ? 16.0 : Get.height / 37.8),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      url.isEmpty
+                                          ? Container(
+                                              color: AppColors.primaryLight,
+                                              child: Icon(
+                                                Icons.broken_image_rounded,
+                                                color: AppColors.primary,
+                                                size: isTablet ? 36.0 : Get.height / 23.62,
+                                              ),
+                                            )
+                                          : CachedNetworkImage(
+                                              imageUrl: url,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  ShimmerCard(
+                                                height: double.infinity,
+                                                width: double.infinity,
+                                                radius: isTablet ? 16.0 : Get.height / 37.8,
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Container(
                                                 color: AppColors.primaryLight,
                                                 child: Icon(
                                                   Icons.broken_image_rounded,
                                                   color: AppColors.primary,
-                                                  size: Get.height / 23.62,
-                                                ),
-                                              )
-                                            : CachedNetworkImage(
-                                                imageUrl: url,
-                                                fit: BoxFit.cover,
-                                                placeholder: (context, url) =>
-                                                    ShimmerCard(
-                                                  height: double.infinity,
-                                                  width: double.infinity,
-                                                  radius: Get.height / 37.8,
-                                                ),
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        Container(
-                                                  color: AppColors.primaryLight,
-                                                  child: Icon(
-                                                    Icons.broken_image_rounded,
-                                                    color: AppColors.primary,
-                                                    size: Get.height / 23.62,
-                                                  ),
+                                                  size: isTablet ? 36.0 : Get.height / 23.62,
                                                 ),
                                               ),
-                                      ],
-                                    ),
+                                            ),
+                                    ],
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
+                        ),
                     Obx(() {
                       if (ctrl.isLoadMoreLoading.value) {
                         return Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: Get.height / 47.25,
-                              vertical: Get.height / 94.5),
+                              horizontal: isTablet ? 24.0 : Get.height / 47.25,
+                              vertical: isTablet ? 12.0 : Get.height / 94.5),
                           child: GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: isTablet ? 4 : 2,
+                              crossAxisSpacing: isTablet ? 16 : 12,
+                              mainAxisSpacing: isTablet ? 16 : 12,
                               childAspectRatio: 1.0,
                             ),
                             itemCount: 2,
@@ -1778,7 +1852,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                               return ShimmerCard(
                                 height: double.infinity,
                                 width: double.infinity,
-                                radius: Get.height / 37.8,
+                                radius: isTablet ? 16.0 : Get.height / 37.8,
                               );
                             },
                           ),
@@ -1786,7 +1860,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       }
                       return const SizedBox();
                     }),
-                    SizedBox(height: Get.height / 23.62),
+                    SizedBox(height: isTablet ? 32.0 : Get.height / 23.62),
                   ],
                 ),
               ),

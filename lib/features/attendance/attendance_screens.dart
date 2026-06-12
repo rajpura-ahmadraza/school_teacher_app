@@ -265,6 +265,7 @@ class AttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ctrl = Get.put(AttendanceController());
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -295,14 +296,15 @@ class AttendanceScreen extends StatelessWidget {
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
-                fontSize: 14,
+                fontSize: isTablet ? 18.0 : 14.0,
                 fontWeight: FontWeight.w600)),
         actions: [
           TextButton(
             onPressed: () => Get.toNamed(AppRoutes.attendanceReport),
-            child: const Text('Report',
+            child: Text('Report',
                 style: TextStyle(
                     fontWeight: FontWeight.w600,
+                    fontSize: isTablet ? 16.0 : 14.0,
                     color: Colors.white,
                     fontFamily: 'Inter')),
           )
@@ -336,11 +338,13 @@ class _ClassPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(
-        horizontal: Get.height / 47.25,
-        vertical: Get.height / 63,
+        horizontal: isTablet ? 32.0 : 16.0,
+        vertical: isTablet ? 20.0 : 12.0,
       ),
       child: Obx(() {
         final selectedId = ctrl.selectedClass.value?['id'];
@@ -348,86 +352,91 @@ class _ClassPicker extends StatelessWidget {
           (c) => c['id'] == selectedId,
         );
 
-        return PopupMenuButton<dynamic>(
-          color: Colors.white,
-          offset: const Offset(0, 54),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              Get.height / 63,
-            ),
-          ),
-          constraints: BoxConstraints(
-            minWidth: MediaQuery.of(context).size.width - 32,
-            maxWidth: MediaQuery.of(context).size.width - 32,
-          ),
-          child: Container(
-            height: 54,
-            padding: EdgeInsets.symmetric(
-              horizontal: Get.height / 63,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(
-                Get.height / 63,
+        return LayoutBuilder(
+          builder: (context, boxConstraints) {
+            final localWidth = boxConstraints.maxWidth;
+            return PopupMenuButton<dynamic>(
+              color: Colors.white,
+              offset: const Offset(0, 54),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(
+                  isTablet ? 12.0 : 8.0,
+                ),
               ),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.school_rounded,
-                  color: AppColors.primary,
-                  size: Get.height / 37.8,
+              constraints: BoxConstraints(
+                minWidth: localWidth,
+                maxWidth: localWidth,
+              ),
+              child: Container(
+                height: isTablet ? 60.0 : 54.0,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 20.0 : 12.0,
                 ),
-                SizedBox(
-                  width: Get.height / 63,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(
+                    isTablet ? 12.0 : 8.0,
+                  ),
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
-                Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.school_rounded,
+                      color: AppColors.primary,
+                      size: isTablet ? 28.0 : 22.0,
+                    ),
+                    SizedBox(
+                      width: isTablet ? 16.0 : 12.0,
+                    ),
+                    Expanded(
+                      child: Text(
+                        currentSelection != null
+                            ? '${currentSelection['name'] ?? currentSelection['class_name'] ?? 'Class'}'
+                                '${currentSelection['section'] != null ? ' - ${currentSelection['section']}' : ''}'
+                            : 'Select Class',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: isTablet ? 17.0 : 15.0,
+                          fontWeight: FontWeight.w600,
+                          color: currentSelection != null
+                              ? AppColors.textPrimary
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.textSecondary,
+                      size: isTablet ? 28.0 : 24.0,
+                    ),
+                  ],
+                ),
+              ),
+              itemBuilder: (ctx) => ctrl.classes.map((cls) {
+                final name = cls['name'] ?? cls['class_name'] ?? 'Class';
+                final sec =
+                    cls['section'] != null ? ' - ${cls['section']}' : '';
+                return PopupMenuItem<dynamic>(
+                  value: cls,
                   child: Text(
-                    currentSelection != null
-                        ? '${currentSelection['name'] ?? currentSelection['class_name'] ?? 'Class'}'
-                            '${currentSelection['section'] != null ? ' - ${currentSelection['section']}' : ''}'
-                        : 'Select Class',
+                    '$name$sec',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 15.0,
-                      fontWeight: currentSelection != null
-                          ? FontWeight.w600
-                          : FontWeight.w600,
-                      color: currentSelection != null
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
+                      fontSize: isTablet ? 16.0 : 14.0,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                ),
-                const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-          ),
-          itemBuilder: (ctx) => ctrl.classes.map((cls) {
-            final name = cls['name'] ?? cls['class_name'] ?? 'Class';
-            final sec = cls['section'] != null ? ' - ${cls['section']}' : '';
-            return PopupMenuItem<dynamic>(
-              value: cls,
-              child: Text(
-                '$name$sec',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
+                );
+              }).toList(),
+              onSelected: (v) {
+                if (v != null) {
+                  ctrl.loadStudents(Map<String, dynamic>.from(v as Map));
+                }
+              },
             );
-          }).toList(),
-          onSelected: (v) {
-            if (v != null) {
-              ctrl.loadStudents(Map<String, dynamic>.from(v as Map));
-            }
           },
         );
       }),
@@ -440,296 +449,303 @@ class _AttendanceBody extends StatelessWidget {
   const _AttendanceBody({required this.ctrl});
 
   @override
-  Widget build(BuildContext context) => Obx(() {
-        if (ctrl.selectedClass.value == null) {
-          return const EmptyState(
-            icon: Icons.touch_app_rounded,
-            title: 'Select a Class',
-            subtitle: 'Tap a class above to mark attendance',
-          );
-        }
-        if (ctrl.studentsLoading.value) {
-          return const _StudentsLoadingShimmer();
-        }
-        if (ctrl.students.isEmpty) {
-          return const EmptyState(
-            icon: Icons.people_outline,
-            title: 'No Students',
-            subtitle: 'No students found in this class',
-          );
-        }
-        return Column(
-          children: [
-            // Date & bulk actions bar
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: Get.height / 47.25,
-                vertical: Get.height / 75.6,
-              ),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate:
-                            DateTime.tryParse(ctrl.selectedDate.value) ??
-                                DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) {
-                        ctrl.selectedDate.value =
-                            '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                      }
-                    },
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+    return Obx(() {
+      if (ctrl.selectedClass.value == null) {
+        return const EmptyState(
+          icon: Icons.touch_app_rounded,
+          title: 'Select a Class',
+          subtitle: 'Tap a class above to mark attendance',
+        );
+      }
+      if (ctrl.studentsLoading.value) {
+        return const _StudentsLoadingShimmer();
+      }
+      if (ctrl.students.isEmpty) {
+        return const EmptyState(
+          icon: Icons.people_outline,
+          title: 'No Students',
+          subtitle: 'No students found in this class',
+        );
+      }
+      return Column(
+        children: [
+          // Date & bulk actions bar
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 32.0 : 16.0,
+              vertical: isTablet ? 16.0 : 10.0,
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.tryParse(ctrl.selectedDate.value) ??
+                          DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      ctrl.selectedDate.value =
+                          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today_rounded,
+                          size: isTablet ? 20.0 : 16.0,
+                          color: AppColors.primary),
+                      SizedBox(width: isTablet ? 10.0 : 6.0),
+                      Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 15.0 : 12.0,
+                            color: AppColors.primary,
+                          ))),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                if (!ctrl.isPastDate) ...[
+                  _BulkBtn('All P', Colors.green, () => ctrl.markAll('P')),
+                  SizedBox(width: isTablet ? 12.0 : 8.0),
+                  _BulkBtn('All A', Colors.red, () => ctrl.markAll('A')),
+                ] else
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 16.0 : 12.0,
+                      vertical: isTablet ? 8.0 : 6.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : 8.0,
+                      ),
+                    ),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today_rounded,
-                            size: 16, color: AppColors.primary),
-                        SizedBox(width: Get.height / 126),
-                        Obx(() => Text(formatYmdToDmy(ctrl.selectedDate.value),
-                            style: const TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12.0,
-                              color: AppColors.primary,
-                            ))),
+                        Icon(
+                          Icons.visibility_rounded,
+                          size: isTablet ? 18.0 : 14.0,
+                          color: Colors.blue,
+                        ),
+                        SizedBox(
+                          width: isTablet ? 8.0 : 4.0,
+                        ),
+                        Text(
+                          'View Only',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: isTablet ? 14.0 : 12.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  const Spacer(),
-                  if (!ctrl.isPastDate) ...[
-                    _BulkBtn('All P', Colors.green, () => ctrl.markAll('P')),
-                    SizedBox(width: Get.height / 94.5),
-                    _BulkBtn('All A', Colors.red, () => ctrl.markAll('A')),
-                  ] else
+              ],
+            ),
+          ),
+          // Legend bar
+          Container(
+            color: Colors.white,
+            padding: EdgeInsets.only(
+              left: isTablet ? 32.0 : 16.0,
+              right: isTablet ? 32.0 : 16.0,
+              top: isTablet ? 12.0 : 8.0,
+              bottom: isTablet ? 16.0 : 12.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: Get.height / 63,
-                        vertical: Get.height / 126,
-                      ),
+                      width: isTablet ? 28.0 : 22.0,
+                      height: isTablet ? 28.0 : 22.0,
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(
-                          Get.height / 94.5,
-                        ),
+                        color: Colors.green,
+                        borderRadius:
+                            BorderRadius.circular(isTablet ? 6.0 : 4.0),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.visibility_rounded,
-                            size: Get.height / 58.15,
-                            color: Colors.blue,
+                      child: Center(
+                        child: Text(
+                          'P',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 12.0 : 10.0,
+                            color: Colors.white,
                           ),
-                          SizedBox(
-                            width: Get.height / 189,
-                          ),
-                          Text(
-                            'View Only',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                ],
-              ),
-            ),
-            // Legend bar
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.only(
-                left: Get.height / 47.25,
-                right: Get.height / 47.25,
-                top: Get.height / 94.5,
-                bottom: Get.height / 63,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: Get.height / 38,
-                        height: Get.height / 38,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.circular(Get.height / 189),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'P',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
+                    SizedBox(width: isTablet ? 8.0 : 6.0),
+                    Text(
+                      'Present',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: isTablet ? 12.0 : 10.0,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: isTablet ? 32.0 : 20.0),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: isTablet ? 28.0 : 22.0,
+                      height: isTablet ? 28.0 : 22.0,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius:
+                            BorderRadius.circular(isTablet ? 6.0 : 4.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 12.0 : 10.0,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                      SizedBox(width: Get.height / 126),
-                      Text(
-                        'Present',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                          color: AppColors.textPrimary,
-                        ),
+                    ),
+                    SizedBox(width: isTablet ? 8.0 : 6.0),
+                    Text(
+                      'Absent',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: isTablet ? 12.0 : 10.0,
+                        color: AppColors.textPrimary,
                       ),
-                    ],
-                  ),
-                  SizedBox(width: Get.height / 47.25),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: Get.height / 38,
-                        height: Get.height / 38,
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(Get.height / 189),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'A',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: isTablet ? 32.0 : 20.0),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: isTablet ? 28.0 : 22.0,
+                      height: isTablet ? 28.0 : 22.0,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius:
+                            BorderRadius.circular(isTablet ? 6.0 : 4.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'L',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 12.0 : 10.0,
+                            color: Colors.white,
                           ),
                         ),
                       ),
-                      SizedBox(width: Get.height / 126),
-                      Text(
-                        'Absent',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                          color: AppColors.textPrimary,
-                        ),
+                    ),
+                    SizedBox(width: isTablet ? 8.0 : 6.0),
+                    Text(
+                      'Late',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: isTablet ? 12.0 : 10.0,
+                        color: AppColors.textPrimary,
                       ),
-                    ],
-                  ),
-                  SizedBox(width: Get.height / 47.25),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: Get.height / 38,
-                        height: Get.height / 38,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(Get.height / 189),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'L',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: Get.height / 126),
-                      Text(
-                        'Late',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 10,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            // Student list
-            Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.all(
-                  Get.height / 47.25,
-                ),
-                itemCount: ctrl.students.length,
-                separatorBuilder: (_, __) => SizedBox(
-                  height: Get.height / 94.5,
-                ),
-                itemBuilder: (ctx, i) {
-                  final s = ctrl.students[i] as Map<String, dynamic>;
-                  final sid = s['id'] is int
-                      ? s['id'] as int
-                      : int.tryParse(s['id'].toString()) ?? 0;
-                  return Obx(() => _StudentAttendanceTile(
-                        student: s,
-                        status: ctrl.attendance[sid] ?? '',
-                        onChanged: ctrl.isPastDate
-                            ? null
-                            : (v) => ctrl.setStatus(sid, v),
-                      ));
-                },
+          ),
+          // Student list
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.all(
+                isTablet ? 32.0 : 16.0,
               ),
+              itemCount: ctrl.students.length,
+              separatorBuilder: (_, __) => SizedBox(
+                height: isTablet ? 14.0 : 10.0,
+              ),
+              itemBuilder: (ctx, i) {
+                final s = ctrl.students[i] as Map<String, dynamic>;
+                final sid = s['id'] is int
+                    ? s['id'] as int
+                    : int.tryParse(s['id'].toString()) ?? 0;
+                return Obx(() => _StudentAttendanceTile(
+                      student: s,
+                      status: ctrl.attendance[sid] ?? '',
+                      onChanged: ctrl.isPastDate
+                          ? null
+                          : (v) => ctrl.setStatus(sid, v),
+                    ));
+              },
             ),
-            // Submit button
-            if (!ctrl.isPastDate)
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  Get.height / 47.25,
-                  0,
-                  Get.height / 47.25,
-                  Get.height / 31.5,
-                ),
-                child: Obx(() => SizedBox(
-                      width: double.infinity,
-                      height: Get.height / 14.53,
-                      child: ElevatedButton(
-                        onPressed: ctrl.submitting.value
-                            ? null
-                            : () async {
-                                final ok = await ctrl.submitAttendance();
-                                if (ok && context.mounted) {
-                                  showToast(context, 'Attendance saved!');
-                                }
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(Get.height / 54)),
-                        ),
-                        child: ctrl.submitting.value
-                            ? SizedBox(
-                                width: Get.height / 34.36,
-                                height: Get.height / 34.36,
-                                child: const CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white))
-                            : Text('Submit Attendance',
-                                style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14)),
-                      ),
-                    )),
+          ),
+          // Submit button
+          if (!ctrl.isPastDate)
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                isTablet ? 32.0 : 16.0,
+                0,
+                isTablet ? 32.0 : 16.0,
+                isTablet ? 32.0 : 20.0,
               ),
-          ],
-        );
-      });
+              child: Obx(() => SizedBox(
+                    width: double.infinity,
+                    height: isTablet ? 60.0 : 48.0,
+                    child: ElevatedButton(
+                      onPressed: ctrl.submitting.value
+                          ? null
+                          : () async {
+                              final ok = await ctrl.submitAttendance();
+                              if (ok && context.mounted) {
+                                showToast(context, 'Attendance saved!');
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(isTablet ? 16.0 : 10.0)),
+                      ),
+                      child: ctrl.submitting.value
+                          ? SizedBox(
+                              width: isTablet ? 28.0 : 22.0,
+                              height: isTablet ? 28.0 : 22.0,
+                              child: const CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : Text('Submit Attendance',
+                              style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: isTablet ? 16.0 : 14.0)),
+                    ),
+                  )),
+            ),
+        ],
+      );
+    });
+  }
 }
 
 class _BulkBtn extends StatelessWidget {
@@ -739,28 +755,31 @@ class _BulkBtn extends StatelessWidget {
   const _BulkBtn(this.label, this.color, this.onTap);
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: Get.height / 63,
-            vertical: Get.height / 126,
-          ),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(
-              Get.height / 94.5,
-            ),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Text(label,
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                  color: color)),
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isTablet ? 16.0 : 12.0,
+          vertical: isTablet ? 10.0 : 6.0,
         ),
-      );
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(
+            isTablet ? 12.0 : 8.0,
+          ),
+          border: Border.all(color: color.withOpacity(0.3)),
+        ),
+        child: Text(label,
+            style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
+                fontSize: isTablet ? 14.0 : 12.0,
+                color: color)),
+      ),
+    );
+  }
 }
 
 class _StudentAttendanceTile extends StatelessWidget {
@@ -784,88 +803,93 @@ class _StudentAttendanceTile extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.all(Get.height / 63),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(Get.height / 54),
-          border: Border.all(color: _statusColor.withOpacity(0.25)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: Get.height / 126,
-                offset: const Offset(0, 2))
-          ],
-        ),
-        child: Row(
-          children: [
-            NetAvatar(
-              url: student['profile_photo'] as String?,
-              radius: Get.height / 37.8,
-              fallbackLetter: (student['name'] as String? ?? '?')[0],
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return Container(
+      padding: EdgeInsets.all(isTablet ? 16.0 : 12.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isTablet ? 16.0 : 10.0),
+        border: Border.all(color: _statusColor.withOpacity(0.25)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
+      ),
+      child: Row(
+        children: [
+          NetAvatar(
+            url: student['profile_photo'] as String?,
+            radius: isTablet ? 28.0 : 20.0,
+            fallbackLetter: (student['name'] as String? ?? '?')[0],
+          ),
+          SizedBox(width: isTablet ? 16.0 : 12.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(student['name'] as String? ?? 'Student',
+                    style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w600,
+                        fontSize: isTablet ? 16.0 : 13.0,
+                        color: AppColors.textPrimary)),
+                const SizedBox(height: 2.0),
+                Text(
+                    'Roll: ${student['roll_number'] ?? student['admission_no'] ?? '-'}',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Inter',
+                        fontSize: isTablet ? 13.0 : 10.0,
+                        color: AppColors.textSecondary)),
+              ],
             ),
-            SizedBox(width: Get.height / 63),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(student['name'] as String? ?? 'Student',
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                          color: AppColors.textPrimary)),
-                  Text(
-                      'Roll: ${student['roll_number'] ?? student['admission_no'] ?? '-'}',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'Inter',
-                          fontSize: 10,
-                          color: AppColors.textSecondary)),
-                ],
-              ),
-            ),
-            Row(
-              children: ['P', 'A', 'L'].map((s) {
-                final sel = status == s;
-                final c = s == 'P'
-                    ? Colors.green
-                    : s == 'A'
-                        ? Colors.red
-                        : Colors.orange;
-                return GestureDetector(
-                  onTap: onChanged == null ? null : () => onChanged!(s),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    margin: const EdgeInsets.only(left: 6),
-                    width: Get.height / 21,
-                    height: Get.height / 21,
-                    decoration: BoxDecoration(
-                      color: sel ? c : c.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(Get.height / 75.6),
-                      border: Border.all(
-                          color: sel ? c : c.withOpacity(0.3), width: 1.5),
-                    ),
-                    child: Center(
-                      child: Text(s,
-                          style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: sel ? Colors.white : c)),
-                    ),
+          ),
+          Row(
+            children: ['P', 'A', 'L'].map((s) {
+              final sel = status == s;
+              final c = s == 'P'
+                  ? Colors.green
+                  : s == 'A'
+                      ? Colors.red
+                      : Colors.orange;
+              return GestureDetector(
+                onTap: onChanged == null ? null : () => onChanged!(s),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  margin: const EdgeInsets.only(left: 6),
+                  width: isTablet ? 48.0 : 38.0,
+                  height: isTablet ? 48.0 : 38.0,
+                  decoration: BoxDecoration(
+                    color: sel ? c : c.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0),
+                    border: Border.all(
+                        color: sel ? c : c.withOpacity(0.3), width: 1.5),
                   ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
-      );
+                  child: Center(
+                    child: Text(s,
+                        style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w600,
+                            fontSize: isTablet ? 16.0 : 14.0,
+                            color: sel ? Colors.white : c)),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 Future<void> _showMonthYearPicker(
     BuildContext context, AttendanceController ctrl) async {
   final now = DateTime.now();
+  final isTablet = MediaQuery.of(context).size.width >= 600;
   final initialYm = ctrl.reportMonth.value.split('-');
   int tempYear = initialYm.isNotEmpty
       ? (int.tryParse(initialYm[0]) ?? now.year)
@@ -906,11 +930,11 @@ Future<void> _showMonthYearPicker(
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w600,
-                fontSize: 18,
+                fontSize: isTablet ? 20.0 : 18.0,
               ),
             ),
             content: SizedBox(
-              width: Get.width / 2.36,
+              width: isTablet ? 360.0 : 280.0,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -929,7 +953,7 @@ Future<void> _showMonthYearPicker(
                         '$tempYear',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          fontSize: 20,
+                          fontSize: isTablet ? 22.0 : 20.0,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textPrimary,
                         ),
@@ -944,11 +968,11 @@ Future<void> _showMonthYearPicker(
                     ],
                   ),
                   SizedBox(
-                    height: Get.height / 47.25,
+                    height: isTablet ? 20.0 : 16.0,
                   ),
                   // Month Grid
                   SizedBox(
-                    height: Get.height / 3.78,
+                    height: isTablet ? 240.0 : 210.0,
                     child: GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -1064,8 +1088,130 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
         null; // Clear previous report data when entering screen
   }
 
+  Widget _buildClassSelector(
+      BuildContext context, bool isTablet, double width) {
+    final selectedId = ctrl.reportClass.value?['id'];
+    final currentSelection = ctrl.classes.firstWhereOrNull(
+      (c) => c['id'] == selectedId,
+    );
+    final label = currentSelection != null
+        ? '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}'
+        : 'Select Class';
+
+    return LayoutBuilder(
+      builder: (context, boxConstraints) {
+        final localWidth = boxConstraints.maxWidth;
+        return Theme(
+          data: Theme.of(context).copyWith(
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: PopupMenuButton<dynamic>(
+            surfaceTintColor: Colors.white,
+            color: Colors.white,
+            offset: const Offset(0, 52),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            constraints: BoxConstraints(
+              minWidth: localWidth,
+              maxWidth: localWidth,
+            ),
+            onSelected: (v) => ctrl.reportClass.value = v,
+            itemBuilder: (ctx) => ctrl.classes.map((c) {
+              return PopupMenuItem<dynamic>(
+                value: c,
+                child: Text(
+                  '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
+                  style: TextStyle(
+                      fontSize: isTablet ? 15.0 : 13.0,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Inter'),
+                ),
+              );
+            }).toList(),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'Select Class',
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: isTablet ? 16.0 : 12.0,
+                    vertical: isTablet ? 16.0 : 10.0),
+                suffixIcon: Icon(Icons.keyboard_arrow_down_rounded,
+                    color: AppColors.textSecondary,
+                    size: isTablet ? 28.0 : 24.0),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Inter',
+                    fontSize: isTablet ? 15.0 : 13.0),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMonthPicker(BuildContext context, bool isTablet) {
+    return GestureDetector(
+      onTap: () => _showMonthYearPicker(context, ctrl),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: 'Select Month',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
+          contentPadding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 16.0 : 12.0,
+              vertical: isTablet ? 16.0 : 10.0),
+          suffixIcon: Icon(Icons.calendar_month_rounded,
+              color: AppColors.primary, size: isTablet ? 24.0 : 20.0),
+        ),
+        child: Text(
+          formatYmToMy(ctrl.reportMonth.value),
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Inter',
+              fontSize: isTablet ? 15.0 : 13.0),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenerateButton(bool isTablet) {
+    return ElevatedButton(
+      onPressed: ctrl.reportLoading.value ? null : () => ctrl.loadReport(),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        padding: EdgeInsets.symmetric(vertical: isTablet ? 16.0 : 12.0),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
+      ),
+      child: ctrl.reportLoading.value
+          ? SizedBox(
+              width: isTablet ? 26.0 : 20.0,
+              height: isTablet ? 26.0 : 20.0,
+              child: const CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white))
+          : Text('Generate Report',
+              style: TextStyle(
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 16.0 : 14.0,
+                  fontWeight: FontWeight.w500)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
@@ -1092,11 +1238,11 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             ),
           ),
         ),
-        title: const Text('Attendance Report',
+        title: Text('Attendance Report',
             style: TextStyle(
                 color: Colors.white,
                 fontFamily: 'Inter',
-                fontSize: 16,
+                fontSize: isTablet ? 18.0 : 16.0,
                 fontWeight: FontWeight.w500)),
       ),
       body: Obx(() => Column(
@@ -1104,125 +1250,36 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
               // Filters
               Container(
                 color: Colors.white,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    // Class selector
-                    (() {
-                      final selectedId = ctrl.reportClass.value?['id'];
-                      final currentSelection = ctrl.classes.firstWhereOrNull(
-                        (c) => c['id'] == selectedId,
-                      );
-                      final label = currentSelection != null
-                          ? '${currentSelection['name'] ?? ''} ${currentSelection['section'] != null ? '- ${currentSelection['section']}' : ''}'
-                          : 'Select Class';
-
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          hoverColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
-                        ),
-                        child: PopupMenuButton<dynamic>(
-                          surfaceTintColor: Colors.white,
-                          color: Colors.white,
-                          offset: const Offset(0, 52),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(color: Color(0xFFE2E8F0)),
+                padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+                child: isTablet
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                              child: _buildClassSelector(
+                                  context, isTablet, width)),
+                          const SizedBox(width: 16.0),
+                          Expanded(child: _buildMonthPicker(context, isTablet)),
+                          const SizedBox(width: 16.0),
+                          SizedBox(
+                            width: 200.0,
+                            height: 54.0,
+                            child: _buildGenerateButton(isTablet),
                           ),
-                          constraints: BoxConstraints(
-                            minWidth: MediaQuery.of(context).size.width - 32,
-                            maxWidth: MediaQuery.of(context).size.width - 32,
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          _buildClassSelector(context, isTablet, width),
+                          const SizedBox(height: 12.0),
+                          _buildMonthPicker(context, isTablet),
+                          const SizedBox(height: 16.0),
+                          SizedBox(
+                            width: double.infinity,
+                            child: _buildGenerateButton(isTablet),
                           ),
-                          onSelected: (v) => ctrl.reportClass.value = v,
-                          itemBuilder: (ctx) => ctrl.classes.map((c) {
-                            return PopupMenuItem<dynamic>(
-                              value: c,
-                              child: Text(
-                                '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Inter'),
-                              ),
-                            );
-                          }).toList(),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Select Class',
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(Get.height / 63)),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: Get.height / 63,
-                                  vertical: Get.height / 75.6),
-                              suffixIcon: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: AppColors.textSecondary),
-                            ),
-                            child: Text(
-                              label,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Inter',
-                                  fontSize: 13),
-                            ),
-                          ),
-                        ),
-                      );
-                    })(),
-                    SizedBox(height: Get.height / 63),
-                    // Month picker
-                    GestureDetector(
-                      onTap: () => _showMonthYearPicker(context, ctrl),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(Get.height / 63),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(Get.height / 63),
-                        ),
-                        child: Row(children: [
-                          Icon(Icons.calendar_month_rounded,
-                              size: Get.height / 54, color: AppColors.primary),
-                          SizedBox(width: Get.height / 94.5),
-                          Text(formatYmToMy(ctrl.reportMonth.value),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Inter',
-                                  fontSize: 13)),
-                        ]),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: Get.height / 63),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: ctrl.reportLoading.value
-                            ? null
-                            : () => ctrl.loadReport(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: ctrl.reportLoading.value
-                            ? SizedBox(
-                                width: Get.height / 37.8,
-                                height: Get.height / 37.8,
-                                child: const CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white))
-                            : const Text('Generate Report',
-                                style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w500)),
-                      ),
-                    ),
-                  ],
-                ),
               ),
               // Report results
               Expanded(
@@ -1249,6 +1306,7 @@ class _ReportBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     final students = List<dynamic>.from(
         data['report'] ?? data['students'] ?? data['records'] ?? []);
 
@@ -1275,98 +1333,142 @@ class _ReportBody extends StatelessWidget {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.all(isTablet ? 32.0 : 16.0),
             child: Row(children: [
               Expanded(
                   child: _SummaryCard(
                       'School Days', totalDays.toString(), AppColors.primary)),
-              SizedBox(width: Get.height / 75.6),
+              SizedBox(width: isTablet ? 16.0 : 8.0),
               Expanded(
                   child: _SummaryCard(
                       'Avg Present', '$avgPresent%', AppColors.secondary)),
-              SizedBox(width: Get.height / 75.6),
+              SizedBox(width: isTablet ? 16.0 : 8.0),
               Expanded(
                   child: _SummaryCard(
                       'Avg Absent', '$avgAbsent%', AppColors.danger)),
             ]),
           ),
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (ctx, i) {
-              final s = students[i] as Map<String, dynamic>;
-              final present = (s['present'] as num?)?.toInt() ?? 0;
-              final total = (s['total_days'] as num?)?.toInt() ?? 1;
-              final pct = (s['percentage'] as num?)?.round() ??
-                  (total > 0 ? (present / total * 100).round() : 0);
-              final studentName = s['student_name'] as String? ??
-                  s['name'] as String? ??
-                  'Student';
-
-              return Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: Get.height / 47.25,
-                  vertical: Get.height / 189,
-                ),
-                padding: EdgeInsets.all(Get.height / 54),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                    Get.height / 54,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: Get.height / 126,
-                    )
-                  ],
-                ),
-                child: Row(children: [
-                  NetAvatar(
-                    url: s['profile_photo'] as String?,
-                    radius: Get.height / 37.8,
-                    fallbackLetter:
-                        studentName.isNotEmpty ? studentName[0] : '?',
-                  ),
-                  SizedBox(width: Get.height / 63),
-                  Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(studentName,
-                              style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w600)),
-                          SizedBox(height: Get.height / 189),
-                          LinearProgressIndicator(
-                            value: pct / 100,
-                            backgroundColor: Colors.grey.shade200,
-                            color: pct >= 75
-                                ? AppColors.secondary
-                                : pct >= 50
-                                    ? AppColors.warning
-                                    : AppColors.danger,
-                          ),
-                        ]),
-                  ),
-                  SizedBox(width: Get.height / 63),
-                  Text('$pct%',
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.w600,
-                          color: pct >= 75
-                              ? AppColors.secondary
-                              : pct >= 50
-                                  ? AppColors.warning
-                                  : AppColors.danger)),
-                ]),
-              );
-            },
-            childCount: students.length,
+        SliverPadding(
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 32.0 : 16.0,
           ),
+          sliver: isTablet
+              ? SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 12.0,
+                    childAspectRatio: 4.5,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => _StudentReportTile(
+                      student: students[i] as Map<String, dynamic>,
+                      isTablet: true,
+                    ),
+                    childCount: students.length,
+                  ),
+                )
+              : SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (ctx, i) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: _StudentReportTile(
+                        student: students[i] as Map<String, dynamic>,
+                        isTablet: false,
+                      ),
+                    ),
+                    childCount: students.length,
+                  ),
+                ),
         ),
-        SliverToBoxAdapter(child: SizedBox(height: Get.height / 31.5)),
+        SliverToBoxAdapter(child: SizedBox(height: isTablet ? 40.0 : 24.0)),
       ],
+    );
+  }
+}
+
+class _StudentReportTile extends StatelessWidget {
+  final Map<String, dynamic> student;
+  final bool isTablet;
+
+  const _StudentReportTile({required this.student, required this.isTablet});
+
+  @override
+  Widget build(BuildContext context) {
+    final present = (student['present'] as num?)?.toInt() ?? 0;
+    final total = (student['total_days'] as num?)?.toInt() ?? 1;
+    final pct = (student['percentage'] as num?)?.round() ??
+        (total > 0 ? (present / total * 100).round() : 0);
+    final studentName = student['student_name'] as String? ??
+        student['name'] as String? ??
+        'Student';
+
+    return Container(
+      padding: EdgeInsets.all(isTablet ? 16.0 : 14.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(isTablet ? 16.0 : 12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+          )
+        ],
+      ),
+      child: Row(
+        children: [
+          NetAvatar(
+            url: student['profile_photo'] as String?,
+            radius: isTablet ? 24.0 : 20.0,
+            fallbackLetter: studentName.isNotEmpty ? studentName[0] : '?',
+          ),
+          SizedBox(width: isTablet ? 14.0 : 12.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  studentName,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: isTablet ? 15.0 : 14.0,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: isTablet ? 6.0 : 4.0),
+                LinearProgressIndicator(
+                  value: pct / 100,
+                  backgroundColor: Colors.grey.shade200,
+                  color: pct >= 75
+                      ? AppColors.secondary
+                      : pct >= 50
+                          ? AppColors.warning
+                          : AppColors.danger,
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: isTablet ? 14.0 : 12.0),
+          Text(
+            '$pct%',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+              fontSize: isTablet ? 15.0 : 14.0,
+              color: pct >= 75
+                  ? AppColors.secondary
+                  : pct >= 50
+                      ? AppColors.warning
+                      : AppColors.danger,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1378,30 +1480,33 @@ class _SummaryCard extends StatelessWidget {
   const _SummaryCard(this.label, this.value, this.color);
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.all(Get.height / 54),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(Get.height / 54),
-          border: Border.all(color: color.withOpacity(0.2)),
-        ),
-        child: Column(children: [
-          Text(value,
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                  color: color)),
-          SizedBox(height: Get.height / 378),
-          Text(label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontFamily: 'Inter',
-                  fontSize: 11,
-                  color: AppColors.textSecondary)),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return Container(
+      padding: EdgeInsets.all(isTablet ? 20.0 : 14.0),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(isTablet ? 20.0 : 14.0),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Column(children: [
+        Text(value,
+            style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w600,
+                fontSize: isTablet ? 22.0 : 16.0,
+                color: color)),
+        SizedBox(height: isTablet ? 6.0 : 2.0),
+        Text(label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontFamily: 'Inter',
+                fontSize: isTablet ? 13.0 : 11.0,
+                color: AppColors.textSecondary)),
+      ]),
+    );
+  }
 }
 
 // ── Shimmer Classes Loading Screen ──────────────────────────────
@@ -1410,28 +1515,31 @@ class _ClassesLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Padding(
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.all(isTablet ? 32.0 : 16.0),
       child: Column(
         children: [
-          const ShimmerCard(height: 54, radius: 12),
-          SizedBox(height: Get.height / 63),
+          ShimmerCard(height: isTablet ? 60.0 : 54.0, radius: 12),
+          SizedBox(height: isTablet ? 16.0 : 12.0),
           Row(
             children: [
               const ShimmerCard(width: 100, height: 20, radius: 6),
               const Spacer(),
               const ShimmerCard(width: 60, height: 26, radius: 8),
-              SizedBox(width: Get.height / 94.5),
+              SizedBox(width: isTablet ? 12.0 : 8.0),
               const ShimmerCard(width: 60, height: 26, radius: 8),
             ],
           ),
-          SizedBox(height: Get.height / 47.25),
+          SizedBox(height: isTablet ? 24.0 : 16.0),
           Expanded(
             child: ListView.separated(
               physics: const NeverScrollableScrollPhysics(),
               itemCount: 6,
-              separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
-              itemBuilder: (_, __) => const ShimmerCard(height: 70, radius: 12),
+              separatorBuilder: (_, __) =>
+                  SizedBox(height: isTablet ? 12.0 : 8.0),
+              itemBuilder: (_, __) =>
+                  ShimmerCard(height: isTablet ? 80.0 : 70.0, radius: 12),
             ),
           ),
         ],
@@ -1446,20 +1554,21 @@ class _StudentsLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Column(
       children: [
         Container(
           color: Colors.white,
           padding: EdgeInsets.symmetric(
-            horizontal: Get.height / 47.25,
-            vertical: Get.height / 75.6,
+            horizontal: isTablet ? 32.0 : 16.0,
+            vertical: isTablet ? 16.0 : 10.0,
           ),
           child: Row(
             children: [
               const ShimmerCard(width: 100, height: 20, radius: 6),
               const Spacer(),
               const ShimmerCard(width: 60, height: 26, radius: 8),
-              SizedBox(width: Get.height / 94.5),
+              SizedBox(width: isTablet ? 12.0 : 8.0),
               const ShimmerCard(width: 60, height: 26, radius: 8),
             ],
           ),
@@ -1467,10 +1576,12 @@ class _StudentsLoadingShimmer extends StatelessWidget {
         Expanded(
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.all(isTablet ? 32.0 : 16.0),
             itemCount: 6,
-            separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
-            itemBuilder: (_, __) => const ShimmerCard(height: 70, radius: 12),
+            separatorBuilder: (_, __) =>
+                SizedBox(height: isTablet ? 12.0 : 8.0),
+            itemBuilder: (_, __) =>
+                ShimmerCard(height: isTablet ? 80.0 : 70.0, radius: 12),
           ),
         ),
       ],
@@ -1484,28 +1595,49 @@ class _ReportLoadingShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.all(Get.height / 47.25),
+          padding: EdgeInsets.all(isTablet ? 32.0 : 16.0),
           child: Row(
             children: [
-              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
-              SizedBox(width: Get.height / 75.6),
-              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
-              SizedBox(width: Get.height / 75.6),
-              Expanded(child: const ShimmerCard(height: 60, radius: 12)),
+              Expanded(
+                  child:
+                      ShimmerCard(height: isTablet ? 70.0 : 60.0, radius: 12)),
+              SizedBox(width: isTablet ? 16.0 : 8.0),
+              Expanded(
+                  child:
+                      ShimmerCard(height: isTablet ? 70.0 : 60.0, radius: 12)),
+              SizedBox(width: isTablet ? 16.0 : 8.0),
+              Expanded(
+                  child:
+                      ShimmerCard(height: isTablet ? 70.0 : 60.0, radius: 12)),
             ],
           ),
         ),
         Expanded(
-          child: ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: Get.height / 47.25),
-            itemCount: 5,
-            separatorBuilder: (_, __) => SizedBox(height: Get.height / 94.5),
-            itemBuilder: (_, __) => const ShimmerCard(height: 64, radius: 12),
-          ),
+          child: isTablet
+              ? GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.0,
+                    mainAxisSpacing: 12.0,
+                    childAspectRatio: 4.5,
+                  ),
+                  itemCount: 6,
+                  itemBuilder: (_, __) => const ShimmerCard(radius: 16),
+                )
+              : ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  itemCount: 5,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8.0),
+                  itemBuilder: (_, __) =>
+                      const ShimmerCard(height: 64.0, radius: 12),
+                ),
         ),
       ],
     );

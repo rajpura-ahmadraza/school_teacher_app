@@ -283,265 +283,278 @@ class _StudentsScreenState extends State<StudentsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: const Color(0xFFF7F8FC),
-        body: Column(children: [
-          // ── Header ──────────────────────────────────────────
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF9333EA), Color(0xFFDB2777)],
-              ),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  Get.height / 37.8,
-                  Get.height / 63,
-                  Get.height / 37.8,
-                  Get.height / 34.36,
-                ),
-                child: Row(children: [
-                  GestureDetector(
-                    onTap: () => Get.offNamed(AppRoutes.dashboard),
-                    child: Container(
-                      width: Get.height / 18.9,
-                      height: Get.height / 18.9,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.16),
-                        borderRadius: BorderRadius.circular(Get.height / 63),
-                      ),
-                      child: Icon(Icons.arrow_back_ios_rounded,
-                          color: Colors.white, size: Get.height / 42),
-                    ),
-                  ),
-                  SizedBox(width: Get.height / 54),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Students',
-                            style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 24,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white)),
-                        Text('Manage your class roster',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontFamily: 'Inter',
-                                fontSize: 13,
-                                color: Colors.white70)),
-                      ],
-                    ),
-                  ),
-                  Obx(() => Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: Get.height / 63,
-                            vertical: Get.height / 94.5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.16),
-                          borderRadius: BorderRadius.circular(Get.height / 63),
-                        ),
-                        child: Text('${ctrl.total.value}',
-                            style: const TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white)),
-                      )),
-                ]),
-              ),
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FC),
+      body: Column(children: [
+        // ── Header ──────────────────────────────────────────
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF9333EA), Color(0xFFDB2777)],
             ),
           ),
-          // ── Search bar + Standard Dropdown (same row) ─────────────
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              Get.height / 47.25,
-              Get.height / 54,
-              Get.height / 47.25,
-              Get.height / 94.5,
-            ),
-            child: Row(children: [
-              // Search field (expanded)
-              Expanded(
-                child: SizedBox(
-                  height: Get.height / 15.75,
-                  child: TextField(
-                    controller: _searchCtrl,
-                    onChanged: (v) => ctrl.loadStudents(
-                        refresh: true, search: v, keepClass: true),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.normal,
-                        fontFamily: 'Inter',
-                        fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: 'Search by name',
-                      hintStyle: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          color: AppColors.textTertiary),
-                      prefixIcon: Icon(Icons.search_rounded,
-                          color: AppColors.textTertiary,
-                          size: Get.height / 37.8),
-                      suffixIcon: _searchCtrl.text.isNotEmpty
-                          ? IconButton(
-                              icon: Icon(Icons.clear_rounded,
-                                  size: Get.height / 47.25),
-                              onPressed: () {
-                                _searchCtrl.clear();
-                                ctrl.loadStudents(
-                                    refresh: true, keepClass: true);
-                              })
-                          : null,
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: Get.height / 63, vertical: 0),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(Get.height / 63),
-                          borderSide: BorderSide.none),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(
+                isTablet ? 24.0 : Get.height / 37.8,
+                isTablet ? 16.0 : Get.height / 63,
+                isTablet ? 24.0 : Get.height / 37.8,
+                isTablet ? 20.0 : Get.height / 34.36,
+              ),
+              child: Row(children: [
+                GestureDetector(
+                  onTap: () => Get.offNamed(AppRoutes.dashboard),
+                  child: Container(
+                    width: isTablet ? 40.0 : Get.height / 18.9,
+                    height: isTablet ? 40.0 : Get.height / 18.9,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.16),
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 12.0 : Get.height / 63),
                     ),
+                    child: Icon(Icons.arrow_back_ios_rounded,
+                        color: Colors.white,
+                        size: isTablet ? 20.0 : Get.height / 42),
                   ),
                 ),
-              ),
-              SizedBox(width: Get.height / 75.6),
-              // Compact Standard dropdown button
-              Obx(() {
-                final selected = ctrl.selectedClass.value;
-                String label;
-                if (selected == null) {
-                  label = 'All';
-                } else {
-                  final name = selected['name'] as String? ?? 'Std';
-                  final section = selected['section'] as String? ?? '';
-                  label = section.isNotEmpty ? '$name-$section' : name;
-                }
-                return GestureDetector(
-                  key: _stdDropdownKey,
-                  onTap: _openDropdown,
-                  child: Container(
-                    height: Get.height / 15.75,
-                    width: Get.height / 6.8,
-                    padding: EdgeInsets.symmetric(horizontal: Get.height / 84),
-                    decoration: BoxDecoration(
-                      color: _dropdownOpen
-                          ? const Color(0xFF9333EA)
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(Get.height / 63),
-                      border: Border.all(
-                        color: _dropdownOpen
-                            ? const Color(0xFF9333EA)
-                            : Colors.transparent,
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(children: [
-                      Icon(Icons.class_outlined,
-                          size: Get.height / 47.25,
-                          color: _dropdownOpen
-                              ? Colors.white
-                              : const Color(0xFF9333EA)),
-                      SizedBox(width: Get.height / 126),
-                      Expanded(
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                SizedBox(width: isTablet ? 16.0 : Get.height / 54),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Students',
                           style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: _dropdownOpen
-                                  ? Colors.white
-                                  : AppColors.textPrimary),
-                        ),
+                              fontSize: isTablet ? 26 : 24,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white)),
+                      Text('Manage your class roster',
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontFamily: 'Inter',
+                              fontSize: isTablet ? 14 : 13,
+                              color: Colors.white70)),
+                    ],
+                  ),
+                ),
+                Obx(() => Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 16.0 : Get.height / 63,
+                          vertical: isTablet ? 8.0 : Get.height / 94.5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.16),
+                        borderRadius: BorderRadius.circular(
+                            isTablet ? 12.0 : Get.height / 63),
                       ),
-                      SizedBox(width: Get.height / 189),
-                      AnimatedRotation(
-                        turns: _dropdownOpen ? 0.5 : 0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Icon(Icons.keyboard_arrow_down_rounded,
+                      child: Text('${ctrl.total.value}',
+                          style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: isTablet ? 18 : 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white)),
+                    )),
+              ]),
+            ),
+          ),
+        ),
+        // ── Search bar + Standard Dropdown (same row) ─────────────
+        Padding(
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 24.0 : Get.height / 47.25,
+            isTablet ? 20.0 : Get.height / 54,
+            isTablet ? 24.0 : Get.height / 47.25,
+            isTablet ? 12.0 : Get.height / 94.5,
+          ),
+          child: Row(children: [
+            // Search field (expanded)
+            Expanded(
+              child: SizedBox(
+                height: isTablet ? 48.0 : Get.height / 15.75,
+                child: TextField(
+                  controller: _searchCtrl,
+                  onChanged: (v) => ctrl.loadStudents(
+                      refresh: true, search: v, keepClass: true),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Inter',
+                      fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Search by name',
+                    hintStyle: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontFamily: 'Inter',
+                      fontSize: 14,
+                      color: AppColors.textTertiary,
+                    ),
+                    prefixIcon: Icon(Icons.search_rounded,
+                        color: AppColors.textTertiary,
+                        size: isTablet ? 20.0 : Get.height / 37.8),
+                    suffixIcon: _searchCtrl.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear_rounded,
+                                size: isTablet ? 20.0 : Get.height / 47.25),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              ctrl.loadStudents(refresh: true, keepClass: true);
+                            })
+                        : null,
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 16.0 : Get.height / 63,
+                        vertical: 0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(
+                            isTablet ? 12.0 : Get.height / 63),
+                        borderSide: BorderSide.none),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: isTablet ? 16.0 : Get.height / 75.6),
+            // Compact Standard dropdown button
+            Obx(() {
+              final selected = ctrl.selectedClass.value;
+              String label;
+              if (selected == null) {
+                label = 'All';
+              } else {
+                final name = selected['name'] as String? ?? 'Std';
+                final section = selected['section'] as String? ?? '';
+                label = section.isNotEmpty ? '$name-$section' : name;
+              }
+              return GestureDetector(
+                key: _stdDropdownKey,
+                onTap: _openDropdown,
+                child: Container(
+                  height: isTablet ? 48.0 : Get.height / 15.75,
+                  width: isTablet ? 140.0 : Get.height / 6.8,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 12.0 : Get.height / 84),
+                  decoration: BoxDecoration(
+                    color:
+                        _dropdownOpen ? const Color(0xFF9333EA) : Colors.white,
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : Get.height / 63),
+                    border: Border.all(
+                      color: _dropdownOpen
+                          ? const Color(0xFF9333EA)
+                          : Colors.transparent,
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(children: [
+                    Icon(Icons.class_outlined,
+                        size: isTablet ? 20.0 : Get.height / 47.25,
+                        color: _dropdownOpen
+                            ? Colors.white
+                            : const Color(0xFF9333EA)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
                             color: _dropdownOpen
                                 ? Colors.white
-                                : AppColors.textTertiary,
-                            size: Get.height / 42),
+                                : AppColors.textPrimary),
                       ),
-                    ]),
-                  ),
-                );
-              }),
-            ]),
-          ),
-          // ── List ──────────────────────────────────────────────
-          Expanded(
-            child: Obx(() {
-              if (ctrl.isLoading.value && ctrl.students.isEmpty) {
-                return ListView.separated(
-                  padding: EdgeInsets.all(Get.height / 47.25),
-                  itemCount: 8,
-                  separatorBuilder: (_, __) =>
-                      SizedBox(height: Get.height / 75.6),
-                  itemBuilder: (_, __) =>
-                      ShimmerCard(height: Get.height / 9.69),
-                );
-              }
-              if (ctrl.error.value.isNotEmpty && ctrl.students.isEmpty) {
-                return ErrorState(
-                    error: ctrl.error.value,
-                    onRetry: () => ctrl.loadStudents(refresh: true));
-              }
-              if (ctrl.students.isEmpty) {
-                return const EmptyState(
-                    icon: Icons.people_outline,
-                    title: 'No Students',
-                    subtitle: 'No students found');
-              }
-              return RefreshIndicator(
-                onRefresh: () => ctrl.loadStudents(
-                    refresh: true, search: _searchCtrl.text, keepClass: true),
-                child: ListView.separated(
-                  controller: _scrollCtrl,
-                  padding: EdgeInsets.fromLTRB(
-                    Get.height / 47.25,
-                    Get.height / 189,
-                    Get.height / 47.25,
-                    Get.height / 37.8,
-                  ),
-                  itemCount:
-                      ctrl.students.length + (ctrl.hasMore.value ? 1 : 0),
-                  separatorBuilder: (_, __) =>
-                      SizedBox(height: Get.height / 75.6),
-                  itemBuilder: (ctx, i) {
-                    if (i == ctrl.students.length) {
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: Get.height / 75.6),
-                        child: ShimmerCard(height: Get.height / 9.69),
-                      );
-                    }
-                    final s = ctrl.students[i] as Map<String, dynamic>;
-                    return FadeInUp(
-                      duration: Duration(milliseconds: 200 + (i % 10) * 30),
-                      child: _StudentCard(student: s),
-                    );
-                  },
+                    ),
+                    const SizedBox(width: 4),
+                    AnimatedRotation(
+                      turns: _dropdownOpen ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(Icons.keyboard_arrow_down_rounded,
+                          color: _dropdownOpen
+                              ? Colors.white
+                              : AppColors.textTertiary,
+                          size: isTablet ? 20.0 : Get.height / 42),
+                    ),
+                  ]),
                 ),
               );
             }),
-          ),
-        ]),
-      );
+          ]),
+        ),
+        // ── List ──────────────────────────────────────────────
+        Expanded(
+          child: Obx(() {
+            if (ctrl.isLoading.value && ctrl.students.isEmpty) {
+              return ListView.separated(
+                padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 47.25),
+                itemCount: 8,
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
+                itemBuilder: (_, __) => ShimmerCard(
+                    height: isTablet ? 80.0 : Get.height / 9.69, radius: 14),
+              );
+            }
+            if (ctrl.error.value.isNotEmpty && ctrl.students.isEmpty) {
+              return ErrorState(
+                  error: ctrl.error.value,
+                  onRetry: () => ctrl.loadStudents(refresh: true));
+            }
+            if (ctrl.students.isEmpty) {
+              return const EmptyState(
+                  icon: Icons.people_outline,
+                  title: 'No Students',
+                  subtitle: 'No students found');
+            }
+            return RefreshIndicator(
+              onRefresh: () => ctrl.loadStudents(
+                  refresh: true, search: _searchCtrl.text, keepClass: true),
+              child: ListView.separated(
+                controller: _scrollCtrl,
+                padding: EdgeInsets.fromLTRB(
+                  isTablet ? 24.0 : Get.height / 47.25,
+                  isTablet ? 12.0 : Get.height / 189,
+                  isTablet ? 24.0 : Get.height / 47.25,
+                  isTablet ? 24.0 : Get.height / 37.8,
+                ),
+                itemCount: ctrl.students.length + (ctrl.hasMore.value ? 1 : 0),
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: isTablet ? 16.0 : Get.height / 75.6),
+                itemBuilder: (ctx, i) {
+                  if (i == ctrl.students.length) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                          bottom: isTablet ? 16.0 : Get.height / 75.6),
+                      child: ShimmerCard(
+                          height: isTablet ? 80.0 : Get.height / 9.69,
+                          radius: 14),
+                    );
+                  }
+                  final s = ctrl.students[i] as Map<String, dynamic>;
+                  return FadeInUp(
+                    duration: Duration(milliseconds: 200 + (i % 10) * 30),
+                    child: _StudentCard(student: s),
+                  );
+                },
+              ),
+            );
+          }),
+        ),
+      ]),
+    );
+  }
 }
 
 // ── Standard Dropdown Panel (Overlay) ────────────────────────
@@ -552,6 +565,7 @@ class _StandardDropdownPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Obx(() {
       final classes = ctrl.classList;
       final selected = ctrl.selectedClass.value;
@@ -560,19 +574,21 @@ class _StandardDropdownPanel extends StatelessWidget {
         constraints: BoxConstraints(maxHeight: Get.height / 2.90),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(Get.height / 54),
+          borderRadius:
+              BorderRadius.circular(isTablet ? 12.0 : Get.height / 54),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.12),
-              blurRadius: Get.height / 47.25,
+              blurRadius: isTablet ? 16.0 : Get.height / 47.25,
               offset: const Offset(0, 6),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(isTablet ? 12.0 : 14),
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: Get.height / 126),
+            padding: EdgeInsets.symmetric(
+                vertical: isTablet ? 8.0 : Get.height / 126),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -615,12 +631,14 @@ class _DropdownItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return InkWell(
       onTap: onTap,
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
-            horizontal: Get.height / 47.25, vertical: Get.height / 58.15),
+            horizontal: isTablet ? 16.0 : Get.height / 47.25,
+            vertical: isTablet ? 12.0 : Get.height / 58.15),
         color: isSelected
             ? const Color(0xFF9333EA).withOpacity(0.07)
             : Colors.transparent,
@@ -640,7 +658,8 @@ class _DropdownItem extends StatelessWidget {
           ),
           if (isSelected)
             Icon(Icons.check_rounded,
-                color: Color(0xFF9333EA), size: Get.height / 42),
+                color: const Color(0xFF9333EA),
+                size: isTablet ? 20.0 : Get.height / 42),
         ]),
       ),
     );
@@ -653,6 +672,8 @@ class _StudentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     final cls = student['class'] as Map? ?? {};
     final clsName =
         cls['name'] as String? ?? student['class_name'] as String? ?? '';
@@ -667,10 +688,11 @@ class _StudentCard extends StatelessWidget {
       onTap: () => Get.toNamed(AppRoutes.studentDetail,
           arguments: student['id'] as int? ?? 0),
       child: Container(
-        padding: EdgeInsets.all(Get.height / 54),
+        padding: EdgeInsets.all(isTablet ? 16.0 : Get.height / 54),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(Get.height / 47.25),
+          borderRadius:
+              BorderRadius.circular(isTablet ? 14.0 : Get.height / 47.25),
           boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -681,10 +703,10 @@ class _StudentCard extends StatelessWidget {
         child: Row(children: [
           NetAvatar(
             url: photoUrl,
-            radius: Get.height / 29.07,
+            radius: isTablet ? 24.0 : Get.height / 29.07,
             fallbackLetter: (student['name'] as String? ?? '?')[0],
           ),
-          SizedBox(width: Get.height / 54),
+          SizedBox(width: isTablet ? 16.0 : Get.height / 54),
           Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -692,14 +714,14 @@ class _StudentCard extends StatelessWidget {
                   style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                      fontSize: isTablet ? 16 : 15,
                       color: AppColors.textPrimary)),
-              SizedBox(height: Get.height / 378),
+              const SizedBox(height: 4),
               Text('$clsName${section.isNotEmpty ? ' – $section' : ''}',
                   style: TextStyle(
                       fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
-                      fontSize: 12,
+                      fontSize: isTablet ? 13 : 12,
                       color: AppColors.textSecondary)),
             ]),
           ),
@@ -760,6 +782,8 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isTablet = width >= 600;
     final cls = student['class'] as Map? ?? {};
     final parent =
         student['parent'] as Map? ?? student['guardian'] as Map? ?? {};
@@ -774,7 +798,7 @@ class _DetailBody extends StatelessWidget {
       backgroundColor: const Color(0xFFF7F8FC),
       body: CustomScrollView(slivers: [
         SliverAppBar(
-          expandedHeight: 240,
+          expandedHeight: isTablet ? 280 : 240,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
             background: Stack(children: [
@@ -789,89 +813,120 @@ class _DetailBody extends StatelessWidget {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: Get.height / 18.9),
+                      SizedBox(height: isTablet ? 60.0 : Get.height / 18.9),
                       NetAvatar(
                         url: photoUrl,
-                        radius: Get.height / 17.18,
+                        radius: isTablet ? 64.0 : Get.height / 17.18,
                         fallbackLetter: (student['name'] as String? ?? '?')[0],
                       ),
-                      SizedBox(height: Get.height / 63),
+                      SizedBox(height: isTablet ? 12.0 : Get.height / 63),
                       Text(student['name'] as String? ?? 'Student',
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'Inter',
                               fontWeight: FontWeight.w800,
-                              fontSize: 22)),
+                              fontSize: isTablet ? 26 : 22)),
                       Text(
                           '${cls['name'] ?? ''} ${cls['section'] != null ? '– ${cls['section']}' : ''}',
                           style: TextStyle(
                               fontWeight: FontWeight.normal,
                               color: Colors.white70,
                               fontFamily: 'Inter',
-                              fontSize: 14)),
+                              fontSize: isTablet ? 16 : 14)),
                     ]),
               ),
             ]),
           ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-            onPressed: () => Get.back(),
+          leading: UnconstrainedBox(
+            child: GestureDetector(
+              onTap: () => Get.back(),
+              child: Container(
+                width: isTablet ? 40.0 : Get.height / 18.9,
+                height: isTablet ? 40.0 : Get.height / 18.9,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.16),
+                  borderRadius:
+                      BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
+                ),
+                child: Center(
+                  child: Icon(Icons.arrow_back_ios_rounded,
+                      color: Colors.white,
+                      size: isTablet ? 20.0 : Get.height / 42),
+                ),
+              ),
+            ),
           ),
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: EdgeInsets.all(Get.height / 47.25),
-            child: Column(children: [
-              _InfoSection(title: 'Student Info', rows: [
-                InfoRow(
-                    icon: Icons.wc_rounded,
-                    label: 'Gender',
-                    value: (() {
-                      final g = student['gender'] as String?;
-                      if (g == null || g.isEmpty) return '-';
-                      return g[0].toUpperCase() + g.substring(1).toLowerCase();
-                    })()),
-                SizedBox(height: Get.height / 63),
-                InfoRow(
-                    icon: Icons.cake_rounded,
-                    label: 'Date of Birth',
-                    value: student['dob'] == null &&
-                            student['date_of_birth'] == null
-                        ? '-'
-                        : formatYmdToDmy(student['dob'] as String? ??
-                            student['date_of_birth'] as String?)),
-                if (address.isNotEmpty) ...[
-                  SizedBox(height: Get.height / 63),
-                  InfoRow(
-                      icon: Icons.home_rounded,
-                      label: 'Address',
-                      value: address),
-                ],
-              ]),
-              SizedBox(height: Get.height / 47.25),
-              if (parent.isNotEmpty)
-                _InfoSection(title: 'Parent / Guardian', rows: [
-                  InfoRow(
-                      icon: Icons.person_rounded,
-                      label: 'Name',
-                      value: parent['name'] as String? ?? '-'),
-                  SizedBox(height: Get.height / 63),
-                  InfoRow(
-                      icon: Icons.phone_rounded,
-                      label: 'Phone',
-                      value: parent['phone'] as String? ??
-                          parent['mobile'] as String? ??
-                          '-'),
-                  if (parent['email'] != null) ...[
-                    SizedBox(height: Get.height / 63),
+            padding: EdgeInsets.all(isTablet ? 32.0 : Get.height / 47.25),
+            child: Column(
+              children: [
+                _InfoSection(
+                  title: 'Student Info',
+                  rows: [
                     InfoRow(
-                        icon: Icons.email_rounded,
-                        label: 'Email',
-                        value: parent['email'] as String),
+                      icon: Icons.wc_rounded,
+                      label: 'Gender',
+                      value: (() {
+                        final g = student['gender'] as String?;
+                        if (g == null || g.isEmpty) return '-';
+                        return g[0].toUpperCase() +
+                            g.substring(1).toLowerCase();
+                      })(),
+                    ),
+                    SizedBox(height: isTablet ? 16.0 : Get.height / 63),
+                    InfoRow(
+                      icon: Icons.cake_rounded,
+                      label: 'Date of Birth',
+                      value: student['dob'] == null &&
+                              student['date_of_birth'] == null
+                          ? '-'
+                          : formatYmdToDmy(student['dob'] as String? ??
+                              student['date_of_birth'] as String?),
+                    ),
+                    if (address.isNotEmpty) ...[
+                      SizedBox(height: isTablet ? 16.0 : Get.height / 63),
+                      InfoRow(
+                        icon: Icons.home_rounded,
+                        label: 'Address',
+                        value: address,
+                      ),
+                    ],
                   ],
-                ]),
-              const SizedBox(height: 23.62),
-            ]),
+                ),
+                SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
+                if (parent.isNotEmpty) ...[
+                  _InfoSection(
+                    title: 'Parent / Guardian',
+                    rows: [
+                      InfoRow(
+                        icon: Icons.person_rounded,
+                        label: 'Name',
+                        value: parent['name'] as String? ?? '-',
+                      ),
+                      SizedBox(height: isTablet ? 16.0 : Get.height / 63),
+                      InfoRow(
+                        icon: Icons.phone_rounded,
+                        label: 'Phone',
+                        value: parent['phone'] as String? ??
+                            parent['mobile'] as String? ??
+                            '-',
+                      ),
+                      if (parent['email'] != null) ...[
+                        SizedBox(height: isTablet ? 16.0 : Get.height / 63),
+                        InfoRow(
+                          icon: Icons.email_rounded,
+                          label: 'Email',
+                          value: parent['email'] as String,
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: isTablet ? 24.0 : 23.62),
+                ],
+              ],
+            ),
           ),
         ),
       ]),
@@ -885,30 +940,34 @@ class _InfoSection extends StatelessWidget {
   const _InfoSection({required this.title, required this.rows});
 
   @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(Get.height / 42),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(Get.height / 47.25),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2))
-          ],
-        ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-              style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: AppColors.textPrimary)),
-          SizedBox(height: Get.height / 47.25),
-          ...rows,
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 42),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(isTablet ? 14.0 : Get.height / 47.25),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title,
+            style: TextStyle(
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w700,
+                fontSize: isTablet ? 18 : 16,
+                color: AppColors.textPrimary)),
+        SizedBox(height: isTablet ? 20.0 : Get.height / 47.25),
+        ...rows,
+      ]),
+    );
+  }
 }
 
 // ── Shimmer Detail Loading Screen ──────────────────────────────
@@ -917,13 +976,14 @@ class _DetailShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       body: CustomScrollView(
         physics: const NeverScrollableScrollPhysics(),
         slivers: [
           SliverAppBar(
-            expandedHeight: 240,
+            expandedHeight: isTablet ? 280 : 240,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
@@ -941,20 +1001,20 @@ class _DetailShimmer extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(height: Get.height / 18.9),
+                        SizedBox(height: isTablet ? 60.0 : Get.height / 18.9),
                         Shimmer.fromColors(
                           baseColor: Colors.white.withOpacity(0.25),
                           highlightColor: Colors.white.withOpacity(0.15),
                           child: Container(
-                            width: (Get.height / 17.18) * 2,
-                            height: (Get.height / 17.18) * 2,
+                            width: isTablet ? 128.0 : (Get.height / 17.18) * 2,
+                            height: isTablet ? 128.0 : (Get.height / 17.18) * 2,
                             decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
                           ),
                         ),
-                        SizedBox(height: Get.height / 63),
+                        SizedBox(height: isTablet ? 12.0 : Get.height / 63),
                         Shimmer.fromColors(
                           baseColor: Colors.white.withOpacity(0.25),
                           highlightColor: Colors.white.withOpacity(0.15),
@@ -986,22 +1046,37 @@ class _DetailShimmer extends StatelessWidget {
                 ],
               ),
             ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-              onPressed: () => Get.back(),
+            leading: UnconstrainedBox(
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  width: isTablet ? 40.0 : Get.height / 18.9,
+                  height: isTablet ? 40.0 : Get.height / 18.9,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.16),
+                    borderRadius: BorderRadius.circular(
+                        isTablet ? 12.0 : Get.height / 63),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.arrow_back_ios_rounded,
+                        color: Colors.white,
+                        size: isTablet ? 20.0 : Get.height / 42),
+                  ),
+                ),
+              ),
             ),
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(Get.height / 47.25),
+              padding: EdgeInsets.all(isTablet ? 32.0 : Get.height / 47.25),
               child: Column(
                 children: [
-                  _ShimmerSection(
+                  const _ShimmerSection(
                     title: 'Student Info',
                     itemCount: 3,
                   ),
-                  SizedBox(height: Get.height / 47.25),
-                  _ShimmerSection(
+                  SizedBox(height: isTablet ? 24.0 : Get.height / 47.25),
+                  const _ShimmerSection(
                     title: 'Parent / Guardian',
                     itemCount: 3,
                   ),
@@ -1022,12 +1097,14 @@ class _ShimmerSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(Get.height / 42),
+      padding: EdgeInsets.all(isTablet ? 24.0 : Get.height / 42),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(Get.height / 47.25),
+        borderRadius:
+            BorderRadius.circular(isTablet ? 14.0 : Get.height / 47.25),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -1044,11 +1121,11 @@ class _ShimmerSection extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,
-              fontSize: 16,
+              fontSize: isTablet ? 18 : 16,
               color: AppColors.textPrimary,
             ),
           ),
-          SizedBox(height: Get.height / 47.25),
+          SizedBox(height: isTablet ? 20.0 : Get.height / 47.25),
           ...List.generate(itemCount, (index) {
             return Column(
               children: [
@@ -1081,7 +1158,7 @@ class _ShimmerSection extends StatelessWidget {
                   ],
                 ),
                 if (index < itemCount - 1)
-                  SizedBox(height: Get.height / 63),
+                  SizedBox(height: isTablet ? 16.0 : Get.height / 63),
               ],
             );
           }),
