@@ -455,13 +455,19 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
             decoration:
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -478,17 +484,23 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             ),
           ),
         ),
-        title: Text('Homework',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: isTablet ? 18.0 : 16.0,
-                fontWeight: FontWeight.w600)),
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: Text('Homework',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 18.0 : 16.0,
+                  fontWeight: FontWeight.w600)),
+        ),
         actions: [
           Padding(
             padding: isTablet
-                ? const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0)
-                : const EdgeInsets.only(right: 16.0, top: 10.0, bottom: 10.0),
+                ? const EdgeInsets.only(right: 24.0, top: 15.0, bottom: 10.0)
+                : const EdgeInsets.only(right: 16.0, top: 5.0, bottom: 10.0),
             child: OutlinedButton(
               onPressed: () async {
                 await Get.toNamed(AppRoutes.homeworkForm);
@@ -970,7 +982,6 @@ class _HomeworkCard extends StatelessWidget {
     final clsName = cls is Map
         ? '${cls['name'] ?? ''} ${cls['section'] != null ? '- ${cls['section']}' : ''}'
         : cls?.toString() ?? '';
-    final dueDate = hw['due_date'] as String? ?? '';
 
     return GestureDetector(
       onTap: () => Get.toNamed(AppRoutes.homeworkDetail, arguments: hw),
@@ -1026,25 +1037,6 @@ class _HomeworkCard extends StatelessWidget {
                               color: AppColors.textSecondary)),
                     ]),
               ),
-              if (dueDate.isNotEmpty)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isTablet ? 8.0 : Get.height / 75.6,
-                      vertical: isTablet ? 4.0 : Get.height / 189),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(
-                        isTablet ? 8.0 : Get.height / 94.5),
-                    border:
-                        Border.all(color: AppColors.warning.withOpacity(0.3)),
-                  ),
-                  child: Text(formatYmdToDmy(dueDate),
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: isTablet ? 11 : 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.warning)),
-                ),
             ]),
             if (hw['description'] != null &&
                 (hw['description'] as String).isNotEmpty) ...[
@@ -1093,8 +1085,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
       TextEditingController(text: widget.existing?['title'] as String? ?? '');
   late final _descCtrl = TextEditingController(
       text: widget.existing?['description'] as String? ?? '');
-  late final _dueDateCtrl = TextEditingController(
-      text: formatYmdToDmy(widget.existing?['due_date'] as String?));
 
   Map<String, dynamic>? _selectedClass;
   Map<String, dynamic>? _selectedSubject;
@@ -1109,9 +1099,57 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
       ? Get.find<HomeworkController>()
       : Get.put(HomeworkController());
 
+  final Map<int, bool> _classHasSubjects = {};
+  bool _loadingClassSubjects = false;
+
+  Future<void> _checkClassesSubjects() async {
+    if (!mounted) return;
+    setState(() {
+      _loadingClassSubjects = true;
+    });
+    try {
+      final List<Future<void>> futures = [];
+      for (final c in ctrl.classes) {
+        final classId = num.tryParse(c['id']?.toString() ?? '')?.toInt();
+        if (classId != null) {
+          futures.add(() async {
+            try {
+              final resp = await ApiClient.instance
+                  .get('/subjects', params: {'class_id': classId.toString()});
+              final raw = resp.data;
+              List<dynamic> list = [];
+              if (raw is List) {
+                list = raw;
+              } else if (raw is Map) {
+                list = List<dynamic>.from(raw['data'] ?? raw['subjects'] ?? []);
+              }
+              _classHasSubjects[classId] = list.isNotEmpty;
+            } catch (e) {
+              debugPrint("Error checking subjects for class $classId: $e");
+              _classHasSubjects[classId] = false;
+            }
+          }());
+        }
+      }
+      await Future.wait(futures);
+    } catch (e) {
+      debugPrint("Error checking classes subjects: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingClassSubjects = false;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    _initForm();
+  }
+
+  Future<void> _initForm() async {
     if (widget.existing != null) {
       final cls = widget.existing!['class'] as Map?;
       if (cls != null) _selectedClass = Map<String, dynamic>.from(cls);
@@ -1123,23 +1161,54 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
         _existingAttachmentUrls.addAll(urls.map((u) => u.toString()));
         _originalAttachmentCount = _existingAttachmentUrls.length;
       }
+    }
 
-      if (_selectedClass != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (ctrl.classes.isEmpty) {
+        await ctrl.loadClasses();
+      }
+
+      // Check subjects for all classes to determine enabled/disabled status
+      await _checkClassesSubjects();
+
+      if (widget.existing != null) {
+        if (_selectedClass != null) {
           final id =
               num.tryParse(_selectedClass!['id']?.toString() ?? '')?.toInt() ??
                   0;
           if (id != 0) {
-            ctrl.loadSubjects(id);
+            await ctrl.loadSubjects(id);
           }
-        });
-      }
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (ctrl.classes.isEmpty) {
-          await ctrl.loadClasses();
         }
-        if (ctrl.classes.isNotEmpty) {
+      } else {
+        // Find the first class that actually has subjects
+        dynamic firstValidClass;
+        for (final c in ctrl.classes) {
+          final cId = num.tryParse(c['id']?.toString() ?? '')?.toInt();
+          if (cId != null && (_classHasSubjects[cId] ?? false)) {
+            firstValidClass = c;
+            break;
+          }
+        }
+
+        if (firstValidClass != null) {
+          setState(() {
+            _selectedClass = Map<String, dynamic>.from(firstValidClass as Map);
+          });
+          final id =
+              num.tryParse(_selectedClass!['id']?.toString() ?? '')?.toInt() ??
+                  0;
+          if (id != 0) {
+            await ctrl.loadSubjects(id);
+            if (ctrl.subjects.isNotEmpty) {
+              setState(() {
+                _selectedSubject =
+                    Map<String, dynamic>.from(ctrl.subjects.first as Map);
+              });
+            }
+          }
+        } else if (ctrl.classes.isNotEmpty) {
+          // Fallback if no classes have subjects
           setState(() {
             _selectedClass =
                 Map<String, dynamic>.from(ctrl.classes.first as Map);
@@ -1157,8 +1226,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             }
           }
         }
-      });
-    }
+      }
+    });
   }
 
   Future<void> _pickImage() async {
@@ -1355,7 +1424,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
   void dispose() {
     _titleCtrl.dispose();
     _descCtrl.dispose();
-    _dueDateCtrl.dispose();
     super.dispose();
   }
 
@@ -1368,13 +1436,19 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
             decoration:
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -1391,12 +1465,18 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
             ),
           ),
         ),
-        title: Text(isEdit ? 'Edit Homework' : 'Add Homework',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: isTablet ? 18.0 : 16.0,
-                fontWeight: FontWeight.w700)),
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: Text(isEdit ? 'Edit Homework' : 'Add Homework',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 18.0 : 16.0,
+                  fontWeight: FontWeight.w700)),
+        ),
       ),
       body: Obx(() {
         if (ctrl.classesLoading.value) {
@@ -1404,7 +1484,8 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
         }
 
         final classDropdown = Obx(() {
-          final isLoadingClasses = ctrl.classesLoading.value;
+          final isLoadingClasses =
+              ctrl.classesLoading.value || _loadingClassSubjects;
           final selectedId = _selectedClass?['id']?.toString();
           final currentSelection = ctrl.classes.firstWhereOrNull(
             (c) => c['id']?.toString() == selectedId,
@@ -1452,13 +1533,22 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                       }
                     },
                     itemBuilder: (ctx) => ctrl.classes.map((c) {
+                      final cId =
+                          num.tryParse(c['id']?.toString() ?? '')?.toInt();
+                      final hasSubjects = _classHasSubjects[cId] ?? true;
                       return PopupMenuItem<dynamic>(
                         value: c,
+                        enabled: hasSubjects,
                         child: Text(
-                            '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontFamily: 'Inter')),
+                          '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            fontFamily: 'Inter',
+                            color: hasSubjects
+                                ? AppColors.textPrimary
+                                : Colors.grey.shade400,
+                          ),
+                        ),
                       );
                     }).toList(),
                     child: InputDecorator(
@@ -1468,15 +1558,19 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                             Icons.keyboard_arrow_down_rounded,
                             color: AppColors.textSecondary),
                       ),
-                      isEmpty: currentSelection == null,
+                      isEmpty: currentSelection == null && !isLoadingClasses,
                       child: isLoadingClasses
-                          ? const Text(
-                              'Loading classes...',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontFamily: 'Inter',
-                                  fontSize: 13.0,
-                                  color: AppColors.textSecondary),
+                          ? const Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox(
+                                width: 16.0,
+                                height: 16.0,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.primary),
+                                ),
+                              ),
                             )
                           : currentSelection == null
                               ? null
@@ -1554,16 +1648,29 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                             Icons.keyboard_arrow_down_rounded,
                             color: AppColors.textSecondary),
                       ),
-                      isEmpty: currentSelection == null,
-                      child: currentSelection == null
-                          ? null
-                          : Text(
-                              currentSelection['name'] as String? ?? '',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Inter',
-                                  fontSize: 13.0),
-                            ),
+                      isEmpty: currentSelection == null && !isLoadingSubjects,
+                      child: isLoadingSubjects
+                          ? const Align(
+                              alignment: Alignment.centerLeft,
+                              child: SizedBox(
+                                width: 16.0,
+                                height: 16.0,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.0,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.primary),
+                                ),
+                              ),
+                            )
+                          : currentSelection == null
+                              ? null
+                              : Text(
+                                  currentSelection['name'] as String? ?? '',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Inter',
+                                      fontSize: 13.0),
+                                ),
                     ),
                   ),
                 );
@@ -1591,56 +1698,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
           style: const TextStyle(
               fontWeight: FontWeight.normal, fontFamily: 'Inter'),
           maxLines: isTablet ? 7 : 4,
-        );
-
-        final dueDateField = ValueListenableBuilder<TextEditingValue>(
-          valueListenable: _dueDateCtrl,
-          builder: (context, value, _) {
-            return TextFormField(
-              controller: _dueDateCtrl,
-              readOnly: true,
-              decoration: _inputDecoration('Due Date (Optional)').copyWith(
-                suffixIcon: value.text.isEmpty
-                    ? const Icon(Icons.calendar_today_rounded)
-                    : IconButton(
-                        icon: const Icon(Icons.clear_rounded),
-                        onPressed: () {
-                          _dueDateCtrl.clear();
-                        },
-                      ),
-              ),
-              style: const TextStyle(
-                  fontWeight: FontWeight.normal, fontFamily: 'Inter'),
-              onTap: () async {
-                final now = DateTime.now();
-                final today = DateTime(now.year, now.month, now.day);
-                DateTime initial = now;
-                final currentText = _dueDateCtrl.text;
-                if (currentText.isNotEmpty) {
-                  final parts = currentText.split('/');
-                  if (parts.length == 3) {
-                    final d = int.tryParse(parts[0]) ?? 1;
-                    final m = int.tryParse(parts[1]) ?? 1;
-                    final y = int.tryParse(parts[2]) ?? now.year;
-                    final dt = DateTime(y, m, d);
-                    if (!dt.isBefore(today)) {
-                      initial = dt;
-                    }
-                  }
-                }
-
-                final p = await showDatePicker(
-                  context: context,
-                  initialDate: initial,
-                  firstDate: today,
-                  lastDate: DateTime(2030),
-                );
-                if (p != null) {
-                  _dueDateCtrl.text = formatDateTimeToDmy(p);
-                }
-              },
-            );
-          },
         );
 
         final attachButton = InkWell(
@@ -1727,8 +1784,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                                 subjectDropdown,
                                 const SizedBox(height: 20),
                                 titleField,
-                                const SizedBox(height: 20),
-                                dueDateField,
                               ],
                             ),
                           ),
@@ -1738,14 +1793,14 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 descriptionField,
-                                const SizedBox(height: 20),
-                                attachButton,
-                                _buildAttachmentList(),
                               ],
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 20),
+                      attachButton,
+                      _buildAttachmentList(),
                       const SizedBox(height: 32),
                       submitButton,
                     ],
@@ -1760,8 +1815,6 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
                       titleField,
                       SizedBox(height: Get.height / 63),
                       descriptionField,
-                      SizedBox(height: Get.height / 63),
-                      dueDateField,
                       SizedBox(height: Get.height / 63),
                       attachButton,
                       _buildAttachmentList(),
@@ -1843,7 +1896,7 @@ class _HomeworkFormScreenState extends State<HomeworkFormScreen> {
       'subject_id': _selectedSubject!['id'],
       'title': _titleCtrl.text.trim(),
       'description': _descCtrl.text.trim(),
-      'due_date': formatDmyToYmd(_dueDateCtrl.text),
+      'due_date': '',
     };
 
     if (attachmentsChanged) {
@@ -2069,18 +2122,6 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
             child: const Divider(color: Color(0xFFF1F5F9)),
           ),
           _DetailRow(
-            icon: Icons.event_available_rounded,
-            iconColor: Colors.orange,
-            title: 'Due Date',
-            value: _formatDate(_currentHomework['due_date'] as String?),
-            valueColor: AppColors.warning,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: isTablet ? 16.0 : Get.height / 63),
-            child: const Divider(color: Color(0xFFF1F5F9)),
-          ),
-          _DetailRow(
             icon: Icons.person_outline_rounded,
             iconColor: Colors.purple,
             title: 'Assigned By',
@@ -2244,31 +2285,57 @@ class _HomeworkDetailScreenState extends State<HomeworkDetailScreen> {
         Scaffold(
           backgroundColor: const Color(0xFFF7F8FC),
           appBar: AppBar(
+            toolbarHeight: isTablet ? 65.0 : 55.0,
             flexibleSpace: Container(
                 decoration:
                     const BoxDecoration(gradient: AppColors.gradientPrimary)),
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: IconButton(
-              icon:
-                  const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-              onPressed: () => Get.back(),
-            ),
-            title: Text(
-                _currentHomework['title'] as String? ?? 'Homework Details',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+            leading: Padding(
+              padding: EdgeInsets.only(
+                left: 8.0,
+                right: 8.0,
+                top: isTablet ? 15.0 : 5.0,
+                bottom: 10.0,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: const Icon(
+                    Icons.chevron_left_rounded,
                     color: Colors.white,
-                    fontFamily: 'Inter',
-                    fontSize: isTablet ? 18.0 : 16.0,
-                    fontWeight: FontWeight.w700)),
+                    size: 24,
+                  ),
+                  onPressed: () => Get.back(),
+                ),
+              ),
+            ),
+            title: Padding(
+              padding: EdgeInsets.only(
+                top: isTablet ? 15.0 : 5.0,
+                bottom: 10.0,
+              ),
+              child: Text(
+                  _currentHomework['title'] as String? ?? 'Homework Details',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Inter',
+                      fontSize: isTablet ? 18.0 : 16.0,
+                      fontWeight: FontWeight.w700)),
+            ),
             actions: [
               Padding(
                 padding: isTablet
-                    ? const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0)
+                    ? const EdgeInsets.only(
+                        right: 24.0, top: 15.0, bottom: 10.0)
                     : const EdgeInsets.only(
-                        right: 16.0, top: 10.0, bottom: 10.0),
+                        right: 16.0, top: 5.0, bottom: 10.0),
                 child: OutlinedButton(
                   onPressed: _isNavigating
                       ? null

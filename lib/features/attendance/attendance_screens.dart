@@ -269,13 +269,19 @@ class AttendanceScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
             decoration:
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -292,21 +298,33 @@ class AttendanceScreen extends StatelessWidget {
             ),
           ),
         ),
-        title: Text('Attendance',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: isTablet ? 18.0 : 14.0,
-                fontWeight: FontWeight.w600)),
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: Text('Attendance',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 18.0 : 14.0,
+                  fontWeight: FontWeight.w600)),
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.toNamed(AppRoutes.attendanceReport),
-            child: Text('Report',
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: isTablet ? 16.0 : 14.0,
-                    color: Colors.white,
-                    fontFamily: 'Inter')),
+          Padding(
+            padding: EdgeInsets.only(
+              top: isTablet ? 15.0 : 5.0,
+              bottom: 10.0,
+            ),
+            child: TextButton(
+              onPressed: () => Get.toNamed(AppRoutes.attendanceReport),
+              child: Text('Report',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: isTablet ? 16.0 : 14.0,
+                      color: Colors.white,
+                      fontFamily: 'Inter')),
+            ),
           )
         ],
       ),
@@ -342,9 +360,11 @@ class _ClassPicker extends StatelessWidget {
     final isTablet = width >= 600;
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 32.0 : 16.0,
-        vertical: isTablet ? 20.0 : 12.0,
+      padding: EdgeInsets.only(
+        top: 5.0,
+        bottom: isTablet ? 20.0 : 12.0,
+        left: isTablet ? 32.0 : 16.0,
+        right: isTablet ? 32.0 : 16.0,
       ),
       child: Obx(() {
         final selectedId = ctrl.selectedClass.value?['id'];
@@ -1107,50 +1127,53 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
           ),
-          child: PopupMenuButton<dynamic>(
-            surfaceTintColor: Colors.white,
-            color: Colors.white,
-            offset: const Offset(0, 52),
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Color(0xFFE2E8F0)),
-            ),
-            constraints: BoxConstraints(
-              minWidth: localWidth,
-              maxWidth: localWidth,
-            ),
-            onSelected: (v) => ctrl.reportClass.value = v,
-            itemBuilder: (ctx) => ctrl.classes.map((c) {
-              return PopupMenuItem<dynamic>(
-                value: c,
-                child: Text(
-                  '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
-                  style: TextStyle(
-                      fontSize: isTablet ? 15.0 : 13.0,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Inter'),
-                ),
-              );
-            }).toList(),
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Select Class',
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: isTablet ? 16.0 : 12.0,
-                    vertical: isTablet ? 16.0 : 10.0),
-                suffixIcon: Icon(Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.textSecondary,
-                    size: isTablet ? 28.0 : 24.0),
+          child: SizedBox(
+            height: isTablet ? 60.0 : 48.0,
+            child: PopupMenuButton<dynamic>(
+              surfaceTintColor: Colors.white,
+              color: Colors.white,
+              offset: const Offset(0, 52),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
-              child: Text(
-                label,
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Inter',
-                    fontSize: isTablet ? 15.0 : 13.0),
+              constraints: BoxConstraints(
+                minWidth: localWidth,
+                maxWidth: localWidth,
+              ),
+              onSelected: (v) => ctrl.reportClass.value = v,
+              itemBuilder: (ctx) => ctrl.classes.map((c) {
+                return PopupMenuItem<dynamic>(
+                  value: c,
+                  child: Text(
+                    '${c['name'] ?? ''} ${c['section'] != null ? '- ${c['section']}' : ''}',
+                    style: TextStyle(
+                        fontSize: isTablet ? 15.0 : 13.0,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Inter'),
+                  ),
+                );
+              }).toList(),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  isDense: true,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: isTablet ? 16.0 : 12.0,
+                      vertical: isTablet ? 16.0 : 12.0),
+                  suffixIcon: Icon(Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.textSecondary,
+                      size: isTablet ? 28.0 : 24.0),
+                ),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Inter',
+                      fontSize: isTablet ? 15.0 : 13.0),
+                ),
               ),
             ),
           ),
@@ -1162,23 +1185,26 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
   Widget _buildMonthPicker(BuildContext context, bool isTablet) {
     return GestureDetector(
       onTap: () => _showMonthYearPicker(context, ctrl),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: 'Select Month',
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 16.0 : 12.0,
-              vertical: isTablet ? 16.0 : 10.0),
-          suffixIcon: Icon(Icons.calendar_month_rounded,
-              color: AppColors.primary, size: isTablet ? 24.0 : 20.0),
-        ),
-        child: Text(
-          formatYmToMy(ctrl.reportMonth.value),
-          style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontFamily: 'Inter',
-              fontSize: isTablet ? 15.0 : 13.0),
+      child: SizedBox(
+        height: isTablet ? 60.0 : 48.0,
+        child: InputDecorator(
+          decoration: InputDecoration(
+            isDense: true,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(isTablet ? 12.0 : 8.0)),
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 16.0 : 12.0,
+                vertical: isTablet ? 16.0 : 12.0),
+            suffixIcon: Icon(Icons.calendar_month_rounded,
+                color: AppColors.primary, size: isTablet ? 28.0 : 24.0),
+          ),
+          child: Text(
+            formatYmToMy(ctrl.reportMonth.value),
+            style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Inter',
+                fontSize: isTablet ? 15.0 : 13.0),
+          ),
         ),
       ),
     );
@@ -1215,13 +1241,19 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
             decoration:
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -1238,22 +1270,33 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
             ),
           ),
         ),
-        title: Text('Attendance Report',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: isTablet ? 18.0 : 16.0,
-                fontWeight: FontWeight.w500)),
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: Text('Attendance Report',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 18.0 : 16.0,
+                  fontWeight: FontWeight.w500)),
+        ),
       ),
       body: Obx(() => Column(
             children: [
               // Filters
               Container(
                 color: Colors.white,
-                padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+                padding: EdgeInsets.only(
+                  top: isTablet ? 20.0 : 5.0,
+                  bottom: isTablet ? 24.0 : 16.0,
+                  left: isTablet ? 24.0 : 16.0,
+                  right: isTablet ? 24.0 : 16.0,
+                ),
                 child: isTablet
                     ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
                               child: _buildClassSelector(
@@ -1263,7 +1306,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                           const SizedBox(width: 16.0),
                           SizedBox(
                             width: 200.0,
-                            height: 54.0,
+                            height: 60.0,
                             child: _buildGenerateButton(isTablet),
                           ),
                         ],
@@ -1276,6 +1319,7 @@ class _AttendanceReportScreenState extends State<AttendanceReportScreen> {
                           const SizedBox(height: 16.0),
                           SizedBox(
                             width: double.infinity,
+                            height: 48.0,
                             child: _buildGenerateButton(isTablet),
                           ),
                         ],

@@ -31,8 +31,8 @@ class ChangePasswordController extends GetxController {
   void validateCurrent(String value) {
     if (value.isEmpty) {
       currentError.value = "Enter current password";
-    } else if (value.length < 8) {
-      currentError.value = "Password must be at least 8 characters";
+    } else if (value.length < 6) {
+      currentError.value = "Password must be at least 6 characters";
     } else {
       currentError.value = '';
     }
@@ -42,8 +42,8 @@ class ChangePasswordController extends GetxController {
   void validateNew(String value) {
     if (value.isEmpty) {
       newError.value = "Enter new password";
-    } else if (value.length < 8) {
-      newError.value = "Password must be at least 8 characters";
+    } else if (value.length < 6) {
+      newError.value = "Password must be at least 6 characters";
     } else {
       newError.value = '';
     }

@@ -67,7 +67,7 @@ void main() async {
     debugPrint('Failed to initialize Firebase or Notifications: $e');
   }
 
-  await SystemChrome.setPreferredOrientations([
+  SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);

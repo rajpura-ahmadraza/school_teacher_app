@@ -162,7 +162,7 @@ class DashboardScreen extends StatelessWidget {
         backgroundColor: const Color(0xFFF7F8FC),
         body: Obx(() {
           final user = auth.user.value;
-          final name = (user?['name'] as String? ?? 'Teacher').split(' ').first;
+          final name = user?['name'] as String? ?? 'Teacher';
           final data = ctrl.dashData.value ?? {};
           final totalStudents = data['totalStudents'] ??
               data['total_students'] ??
@@ -185,19 +185,22 @@ class DashboardScreen extends StatelessWidget {
               slivers: [
                 // ── Header ──────────────────────────────────────
                 SliverAppBar(
-                  expandedHeight: isTablet ? 170.0 : 130.0,
+                  expandedHeight: isTablet ? 176.0 : 136.0,
+                  toolbarHeight: isTablet ? 76.0 : 70.0,
                   pinned: true,
                   stretch: true,
-                  backgroundColor: AppColors.primary,
+                  elevation: 0.0,
+                  backgroundColor: const Color(0xFFF7F8FC),
                   automaticallyImplyLeading: false,
                   flexibleSpace: LayoutBuilder(builder:
                       (BuildContext context, BoxConstraints constraints) {
                     final double top = constraints.biggest.height;
                     final double statusBarHeight =
                         MediaQuery.of(context).padding.top;
-                    final double minHeight = statusBarHeight + kToolbarHeight;
+                    final double collapsedHeight = isTablet ? 76.0 : 70.0;
+                    final double minHeight = statusBarHeight + collapsedHeight;
                     final double maxHeight =
-                        (isTablet ? 170.0 : 130.0) + statusBarHeight;
+                        (isTablet ? 176.0 : 136.0) + statusBarHeight;
 
                     final double delta = maxHeight - minHeight;
                     final double collapsePercent =
@@ -208,264 +211,276 @@ class DashboardScreen extends StatelessWidget {
                     final double collapsedOpacity =
                         ((collapsePercent - 0.5) / 0.5).clamp(0.0, 1.0);
 
-                    return Stack(
-                      fit: StackFit.expand,
-                      clipBehavior: Clip.hardEdge,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            gradient: AppColors.gradientPrimary,
-                          ),
-                        ),
-                        Positioned(
-                          right: -30,
-                          top: -20,
-                          child: Container(
-                            width: isTablet ? 260.0 : 170.0,
-                            height: isTablet ? 260.0 : 170.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.08),
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: isTablet ? 8.0 : 6.0),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        clipBehavior: Clip.hardEdge,
+                        children: [
+                          Container(
+                            decoration: const BoxDecoration(
+                              gradient: AppColors.gradientPrimary,
                             ),
                           ),
-                        ),
-                        Positioned(
-                          left: -40,
-                          bottom: 20,
-                          child: Container(
-                            width: isTablet ? 200.0 : 127.0,
-                            height: isTablet ? 200.0 : 127.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.05),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: IgnorePointer(
-                            ignoring: collapsePercent > 0.5,
-                            child: Opacity(
-                              opacity: expandedOpacity,
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                  isTablet ? 32.0 : 20.0,
-                                  0,
-                                  isTablet ? 32.0 : 20.0,
-                                  isTablet ? 24.0 : 16.0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('${_greeting()}, 👋',
-                                                  style: TextStyle(
-                                                    color: Colors.white
-                                                        .withOpacity(0.85),
-                                                    fontFamily: 'Inter',
-                                                    fontSize:
-                                                        isTablet ? 16.0 : 12.0,
-                                                    fontWeight: FontWeight.w400,
-                                                  )),
-                                              SizedBox(
-                                                  height: isTablet ? 8.0 : 4.0),
-                                              Text(name,
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'Inter',
-                                                    fontSize:
-                                                        isTablet ? 28.0 : 20.0,
-                                                    fontWeight: FontWeight.w600,
-                                                  )),
-                                            ],
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () => Get.toNamed(
-                                              AppRoutes.notifications),
-                                          child: Container(
-                                            padding: EdgeInsets.all(
-                                                isTablet ? 14.0 : 10.0),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white
-                                                  .withOpacity(0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      isTablet ? 16.0 : 12.0),
-                                            ),
-                                            child: Icon(
-                                                Icons.notifications_rounded,
-                                                color: Colors.white,
-                                                size: isTablet ? 28.0 : 22.0),
-                                          ),
-                                        ),
-                                        SizedBox(width: isTablet ? 12.0 : 8.0),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              _showLogoutConfirm(context, auth),
-                                          child: Container(
-                                            padding: EdgeInsets.all(
-                                                isTablet ? 14.0 : 10.0),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white
-                                                  .withOpacity(0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      isTablet ? 16.0 : 12.0),
-                                            ),
-                                            child: Icon(
-                                              Icons.logout_rounded,
-                                              color: Colors.white,
-                                              size: isTablet ? 28.0 : 22.0,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: isTablet ? 16.0 : 12.0,
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: isTablet ? 14.0 : 10.0,
-                                          vertical: isTablet ? 8.0 : 6.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(
-                                            isTablet ? 24.0 : 16.0),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: isTablet ? 10.0 : 8.0,
-                                            height: isTablet ? 10.0 : 8.0,
-                                            decoration: const BoxDecoration(
-                                              color: Color(0xFF4ADE80),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                              width: isTablet ? 10.0 : 6.0),
-                                          Text(
-                                            user?['employee_id'] != null
-                                                ? 'ID: ${user!['employee_id']}'
-                                                : user?['email'] as String? ??
-                                                    'Teacher',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'Inter',
-                                              fontSize: isTablet ? 14.0 : 12.0,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          Positioned(
+                            right: -30,
+                            top: -20,
+                            child: Container(
+                              width: isTablet ? 260.0 : 170.0,
+                              height: isTablet ? 260.0 : 170.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.08),
                               ),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          top: statusBarHeight,
-                          height: kToolbarHeight,
-                          child: IgnorePointer(
-                            ignoring: collapsePercent <= 0.5,
-                            child: Opacity(
-                              opacity: collapsedOpacity,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: isTablet ? 32.0 : 20.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                          Positioned(
+                            left: -40,
+                            bottom: 20,
+                            child: Container(
+                              width: isTablet ? 200.0 : 127.0,
+                              height: isTablet ? 200.0 : 127.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withOpacity(0.05),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: IgnorePointer(
+                              ignoring: collapsePercent > 0.5,
+                              child: Opacity(
+                                opacity: expandedOpacity,
+                                child: Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                    isTablet ? 32.0 : 20.0,
+                                    0,
+                                    isTablet ? 32.0 : 20.0,
+                                    isTablet ? 24.0 : 16.0,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
                                         children: [
-                                          Text(
-                                            '${_greeting()}, 👋',
-                                            style: TextStyle(
-                                              color: Colors.white
-                                                  .withOpacity(0.85),
-                                              fontFamily: 'Inter',
-                                              fontSize: isTablet ? 14.0 : 12.0,
-                                              fontWeight: FontWeight.w400,
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text('${_greeting()}, 👋',
+                                                    style: TextStyle(
+                                                      color: Colors.white
+                                                          .withOpacity(0.85),
+                                                      fontFamily: 'Inter',
+                                                      fontSize: isTablet
+                                                          ? 16.0
+                                                          : 12.0,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                    )),
+                                                SizedBox(
+                                                    height:
+                                                        isTablet ? 8.0 : 4.0),
+                                                Text(name,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: 'Inter',
+                                                      fontSize: isTablet
+                                                          ? 18.0
+                                                          : 14.0,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    )),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(height: 2.0),
-                                          Text(
-                                            name,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'Inter',
-                                              fontSize: isTablet ? 22.0 : 16.0,
-                                              fontWeight: FontWeight.w700,
+                                          GestureDetector(
+                                            onTap: () => Get.toNamed(
+                                                AppRoutes.notifications),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white
+                                                    .withOpacity(0.15),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: const Icon(
+                                                  Icons.notifications_rounded,
+                                                  color: Colors.white,
+                                                  size: 22.0),
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(width: 8.0),
+                                          GestureDetector(
+                                            onTap: () => _showLogoutConfirm(
+                                                context, auth),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.all(10.0),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white
+                                                    .withOpacity(0.15),
+                                                borderRadius:
+                                                    BorderRadius.circular(12.0),
+                                              ),
+                                              child: const Icon(
+                                                Icons.logout_rounded,
+                                                color: Colors.white,
+                                                size: 22.0,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          Get.toNamed(AppRoutes.notifications),
-                                      child: Container(
-                                        padding: EdgeInsets.all(
-                                            isTablet ? 12.0 : 10.0),
+                                      SizedBox(
+                                        height: isTablet ? 16.0 : 12.0,
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: isTablet ? 14.0 : 10.0,
+                                            vertical: isTablet ? 8.0 : 6.0),
                                         decoration: BoxDecoration(
                                           color: Colors.white.withOpacity(0.15),
                                           borderRadius: BorderRadius.circular(
                                               isTablet ? 24.0 : 16.0),
                                         ),
-                                        child: Icon(Icons.notifications_rounded,
-                                            color: Colors.white,
-                                            size: isTablet ? 26.0 : 22.0),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: isTablet ? 12.0 : 8.0,
-                                    ),
-                                    GestureDetector(
-                                      onTap: () =>
-                                          _showLogoutConfirm(context, auth),
-                                      child: Container(
-                                        padding: EdgeInsets.all(
-                                            isTablet ? 12.0 : 10.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.15),
-                                          borderRadius: BorderRadius.circular(
-                                              isTablet ? 16.0 : 12.0),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: isTablet ? 10.0 : 8.0,
+                                              height: isTablet ? 10.0 : 8.0,
+                                              decoration: const BoxDecoration(
+                                                color: Color(0xFF4ADE80),
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                                width: isTablet ? 10.0 : 6.0),
+                                            Text(
+                                              user?['employee_id'] != null
+                                                  ? 'ID: ${user!['employee_id']}'
+                                                  : user?['email'] as String? ??
+                                                      'Teacher',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Inter',
+                                                fontSize:
+                                                    isTablet ? 14.0 : 12.0,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        child: Icon(Icons.logout_rounded,
-                                            color: Colors.white,
-                                            size: isTablet ? 26.0 : 22.0),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            top: statusBarHeight,
+                            height: isTablet ? 68.0 : 64.0,
+                            child: IgnorePointer(
+                              ignoring: collapsePercent <= 0.5,
+                              child: Opacity(
+                                opacity: collapsedOpacity,
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: isTablet ? 32.0 : 20.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${_greeting()}, 👋',
+                                              style: TextStyle(
+                                                color: Colors.white
+                                                    .withOpacity(0.85),
+                                                fontFamily: 'Inter',
+                                                fontSize:
+                                                    isTablet ? 14.0 : 12.0,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2.0),
+                                            Text(
+                                              name,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Inter',
+                                                fontSize:
+                                                    isTablet ? 15.0 : 12.0,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => Get.toNamed(
+                                            AppRoutes.notifications),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10.0),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                          ),
+                                          child: const Icon(
+                                              Icons.notifications_rounded,
+                                              color: Colors.white,
+                                              size: 22.0),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 8.0,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () =>
+                                            _showLogoutConfirm(context, auth),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(10.0),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.15),
+                                            borderRadius:
+                                                BorderRadius.circular(12.0),
+                                          ),
+                                          child: const Icon(
+                                              Icons.logout_rounded,
+                                              color: Colors.white,
+                                              size: 22.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }),
                 ),
@@ -640,7 +655,7 @@ class DashboardScreen extends StatelessWidget {
                         ),
                         _QuickAction(
                           icon: Icons.beach_access_rounded,
-                          label: 'Leaves',
+                          label: 'Leave Requests',
                           color: AppColors.danger,
                           onTap: () => Get.toNamed(AppRoutes.leaves),
                         ),

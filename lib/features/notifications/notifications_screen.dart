@@ -216,7 +216,12 @@ class _NotificationsLoadingShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.all(Get.height / 47.25),
+      padding: EdgeInsets.only(
+        top: 5.0,
+        bottom: Get.height / 47.25,
+        left: Get.height / 47.25,
+        right: Get.height / 47.25,
+      ),
       itemCount: 6,
       separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
       itemBuilder: (_, __) => const _NotificationCardShimmer(),
@@ -302,9 +307,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: AppColors.gradientPrimary,
@@ -313,7 +320,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.only(
+            left: 8.0,
+            right: 8.0,
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
@@ -330,12 +342,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
           ),
         ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w700,
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: const Text(
+            'Notifications',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Inter',
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         actions: [
@@ -418,7 +437,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: ListView.separated(
             controller: _scrollCtrl,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(Get.height / 47.25),
+            padding: EdgeInsets.only(
+              top: 5.0,
+              bottom: Get.height / 47.25,
+              left: Get.height / 47.25,
+              right: Get.height / 47.25,
+            ),
             itemCount: ctrl.notifications.length + (ctrl.hasMore.value ? 1 : 0),
             separatorBuilder: (_, __) => SizedBox(height: Get.height / 75.6),
             itemBuilder: (ctx, i) {

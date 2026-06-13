@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const String kBaseUrl =
-    'https://laravel-api.emaad-infotech.com/school-management-system/api/v1/';
+// const String kBaseUrl =
+//     'https://laravel-api.emaad-infotech.com/school-management-system/api/v1/';
+
+const String stagingUrl =
+    'https://apis-oracle.emaad-infotech.com/school/api/v1/';
 const String _tokenKey = 'teacher_jwt_token';
 
 class ApiClient {
@@ -14,7 +17,7 @@ class ApiClient {
 
   ApiClient() {
     _dio = Dio(BaseOptions(
-      baseUrl: kBaseUrl,
+      baseUrl: stagingUrl,
       connectTimeout: const Duration(seconds: 20),
       receiveTimeout: const Duration(seconds: 30),
       headers: {

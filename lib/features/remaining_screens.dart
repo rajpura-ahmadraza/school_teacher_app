@@ -616,47 +616,61 @@ class _LeavesScreenState extends State<LeavesScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
       appBar: AppBar(
+        toolbarHeight: isTablet ? 65.0 : 55.0,
         flexibleSpace: Container(
             decoration:
                 const BoxDecoration(gradient: AppColors.gradientPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         leadingWidth: isTablet ? 72.0 : 56.0,
-        leading: UnconstrainedBox(
-          child: GestureDetector(
-            onTap: () => Get.offNamed(AppRoutes.dashboard),
-            child: Container(
-              width: isTablet ? 40.0 : Get.height / 18.9,
-              height: isTablet ? 40.0 : Get.height / 18.9,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
-                borderRadius:
-                    BorderRadius.circular(isTablet ? 12.0 : Get.height / 63),
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.arrow_back_ios_rounded,
-                  color: Colors.white,
-                  size: isTablet ? 20.0 : Get.height / 42,
+        leading: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: UnconstrainedBox(
+            child: GestureDetector(
+              onTap: () => Get.offNamed(AppRoutes.dashboard),
+              child: Container(
+                width: 40.0,
+                height: 40.0,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.16),
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.arrow_back_ios_rounded,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-        title: Text('Leave Requests',
-            style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: isTablet ? 20 : 18,
-                fontWeight: FontWeight.w700)),
+        title: Padding(
+          padding: EdgeInsets.only(
+            top: isTablet ? 15.0 : 5.0,
+            bottom: 10.0,
+          ),
+          child: Text('Leave Requests',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Inter',
+                  fontSize: isTablet ? 20 : 18,
+                  fontWeight: FontWeight.w700)),
+        ),
       ),
       body: Column(children: [
         // Status filter dropdown
         Container(
           color: Colors.white,
-          padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 24.0 : 16.0,
-              vertical: isTablet ? 16.0 : Get.height / 75.6),
+          padding: EdgeInsets.only(
+              top: 5.0,
+              bottom: isTablet ? 16.0 : Get.height / 75.6,
+              left: isTablet ? 24.0 : 16.0,
+              right: isTablet ? 24.0 : 16.0),
           width: double.infinity,
           child: Obx(() => DropdownMenu<String>(
                 expandedInsets: EdgeInsets.zero,
@@ -948,9 +962,11 @@ class _LeavesLoadingShimmer extends StatelessWidget {
         // Simulated status filter dropdown
         Container(
           color: Colors.white,
-          padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 24.0 : 16.0,
-              vertical: isTablet ? 16.0 : Get.height / 75.6),
+          padding: EdgeInsets.only(
+              top: 5.0,
+              bottom: isTablet ? 16.0 : Get.height / 75.6,
+              left: isTablet ? 24.0 : 16.0,
+              right: isTablet ? 24.0 : 16.0),
           width: double.infinity,
           child: ShimmerCard(
             height: isTablet ? 48.0 : Get.height / 15.75,
@@ -1369,7 +1385,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
+                      padding:
+                          EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
@@ -1394,7 +1411,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                       );
                     },
                     child: Container(
-                      padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
+                      padding:
+                          EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
@@ -1419,7 +1437,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
-                    padding: EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
+                    padding:
+                        EdgeInsets.all(isTablet ? 12.0 : Get.height / 94.5),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.black.withOpacity(0.4),
@@ -1440,7 +1459,8 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
                         vertical: isTablet ? 8.0 : Get.height / 126),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(isTablet ? 16.0 : Get.height / 47.25),
+                      borderRadius: BorderRadius.circular(
+                          isTablet ? 16.0 : Get.height / 47.25),
                     ),
                     child: Text(
                       '${_currentIndex + 1} / ${widget.photos.length}',
@@ -1504,13 +1524,17 @@ class _GalleryLoadingShimmer extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : Get.height / 47.25),
+            padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 24.0 : Get.height / 47.25),
             child: Row(
               children: List.generate(4, (index) {
                 return Padding(
-                  padding: EdgeInsets.only(right: isTablet ? 12.0 : Get.height / 94.5),
+                  padding: EdgeInsets.only(
+                      right: isTablet ? 12.0 : Get.height / 94.5),
                   child: ShimmerCard(
-                    width: isTablet ? 110.0 + (index % 2 * 24).toDouble() : 90 + (index % 2 * 20).toDouble(),
+                    width: isTablet
+                        ? 110.0 + (index % 2 * 24).toDouble()
+                        : 90 + (index % 2 * 20).toDouble(),
                     height: isTablet ? 42.0 : 38.0,
                     radius: isTablet ? 16.0 : Get.height / 31.5,
                   ),
@@ -1702,26 +1726,29 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     // Horizontal categories
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: isTablet ? 24.0 : Get.height / 47.25),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 24.0 : Get.height / 47.25),
                       child: Row(
                         children: ctrl.albumTitles.map((title) {
                           final isSelected = ctrl.selectedAlbum.value == title;
                           return Padding(
-                            padding: EdgeInsets.only(right: isTablet ? 12.0 : Get.height / 94.5),
+                            padding: EdgeInsets.only(
+                                right: isTablet ? 12.0 : Get.height / 94.5),
                             child: GestureDetector(
                               onTap: () => ctrl.selectedAlbum.value = title,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 180),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: isTablet ? 24.0 : Get.height / 37.8,
-                                    vertical: isTablet ? 10.0 : Get.height / 75.6),
+                                    horizontal:
+                                        isTablet ? 24.0 : Get.height / 37.8,
+                                    vertical:
+                                        isTablet ? 10.0 : Get.height / 75.6),
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppColors.primary
                                       : AppColors.primary.withOpacity(0.08),
-                                  borderRadius:
-                                      BorderRadius.circular(isTablet ? 16.0 : Get.height / 31.5),
+                                  borderRadius: BorderRadius.circular(
+                                      isTablet ? 16.0 : Get.height / 31.5),
                                 ),
                                 child: Text(
                                   title,
@@ -1746,92 +1773,100 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
                     // Grid of image cards
                     photos.isEmpty
-                      ? Container(
-                          height: Get.height / 3.78,
-                          alignment: Alignment.center,
-                          child: Text(
-                            'No photos in this album',
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                color: AppColors.textSecondary,
-                                fontSize: isTablet ? 15.0 : 14.0),
-                          ),
-                        )
-                      : GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: isTablet ? 24.0 : Get.height / 47.25,
-                              vertical: isTablet ? 12.0 : Get.height / 94.5),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: isTablet ? 4 : 2,
-                            crossAxisSpacing: isTablet ? 16 : 12,
-                            mainAxisSpacing: isTablet ? 16 : 12,
-                            childAspectRatio: 1.0,
-                          ),
-                          itemCount: photos.length,
-                          itemBuilder: (ctx, i) {
-                            final photo = photos[i];
-                            final url = (photo is Map
-                                    ? photo['url']
-                                    : photo.toString()) ??
-                                '';
-                            return GestureDetector(
-                              onTap: () => _openImage(context, photos, i),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(
-                                      isTablet ? 16.0 : Get.height / 37.8),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.06),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(
-                                      isTablet ? 16.0 : Get.height / 37.8),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      url.isEmpty
-                                          ? Container(
-                                              color: AppColors.primaryLight,
-                                              child: Icon(
-                                                Icons.broken_image_rounded,
-                                                color: AppColors.primary,
-                                                size: isTablet ? 36.0 : Get.height / 23.62,
-                                              ),
-                                            )
-                                          : CachedNetworkImage(
-                                              imageUrl: url,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  ShimmerCard(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                radius: isTablet ? 16.0 : Get.height / 37.8,
-                                              ),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Container(
+                        ? Container(
+                            height: Get.height / 3.78,
+                            alignment: Alignment.center,
+                            child: Text(
+                              'No photos in this album',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: AppColors.textSecondary,
+                                  fontSize: isTablet ? 15.0 : 14.0),
+                            ),
+                          )
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: EdgeInsets.symmetric(
+                                horizontal:
+                                    isTablet ? 24.0 : Get.height / 47.25,
+                                vertical: isTablet ? 12.0 : Get.height / 94.5),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: isTablet ? 4 : 2,
+                              crossAxisSpacing: isTablet ? 16 : 12,
+                              mainAxisSpacing: isTablet ? 16 : 12,
+                              childAspectRatio: 1.0,
+                            ),
+                            itemCount: photos.length,
+                            itemBuilder: (ctx, i) {
+                              final photo = photos[i];
+                              final url = (photo is Map
+                                      ? photo['url']
+                                      : photo.toString()) ??
+                                  '';
+                              return GestureDetector(
+                                onTap: () => _openImage(context, photos, i),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        isTablet ? 16.0 : Get.height / 37.8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.06),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        isTablet ? 16.0 : Get.height / 37.8),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        url.isEmpty
+                                            ? Container(
                                                 color: AppColors.primaryLight,
                                                 child: Icon(
                                                   Icons.broken_image_rounded,
                                                   color: AppColors.primary,
-                                                  size: isTablet ? 36.0 : Get.height / 23.62,
+                                                  size: isTablet
+                                                      ? 36.0
+                                                      : Get.height / 23.62,
+                                                ),
+                                              )
+                                            : CachedNetworkImage(
+                                                imageUrl: url,
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    ShimmerCard(
+                                                  height: double.infinity,
+                                                  width: double.infinity,
+                                                  radius: isTablet
+                                                      ? 16.0
+                                                      : Get.height / 37.8,
+                                                ),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        Container(
+                                                  color: AppColors.primaryLight,
+                                                  child: Icon(
+                                                    Icons.broken_image_rounded,
+                                                    color: AppColors.primary,
+                                                    size: isTablet
+                                                        ? 36.0
+                                                        : Get.height / 23.62,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
+                              );
+                            },
+                          ),
                     Obx(() {
                       if (ctrl.isLoadMoreLoading.value) {
                         return Padding(
@@ -1841,7 +1876,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
                           child: GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: isTablet ? 4 : 2,
                               crossAxisSpacing: isTablet ? 16 : 12,
                               mainAxisSpacing: isTablet ? 16 : 12,

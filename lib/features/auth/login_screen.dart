@@ -563,11 +563,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         opacity: isLoading ? 0.6 : 1.0,
                                         duration: const Duration(milliseconds: 200),
                                         child: Container(
-                                          height: isTablet ? 56.0 : Get.height / 18.9,
+                                          height: isTablet ? 56.0 : 50.0,
                                           decoration: BoxDecoration(
                                             gradient: AppColors.gradientPrimary,
                                             borderRadius: BorderRadius.circular(
-                                                isTablet ? 14.0 : Get.height / 42),
+                                                isTablet ? 14.0 : 12.0),
                                             boxShadow: [
                                               BoxShadow(
                                                 color: AppColors.secondary
@@ -585,13 +585,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                               foregroundColor: Colors.white,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(
-                                                    isTablet ? 14.0 : Get.height / 42),
+                                                    isTablet ? 14.0 : 12.0),
                                               ),
                                             ),
                                             child: isLoading
                                                 ? SizedBox(
-                                                    width: isTablet ? 24.0 : Get.height / 34.36,
-                                                    height: isTablet ? 24.0 : Get.height / 34.36,
+                                                    width: isTablet ? 24.0 : 20.0,
+                                                    height: isTablet ? 24.0 : 20.0,
                                                     child:
                                                         const CircularProgressIndicator(
                                                       strokeWidth: 2.5,
@@ -606,17 +606,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                                         'Sign In',
                                                         style: TextStyle(
                                                           fontFamily: 'Inter',
-                                                          fontSize: isTablet ? 15.0 : Get.height / 63,
+                                                          fontSize: isTablet ? 15.0 : 15.0,
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           letterSpacing: 0.5,
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                          width: isTablet ? 12.0 : Get.height / 94.5),
+                                                          width: isTablet ? 12.0 : 8.0),
                                                       Icon(
                                                         Icons.arrow_forward_rounded,
-                                                        size: isTablet ? 20.0 : Get.height / 47.25,
+                                                        size: isTablet ? 20.0 : 18.0,
                                                         color: Colors.white,
                                                       ),
                                                     ],

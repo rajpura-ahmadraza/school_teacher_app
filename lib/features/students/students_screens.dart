@@ -238,6 +238,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final double overlayWidth = isTablet ? size.width : 160.0;
+    final double leftPos = isTablet
+        ? offset.dx
+        : (offset.dx + size.width - overlayWidth).clamp(16.0, screenWidth - overlayWidth - 16.0);
+
     _dropdownOverlay = OverlayEntry(
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -245,9 +252,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
         child: Stack(
           children: [
             Positioned(
-              left: offset.dx,
+              left: leftPos,
               top: offset.dy + size.height + 4,
-              width: size.width,
+              width: overlayWidth,
               child: Material(
                 color: Colors.transparent,
                 child: _StandardDropdownPanel(
@@ -286,6 +293,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isTablet = width >= 600;
+    final fieldHeight = isTablet ? 48.0 : Get.height / 15.75;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -375,8 +383,24 @@ class _StudentsScreenState extends State<StudentsScreen> {
           child: Row(children: [
             // Search field (expanded)
             Expanded(
-              child: SizedBox(
-                height: isTablet ? 48.0 : Get.height / 15.75,
+              child: Container(
+                height: fieldHeight,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(
+                      isTablet ? 12.0 : Get.height / 63),
+                  border: Border.all(
+                    color: Colors.transparent,
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: TextField(
                   controller: _searchCtrl,
                   onChanged: (v) => ctrl.loadStudents(
@@ -385,7 +409,9 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       fontWeight: FontWeight.normal,
                       fontFamily: 'Inter',
                       fontSize: 14),
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
+                    isDense: true,
                     hintText: 'Search by name',
                     hintStyle: const TextStyle(
                       fontWeight: FontWeight.normal,
@@ -396,24 +422,35 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     prefixIcon: Icon(Icons.search_rounded,
                         color: AppColors.textTertiary,
                         size: isTablet ? 20.0 : Get.height / 37.8),
+                    prefixIconConstraints: BoxConstraints(
+                      minWidth: isTablet ? 48.0 : Get.height / 18.9,
+                      minHeight: fieldHeight,
+                      maxHeight: fieldHeight,
+                    ),
                     suffixIcon: _searchCtrl.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear_rounded,
-                                size: isTablet ? 20.0 : Get.height / 47.25),
-                            onPressed: () {
+                        ? GestureDetector(
+                            onTap: () {
                               _searchCtrl.clear();
                               ctrl.loadStudents(refresh: true, keepClass: true);
-                            })
+                            },
+                            child: Icon(Icons.clear_rounded,
+                                color: AppColors.textTertiary,
+                                size: isTablet ? 20.0 : Get.height / 47.25),
+                          )
                         : null,
-                    filled: true,
-                    fillColor: Colors.white,
+                    suffixIconConstraints: BoxConstraints(
+                      minWidth: isTablet ? 48.0 : Get.height / 18.9,
+                      minHeight: fieldHeight,
+                      maxHeight: fieldHeight,
+                    ),
+                    filled: false,
                     contentPadding: EdgeInsets.symmetric(
                         horizontal: isTablet ? 16.0 : Get.height / 63,
-                        vertical: 0),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                            isTablet ? 12.0 : Get.height / 63),
-                        borderSide: BorderSide.none),
+                        vertical: isTablet ? 12.0 : 0),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
                   ),
                 ),
               ),
@@ -434,7 +471,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 key: _stdDropdownKey,
                 onTap: _openDropdown,
                 child: Container(
-                  height: isTablet ? 48.0 : Get.height / 15.75,
+                  height: fieldHeight,
                   width: isTablet ? 140.0 : Get.height / 6.8,
                   padding: EdgeInsets.symmetric(
                       horizontal: isTablet ? 12.0 : Get.height / 84),

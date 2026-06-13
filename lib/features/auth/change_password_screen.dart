@@ -12,11 +12,13 @@ class ChangePasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F8FC),
         appBar: AppBar(
+          toolbarHeight: isTablet ? 65.0 : 55.0,
           flexibleSpace: Container(
               decoration:
                   const BoxDecoration(gradient: AppColors.gradientPrimary)),
@@ -24,7 +26,11 @@ class ChangePasswordScreen extends StatelessWidget {
           elevation: 0,
           leadingWidth: 70,
           leading: Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+            padding: EdgeInsets.only(
+              left: 16.0,
+              top: isTablet ? 15.0 : 5.0,
+              bottom: 10.0,
+            ),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.15),
@@ -41,19 +47,26 @@ class ChangePasswordScreen extends StatelessWidget {
               ),
             ),
           ),
-          title: const Text(
-            'Change Password',
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+          title: Padding(
+            padding: EdgeInsets.only(
+              top: isTablet ? 15.0 : 5.0,
+              bottom: 10.0,
+            ),
+            child: const Text(
+              'Change Password',
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Inter',
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(
+                top: 5.0, bottom: 20.0, left: 20.0, right: 20.0),
             child: Column(
               children: [
                 /// Current Password
